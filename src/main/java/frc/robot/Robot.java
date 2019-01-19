@@ -5,16 +5,11 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-package org.usfirst.frc.team4564.robot;
-
-import edu.wpi.first.wpilibj.SampleRobot;
+package frc.robot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import com.ctre.phoenix.ParamEnum;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
@@ -26,6 +21,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.TimedRobot;
 
 /**
  * This is a demo program showing the use of the RobotDrive class. The
@@ -44,13 +40,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * will be much more difficult under this system. Use IterativeRobot or
  * Command-Based instead if you're new.
  */
-public class Robot extends SampleRobot {
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
-	private DeviceLog talonLog = new DeviceLog("talonLog");
-
-		private Joystick m_stick = new Joystick(0);
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
+public class Robot extends TimedRobot {
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -58,9 +48,7 @@ public class Robot extends SampleRobot {
 
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto modes", m_chooser);
+
 	}
 
 	/**
@@ -100,7 +88,7 @@ public class Robot extends SampleRobot {
 	 * }</pre></blockquote>
 	 */
 	@Override
-	public void autonomous() {
+	public void autonomousPeriodic() {
 		
 		
 	}
@@ -119,43 +107,8 @@ public class Robot extends SampleRobot {
 	 * }</pre></blockquote>
 	 */
 	@Override
-	public void operatorControl() {
-		final OCTalon leftTalon = new OCTalon(1, "leftTalon", FeedbackDevice.QuadEncoder);
-		final OCTalon rightTalon = new OCTalon(2, "rightTalon", FeedbackDevice.CTRE_MagEncoder_Relative);
-		final OCTalonPID drive = new OCTalonPID(leftTalon, "drive", .00001, 0, 0, true); 
-		//final Encoder encoder = new Encoder(5, 6, false, EncodingType.k4X);
-		final Xbox j = new Xbox(0);
-		//final DifferentialDrive dt = new DifferentialDrive(leftTalon, rightTalon);
-		leftTalon.setSensorScaler(.00235018);
-		rightTalon.follow(leftTalon.getDeviceNumber());
-
+	public void teleopPeriodic() {
 		
-		//m_robotDrive.setSafetyEnabled(true);
-		while (isOperatorControl() && isEnabled()) {
-			//talon.configVoltageComp(voltage);
-			leftTalon.setVelocity(j.deadzone(j.getLeftTrigger()));
-			//dt.arcadeDrive(j.getY(GenericHID.Hand.kLeft)*.7, j.getX(GenericHID.Hand.kLeft)*.7);
-			Common.dashNum("Talon Encoder", leftTalon.getPosition());
-			Common.dashNum("Sensor Scaler", leftTalon.getSensorScaler());
-			Common.dashNum("Talon Velocity Quadature", leftTalon.getVelocity());
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd",Locale.US);
-			Common.dashStr("Date", dateFormat.format(new Date()));
-			//Common.debug("Talon Velocity"+talon.getVelocity());
-			//Common.dashStr("Talon name", talon.getName());
-			Common.dashNum("Talon ABS Position", leftTalon.getABSPosition());
-			///Common.dashNum("Talon Velocity pulse width", talon.getSensorCollection().getPulseWidthVelocity());
-			
-			drive.update();
-			rightTalon.update();
-			leftTalon.update();
-			Timer.delay(0.005);
 		}
-	}
-
-	/**
-	 * Runs during test mode.
-	 */
-	@Override
-	public void test() {
-	}
+	
 }
