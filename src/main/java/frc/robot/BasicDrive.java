@@ -14,16 +14,18 @@ public class BasicDrive {
     private static final SpeedControllerGroup left = new SpeedControllerGroup(frontL, backL);
     private static final SpeedControllerGroup right = new SpeedControllerGroup(frontR, backR);
 
+    private static final DifferentialDrive drive = new DifferentialDrive(left, right);
+
     private static final double maxSpeed = 0.8f;
 
     public BasicDrive(){
 
     }
 
-    public void accelDrive (double forward, double rad){
-        /*double m_speed  = Math.max(Math.min(forward, maxSpeed), -maxSpeed);
-        double m_leftpower = 
-        left.set(speed);*/
+    public void throttledAccelDrive (double forward, double rad){
+        double m_speed = Math.max(Math.min(forward, maxSpeed), -maxSpeed);
+
+        drive.arcadeDrive(m_speed, rad);
     }
 
 }

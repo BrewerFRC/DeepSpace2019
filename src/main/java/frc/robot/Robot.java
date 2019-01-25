@@ -11,11 +11,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 
 public class Robot extends TimedRobot {
 	Xbox driver;
 	Heading heading;
-	Timer timer;
+	BasicDrive drivetrain;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -25,7 +26,6 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		driver = new Xbox(0);
 		heading = new Heading();
-		timer = new Timer();
 
 	}
 
@@ -36,8 +36,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+		drivetrain.throttledAccelDrive(driver.getY(Hand.kLeft), driver.getX(Hand.kLeft));
+
 		SmartDashboard.putNumber("Degrees NavX", heading.GetNav());
-		SmartDashboard.putNumber("Time Since Init", timer.get());
 	}
 	
 }
