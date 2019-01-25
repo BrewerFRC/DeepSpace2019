@@ -9,11 +9,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 
 public class Robot extends TimedRobot {
 	Xbox driver;
 	Heading heading;
-	
+	Timer timer;
+
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
 	}
@@ -22,6 +25,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		driver = new Xbox(0);
 		heading = new Heading();
+		timer = new Timer();
 
 	}
 
@@ -33,6 +37,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		SmartDashboard.putNumber("Degrees NavX", heading.GetNav());
+		SmartDashboard.putNumber("Time Since Init", timer.get());
 	}
 	
 }
