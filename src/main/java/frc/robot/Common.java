@@ -14,9 +14,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @author Evan McCoy
  * @author Jacob Cote
  * @author Brent Roberts
+ * @author Samuel Woodward
  */
 public class Common {
 	private static final DateFormat formatter = new SimpleDateFormat("HH:mm:ss:SSS");
+
+	/**
+	 * Returns true if x is between low and high values inclusive.
+	 * 
+	 * @param x, value being tested.
+	 * @param low, lowest value
+	 * @param high, highest value
+	 * @return boolean response
+	 */
+	public static boolean between(double x, double low, double high) {
+		if (x>= low && x<= high) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Prints text in console.

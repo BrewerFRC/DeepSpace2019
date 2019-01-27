@@ -17,6 +17,7 @@ public class Robot extends TimedRobot {
 	Heading heading;
 	BasicDrive drivetrain;
 	DigitalInput headingbutton;
+	Slider slider;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -28,6 +29,7 @@ public class Robot extends TimedRobot {
 		heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);
+		slider = new Slider();
 	}
 
 	@Override
@@ -47,6 +49,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
 		SmartDashboard.putNumber("PID", heading.turnRate());
+		slider.update();
 
 		if (headingbutton.get()){
 			heading.zeroTarget();
