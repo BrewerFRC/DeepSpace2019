@@ -1,0 +1,110 @@
+package frc.robot;
+
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.SPI;
+
+public class Heading.old {
+    private static final double P = 0.025, I = 0, D = 1.5;
+
+    private AHRS ahrs; // This thingy drifted ~3 degrees per 10 min
+
+    private PID headingPID;
+    private boolean headingHold;
+
+    public Heading(){
+        ahrs = new AHRS(SPI.Port.kMXP); //NavX
+        reset();
+
+        headingPID = new PID(P, I, D, true, false, "NavX PID");
+        headingPID.setOutputLimits(-1, 1);
+        headingPID.setTarget(0.0);
+    }
+
+    public double getNav () {
+        return ahrs.getAngle();
+    }
+
+    public void reset (){
+        ahrs.reset();
+        headingPID.reset();
+    }
+
+    public float getCompass (){
+        return ahrs.getCompassHeading();
+    }
+    /**
+     * Modifies the PID values to the gyro PID
+     * 
+     * @param p the porportional value.
+     * @param i the intergral value.
+     * @param d the derivitive value.
+     */
+    public void setPID(float p, float i, float d){
+        headingPID.setP(p);
+        headingPID.setI(i);
+        headingPID.setD(d);
+    }
+    /**
+	 * Resets gyro PID
+	 */
+	public void resetPID() {
+		headingPID.reset();
+	}
+    /**
+     * Returns the target angle.
+     * 
+     * @return the current target value in degrees.
+     */
+    public double getTargetAngle (){
+        return headingPID.getTarget();
+    }
+
+    /**
+     * Sets the target angle in degrees.
+     * @param target the new target in degrees.
+     */
+    public void setTargetAngle (double target){
+        headingPID.setTarget(target);
+    }
+    /**
+     * Calculates the sufficient turn power with the relevant params and defined PID values.
+     * @param angle current angle.
+     * @return turnrate
+     */
+    public double doPIDCalc (double angle){
+        return headingPID.calc(angle);
+    }
+
+    public void setHeadingHold(boolean headingHold) {
+		if (headingHold) {
+			resetPID();
+			this.headingHold = true;
+			//Set target angle to current heading.
+			//setHeading(getHeading());
+		}
+		else {
+			resetPID();
+			this.headingHold = false;
+		}
+	}
+	
+	/**
+	 * Returns state of heading hold.
+	 * 
+	 * @return boolean whether or not heading hold is enabled.
+	 */
+	public boolean isHeadingHold() {
+		return headingHold;
+    }
+    
+    /**
+	 * Returns the direction, left or right, the robot must move to meet its target.
+	 * 
+	 * @return the direction, 1 for left, -1 for right
+	 */
+	public double getDirection() { // Seeing as this just returns a directional value, shouldn't this just be an int?
+		return (getNav() < headingPID.getTarget()) ? 1 : -1;
+	}
+
+}
