@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		drivetrain.throttledAccelDrive(driver.getY(Hand.kLeft), driver.getX(Hand.kLeft));
 
-		SmartDashboard.putNumber("Degrees NavX", heading.GetNav());
+		SmartDashboard.putNumber("Degrees NavX", heading.getNav());
 	}
 	
 }
