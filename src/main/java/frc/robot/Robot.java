@@ -10,11 +10,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
 	Xbox driver;
 	Heading heading;
 	BasicDrive drivetrain;
+	DigitalInput headingbutton;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -24,7 +26,8 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		driver = new Xbox(0);
 		heading = new Heading();
-
+		heading.reset();
+		headingbutton = new DigitalInput(5);
 	}
 
 	@Override
@@ -33,11 +36,21 @@ public class Robot extends TimedRobot {
 	}
 
 	@Override
+	public void teleopInit() {
+		heading.reset();
+		heading.setHeadingHold(true);
+	}
+	@Override
 	public void teleopPeriodic() {
-		drivetrain.throttledAccelDrive(driver.getY(Hand.kLeft), driver.getX(Hand.kLeft));
+		//drivetrain.throttledAccelDrive(driver.getY(Hand.kLeft), driver.getX(Hand.kLeft));
 
 		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
+		SmartDashboard.putNumber("PID", heading.turnRate());
+
+		if (headingbutton.get()){
+			heading.zeroTarget();
+		}
 	}
 	
 }

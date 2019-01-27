@@ -49,7 +49,10 @@ public class Heading {
 	public void resetPID() {
 		pid.reset();
 	}
-	
+
+	public void zeroTarget(){
+		pid.setTarget(getNavXAngle());
+	}
 	/**
 	 * Sets new PID values to the gyro PID.
 	 * 
