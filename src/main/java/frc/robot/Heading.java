@@ -19,4 +19,8 @@ public class Heading {
     public void ResetGyros (){
         ahrs.reset();
     }
+
+    public float GetCompass (){
+        return ahrs.getCompassHeading();
+    }
 }
