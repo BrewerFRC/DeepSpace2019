@@ -11,11 +11,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID;
 
 public class Robot extends TimedRobot {
 	Xbox driver;
 	Heading heading;
-	BasicDrive drivetrain;
+	DriveTrain dt;
 	DigitalInput headingbutton;
 	Slider slider;
 
@@ -26,10 +27,14 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		driver = new Xbox(0);
+
 		heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);
+
 		slider = new Slider();
+
+		dt = new DriveTrain();
 	}
 
 	@Override
@@ -39,21 +44,18 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		heading.reset();
-		heading.setHeadingHold(true);
+		//heading.reset();
+		//heading.setHeadingHold(true);
 	}
 	@Override
 	public void teleopPeriodic() {
-		//drivetrain.throttledAccelDrive(driver.getY(Hand.kLeft), driver.getX(Hand.kLeft));
+		double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
+		double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
+		dt.accelDrive(leftJoystickY, leftJoystickX);
 
-		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
-		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
+		SmartDashboard.putNumber("Xbox Left; X", leftJoystickX);
+		SmartDashboard.putNumber("Xbox Left; Y", leftJoystickY);
 		SmartDashboard.putNumber("PID", heading.turnRate());
-		slider.update();
-
-		if (headingbutton.get()){
-			heading.zeroTarget();
-		}
 	}
 	
 }
