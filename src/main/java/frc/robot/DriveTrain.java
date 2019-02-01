@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class DriveTrain extends DifferentialDrive {
 	private static DriveTrain instance;
 	
-	public static double DRIVEACCEL = 0.02, ACCEL_HG_LE = .045, ACCEL_HG_HE = 0.01, ACCEL_LG_LE = 0.04, ACCEL_LG_HE = 0.01, DRIVEMIN = 0.4;
+	public static double DRIVEACCEL = 0, ACCELCONST = 0.005, DRIVEMIN = 0.4;
 
-	public static final double TURNACCEL = .06;
+	public static final double TURNACCEL = .01;
 
 	public static final double TANKACCEL = 0.01;
 
@@ -212,6 +212,8 @@ public class DriveTrain extends DifferentialDrive {
 		//Elevator e = Robot.getElevator(); 
 		//TODO: Elevator
 		//double percentHeight = e.getInches() / e.ELEVATOR_HEIGHT;
+		double percentHeight = 0;
+
 		/*
 		if (isShiftedLow()) {
 			Common.dashStr("Gear", "Low");
@@ -224,10 +226,7 @@ public class DriveTrain extends DifferentialDrive {
 			return (1.0 - percentHeight) * (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE;
 		}*/
 
-		//TODO: Differential acceleration based upon gearing.
-
-
-		return (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE;
+		return (1.0 - percentHeight) * ACCELCONST;
 	}
 	
 	/**
