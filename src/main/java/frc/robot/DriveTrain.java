@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class DriveTrain extends DifferentialDrive {
 	private static DriveTrain instance;
 	
-	public static double DRIVEACCEL = 0, ACCELCONST = 0.005, DRIVEMIN = 0.4;
+	public static double DRIVEACCEL = 0, ACCELCONST = 0.005, DRIVEMIN = 0.4; // This is supposed to be incredibly dampened. Change it
 
 	public static final double TURNACCEL = .01;
 

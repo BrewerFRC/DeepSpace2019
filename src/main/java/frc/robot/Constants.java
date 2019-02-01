@@ -8,9 +8,14 @@ public class Constants{
         DRIVE_BR = 8,
         DRIVE_FL = 7,
         DRIVE_FR = 9,
+
+        ELEVATOR_LEFT = 0,
+        ELEVATOR_RIGHT = 1,
+
         PWM_SLIDER = 4,
         // DIOs
-
+        LOWER_LIMIT = 1234,
+        UPPER_LIMIT = 4564,
         // ANALOGS
         ANA_POT_SLIDER = 0
         ;
