@@ -214,7 +214,7 @@ public class DriveTrain extends DifferentialDrive {
 		//double percentHeight = e.getInches() / e.ELEVATOR_HEIGHT;
 		double percentHeight = 0;
 
-		return (1.0 - percentHeight) * ACCELCONST;
+		return (1.0 - percentHeight) * ACCELCONST + DRIVEMIN;
 	}
 	
 	/**
