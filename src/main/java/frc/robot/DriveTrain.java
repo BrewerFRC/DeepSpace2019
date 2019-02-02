@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,22 +21,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class DriveTrain extends DifferentialDrive {
 	private static DriveTrain instance;
 	
-	public static double DRIVEACCEL = 0, ACCELCONST = 0.005, DRIVEMIN = 0.4; // This is supposed to be incredibly dampened. Change it
+	public static double DRIVEACCEL = 0, ACCELCONST = 0.005, ACCELMIN = 0.25, DRIVEMIN = 0.4; // This is supposed to be incredibly dampened. Change it
 
-	public static final double TURNACCEL = .01;
+	public static final double TURNACCEL = 0.01;
 
 	public static final double TANKACCEL = 0.01;
 
 	public static final double TANKMIN = 0.40;
 
-	public static final double TURNMAX = .8;
+	public static final double TURNMAX = 0.8;
 	
 	private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
-	private static final Spark 
-			frontL = new Spark(Constants.DRIVE_FL),
-			frontR = new Spark(Constants.DRIVE_FR),
-			backL = new Spark(Constants.DRIVE_BL),
-			backR = new Spark(Constants.DRIVE_BR);
+	private static final Talon 
+			frontL = new Talon(Constants.DRIVE_FL),
+			frontR = new Talon(Constants.DRIVE_FR),
+			backL = new Talon(Constants.DRIVE_BL),
+			backR = new Talon(Constants.DRIVE_BR);
 	private static final SpeedControllerGroup left = new SpeedControllerGroup(frontL, backL);
 	private static final SpeedControllerGroup right = new SpeedControllerGroup(frontR, backR);
 	
@@ -54,7 +55,6 @@ public class DriveTrain extends DifferentialDrive {
 		super(left, right);
 		//TODO: Encoder
 		//TODO: Instantiate heading HERE
-		//TODO: Shifting
 		
 		pidL = new PID(0.005, 0, 0, false, true, "velL");
 		pidR = new PID(0.005, 0, 0, false, true, "velR");
@@ -214,19 +214,7 @@ public class DriveTrain extends DifferentialDrive {
 		//double percentHeight = e.getInches() / e.ELEVATOR_HEIGHT;
 		double percentHeight = 0;
 
-		/*
-		if (isShiftedLow()) {
-			Common.dashStr("Gear", "Low");
-			Common.dashNum("Calculated Acceleration", (1.0 - percentHeight) * (ACCEL_LG_LE - ACCEL_LG_HE) + ACCEL_LG_HE);
-			return (1.0 - percentHeight) * (ACCEL_LG_LE - ACCEL_LG_HE) + ACCEL_LG_HE;
-		}
-		else {
-			Common.dashStr("Gear", "High");
-			Common.dashNum("Calculated Acceleration", (1.0 - percentHeight) * (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE);
-			return (1.0 - percentHeight) * (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE;
-		}*/
-
-		return (1.0 - percentHeight) * ACCELCONST;
+		return (1.0 - percentHeight) * ACCELCONST + ACCELMIN;
 	}
 	
 	/**

@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Victor;
 
 /**
  * A class to control the elevator
@@ -15,8 +16,8 @@ import edu.wpi.first.wpilibj.Encoder;
  */
 public class Elevator {
 	Intake intake;
-	PWMTalonSRX elevatorLeft = new PWMTalonSRX(Constants.ELEVATOR_LEFT);
-	PWMTalonSRX elevatorRight = new PWMTalonSRX(Constants.ELEVATOR_RIGHT);
+	Victor elevatorLeft = new Victor(Constants.ELEVATOR_LEFT);
+	Victor elevatorRight = new Victor(Constants.ELEVATOR_RIGHT);
 	private Encoder encoder; 
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.LOWER_LIMIT);
