@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		driver = new Xbox(0);
+		slider.fingerUp();
 
 		heading = new Heading();
 		heading.reset();
