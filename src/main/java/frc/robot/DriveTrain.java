@@ -214,18 +214,6 @@ public class DriveTrain extends DifferentialDrive {
 		//double percentHeight = e.getInches() / e.ELEVATOR_HEIGHT;
 		double percentHeight = 0;
 
-		/*
-		if (isShiftedLow()) {
-			Common.dashStr("Gear", "Low");
-			Common.dashNum("Calculated Acceleration", (1.0 - percentHeight) * (ACCEL_LG_LE - ACCEL_LG_HE) + ACCEL_LG_HE);
-			return (1.0 - percentHeight) * (ACCEL_LG_LE - ACCEL_LG_HE) + ACCEL_LG_HE;
-		}
-		else {
-			Common.dashStr("Gear", "High");
-			Common.dashNum("Calculated Acceleration", (1.0 - percentHeight) * (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE);
-			return (1.0 - percentHeight) * (ACCEL_HG_LE - ACCEL_HG_HE) + ACCEL_HG_HE;
-		}*/
-
 		return (1.0 - percentHeight) * ACCELCONST;
 	}
 	
