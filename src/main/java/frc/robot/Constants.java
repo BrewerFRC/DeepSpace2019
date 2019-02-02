@@ -17,6 +17,8 @@ public class Constants{
         LOWER_LIMIT = 1234,
         UPPER_LIMIT = 4564,
         // ANALOGS
-        ANA_POT_SLIDER = 0
+        ANA_POT_SLIDER = 0,
+        ELEVATOR_ENCODER_A = 1337,
+        ELEVATOR_ENCODER_B = 4321
         ;
 }

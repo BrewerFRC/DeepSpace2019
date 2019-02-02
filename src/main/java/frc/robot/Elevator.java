@@ -78,7 +78,7 @@ public class Elevator {
 	States state = States.STOPPED;
 	
 	public Elevator(Intake intake) {
-		this.intake = intake;
+		//this.intake = intake;
 		/*elevatorRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
 		//defaults to 100 Ms, the time of the sample that the current sample is compare to, changes the units
