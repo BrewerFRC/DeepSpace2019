@@ -30,16 +30,14 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		driver = new Xbox(0);
-		slider.fingerUp();
-
+		dt = new DriveTrain();
+		elevator = new Elevator();
 		heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);
 
+		driver = new Xbox(0);
 		slider = new Slider();
-
-		dt = new DriveTrain();
 	}
 
 	@Override
@@ -56,10 +54,14 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
 		double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
-		dt.accelDrive(leftJoystickY, leftJoystickX);
 
-		SmartDashboard.putNumber("Xbox Left; X", leftJoystickX);
-		SmartDashboard.putNumber("Xbox Left; Y", leftJoystickY);
+		if(driver.getStartButtonPressed()){
+			elevator.resetEncoder();
+		}
+
+		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
+		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
+		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
 		SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 

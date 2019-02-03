@@ -88,7 +88,8 @@ public class Elevator {
 		pid.setVelocityInverted(true);
 		pid.setPositionScalars(posP, posI, posD);
 		pid.setPositionInverted(true);
-		Thread t = new Thread(new UpperLimitTask());
+		
+		Thread t = new Thread(new UpperLimitTask()); // This starts the new thread for the magnetic sensor.
 		t.start();
 	}
 	
@@ -295,6 +296,34 @@ public class Elevator {
 	 */
 	public States getState() {
 		return state;
+	}
+	
+	public String getStateReadable(States enumerableState){
+		String stateReadable;
+		switch (enumerableState){
+			case STOPPED:
+				stateReadable = "Stopped";
+				break;
+			case HOMING:
+				stateReadable = "Homing";
+				break;
+			case HOLDING:
+				stateReadable = "Holding";
+				break;
+			case MOVING:
+				stateReadable = "Moving";
+				break;
+			case JOYSTICK: 
+				stateReadable = "Joystick";
+				break;
+			case START:
+				stateReadable = "Start";
+				break;
+			default:
+				stateReadable = "Other";
+				break;
+		}
+		return stateReadable;
 	}
 	
 	/**
