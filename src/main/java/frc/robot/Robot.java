@@ -22,7 +22,6 @@ public class Robot extends TimedRobot {
 	DriveTrain dt;
 	DigitalInput headingbutton;
 	Slider slider;
-	Elevator elevator;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);

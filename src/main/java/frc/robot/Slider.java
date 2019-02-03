@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.Servo;
 
 public class Slider {
 
-    private Servo lServo = new Servo(Constants.SERVO_LEFT);
-    private Servo rServo = new Servo(Constants.SERVO_RIGHT);
+    private Servo lServo = new Servo(Constants.PWM_SERVO_LEFT);
+    private Servo rServo = new Servo(Constants.PWM_SERVO_RIGHT);
 
     public static final int
     POT_LEFT_LIMIT = 200,
@@ -28,7 +28,7 @@ public class Slider {
 
     private double targetInches = 0.0d;
     private AnalogInput pot = new AnalogInput(Constants.ANA_POT_SLIDER);
-    private Spark motor = new Spark(Constants.PWM_SLIDER);
+    private Spark motor = new Spark(Constants.PWM_SLIDER_MOTOR);
 
     /**
 	 * Returns the raw potentiometer reading for the slider potentiometer.
