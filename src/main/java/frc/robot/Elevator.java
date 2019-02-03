@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.PWMTalonSRX;
-
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -15,7 +13,7 @@ import edu.wpi.first.wpilibj.Victor;
  * @author Evan McCoy
  */
 public class Elevator {
-	Intake intake;
+	//Intake intake;
 	Victor elevatorLeft = new Victor(Constants.ELEVATOR_LEFT);
 	Victor elevatorRight = new Victor(Constants.ELEVATOR_RIGHT);
 	private Encoder encoder; 
@@ -78,7 +76,7 @@ public class Elevator {
 	}
 	States state = States.STOPPED;
 	
-	public Elevator(Intake intake) {
+	public Elevator(/*Intake intake*/) {
 		//this.intake = intake;
 		/*elevatorRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
@@ -101,7 +99,7 @@ public class Elevator {
 	 */
 	public void setPower(double power) {
 		// Check safeties and stop power if necessary
-		if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
+		if (/*!intake.elevatorSafe() && */power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
 			power = MIN_UP_POWER;
 			pid.reset();
 		}
@@ -134,8 +132,9 @@ public class Elevator {
 		}
 		power = encoderTest(power);
 		lastPower = power;
-		elevatorRight.set(ControlMode.PercentOutput, power);
-		elevatorLeft.set(ControlMode.PercentOutput, power);
+		//TODO: Re-enable elevator motor power here
+		/*elevatorRight.set(power); 
+		elevatorLeft.set(power);*/
 		Common.dashNum("Elevator power:", power);
 	}
 	/**
