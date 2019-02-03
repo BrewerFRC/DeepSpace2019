@@ -113,7 +113,7 @@ public class Heading {
 	 * @return double the current angle in degrees.
 	 */
 	public double getNavXAngle() {
-		return ahrs.getAngle();
+		return ahrs.getRoll();
 	}
 	
 	/**
