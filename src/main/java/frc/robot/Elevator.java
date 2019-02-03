@@ -346,9 +346,19 @@ public class Elevator {
 	public double getEncoder() {
 		return encoder.get();
 	}
-	
+	/**
+	 * Checks if the upper elevator magnetic switch is triggered.
+	 * @return Boolean for whether the switch is triggered.
+	 */
 	public boolean isUpperLimitTriggered(){
 		return upperLimit.get();
+	}
+	/**
+	 * Checks if the lower elevator momentary switch is triggered.
+	 * @return Boolean for whether the switch is triggered.
+	 */
+	public boolean isLowerLimitTriggered(){
+		return lowerLimit.get();
 	}
 	/**
 	 * Gets the current height of the elevator in inches

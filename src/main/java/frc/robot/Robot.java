@@ -63,6 +63,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
 		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
 		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
+		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
 		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
