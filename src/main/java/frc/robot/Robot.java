@@ -62,7 +62,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
 		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
 		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
-		SmartDashboard.putNumber("PID", heading.turnRate());
+		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
+		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
 	

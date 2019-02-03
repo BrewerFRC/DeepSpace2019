@@ -290,14 +290,18 @@ public class Elevator {
 	}
 	
 	/**
-	 * Gets the state of the elevator
+	 * Gets the state of the elevator.
 	 * 
-	 * @return -The current state of the elevator
+	 * @return -The current state of the elevator.
 	 */
 	public States getState() {
 		return state;
 	}
-	
+	/**
+	 * Returns passed state in a human-readable way.
+	 * @param enumerableState The current state as an enumerable.
+	 * @return The current state as a string.
+	 */
 	public String getStateReadable(States enumerableState){
 		String stateReadable;
 		switch (enumerableState){
@@ -343,6 +347,9 @@ public class Elevator {
 		return encoder.get();
 	}
 	
+	public boolean isUpperLimitTriggered(){
+		return upperLimit.get();
+	}
 	/**
 	 * Gets the current height of the elevator in inches
 	 * 
