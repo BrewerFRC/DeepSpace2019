@@ -18,6 +18,7 @@ public class Robot extends TimedRobot {
 	private DriveTrain dt;
 	private DigitalInput headingbutton;
 	private Slider slider;
+	private Elevator elevator;
 
 	private enum States {
 		EMPTY,
@@ -48,9 +49,6 @@ public class Robot extends TimedRobot {
 
 	public boolean hasHatch = false;
 
-	public Robot() {
-		//m_robotDrive.setExpiration(0.1);
-	}
 
 	@Override
 	public void robotInit() {
@@ -218,7 +216,7 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_PLACE:
 			int t = 0;
-			if (arm.isPressure) {
+			if (arm.isPressure && elevator.mo) {
 				arm.slider.dropFinger();
 				t++;
 			}

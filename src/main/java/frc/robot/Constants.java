@@ -9,6 +9,17 @@ public class Constants{
         PWM_SERVO_LEFT = 2,
         PWM_SERVO_RIGHT = 3,
         PWM_INTAKE_MOTOR = 4,
+
+        // CANs
+        CAN_DRIVE_FL = 0,
+        CAN_DRIVE_FR = 1,
+        CAN_DRIVE_BL = 2,
+        CAN_DRIVE_BR = 3,
+        CAN_ELEVATOR_L = 4,
+        CAN_ELEVATOR_R = 5,
+        CAN_PDP = 6, //Should not be used
+        CAN_VRM = 7,
+
         // DIOs
         DIO_ENCODER_A = 0,
         DIO_ENCODER_B = 1,

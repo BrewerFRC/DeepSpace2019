@@ -14,13 +14,13 @@ import edu.wpi.first.wpilibj.Victor;
  */
 public class Elevator {
 	//Intake intake;
-	Victor elevatorLeft = new Victor(Constants.ELEVATOR_LEFT);
-	Victor elevatorRight = new Victor(Constants.ELEVATOR_RIGHT);
+	Victor elevatorLeft = new Victor(Constants.CAN_ELEVATOR_L);
+	Victor elevatorRight = new Victor(Constants.CAN_ELEVATOR_R);
 	private Encoder encoder; 
 	//true = pressed
-	private DigitalInput lowerLimit = new DigitalInput(Constants.LOWER_LIMIT);
+	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
 	//false = pressed
-	private DigitalInput upperLimit = new DigitalInput(Constants.UPPER_LIMIT);
+	private DigitalInput upperLimit = new DigitalInput(Constants.DIO_UPPER_LIMIT);
 	//Elevator height in inches(random value
 	public final double COUNTS_PER_INCH = 7414/65.5, 
 			//Absolute elevator travel is 66.75 inches
