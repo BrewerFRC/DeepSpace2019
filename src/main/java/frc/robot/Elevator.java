@@ -1,7 +1,5 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.PWMTalonSRX;
-
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -15,7 +13,7 @@ import edu.wpi.first.wpilibj.Victor;
  * @author Evan McCoy
  */
 public class Elevator {
-	Intake intake;
+	//Intake intake;
 	Victor elevatorLeft = new Victor(Constants.ELEVATOR_LEFT);
 	Victor elevatorRight = new Victor(Constants.ELEVATOR_RIGHT);
 	private Encoder encoder; 
@@ -78,7 +76,7 @@ public class Elevator {
 	}
 	States state = States.STOPPED;
 	
-	public Elevator(Intake intake) {
+	public Elevator(/*Intake intake*/) {
 		//this.intake = intake;
 		/*elevatorRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
@@ -90,7 +88,8 @@ public class Elevator {
 		pid.setVelocityInverted(true);
 		pid.setPositionScalars(posP, posI, posD);
 		pid.setPositionInverted(true);
-		Thread t = new Thread(new UpperLimitTask());
+		
+		Thread t = new Thread(new UpperLimitTask()); // This starts the new thread for the magnetic sensor.
 		t.start();
 	}
 	
@@ -101,7 +100,7 @@ public class Elevator {
 	 */
 	public void setPower(double power) {
 		// Check safeties and stop power if necessary
-		if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
+		if (/*!intake.elevatorSafe() && */power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
 			power = MIN_UP_POWER;
 			pid.reset();
 		}
@@ -134,8 +133,9 @@ public class Elevator {
 		}
 		power = encoderTest(power);
 		lastPower = power;
-		elevatorRight.set(ControlMode.PercentOutput, power);
-		elevatorLeft.set(ControlMode.PercentOutput, power);
+		//TODO: Re-enable elevator motor power here
+		/*elevatorRight.set(power); 
+		elevatorLeft.set(power);*/
 		Common.dashNum("Elevator power:", power);
 	}
 	/**
@@ -290,12 +290,44 @@ public class Elevator {
 	}
 	
 	/**
-	 * Gets the state of the elevator
+	 * Gets the state of the elevator.
 	 * 
-	 * @return -The current state of the elevator
+	 * @return -The current state of the elevator.
 	 */
 	public States getState() {
 		return state;
+	}
+	/**
+	 * Returns passed state in a human-readable way.
+	 * @param enumerableState The current state as an enumerable.
+	 * @return The current state as a string.
+	 */
+	public String getStateReadable(States enumerableState){
+		String stateReadable;
+		switch (enumerableState){
+			case STOPPED:
+				stateReadable = "Stopped";
+				break;
+			case HOMING:
+				stateReadable = "Homing";
+				break;
+			case HOLDING:
+				stateReadable = "Holding";
+				break;
+			case MOVING:
+				stateReadable = "Moving";
+				break;
+			case JOYSTICK: 
+				stateReadable = "Joystick";
+				break;
+			case START:
+				stateReadable = "Start";
+				break;
+			default:
+				stateReadable = "Other";
+				break;
+		}
+		return stateReadable;
 	}
 	
 	/**
@@ -314,7 +346,20 @@ public class Elevator {
 	public double getEncoder() {
 		return encoder.get();
 	}
-	
+	/**
+	 * Checks if the upper elevator magnetic switch is triggered.
+	 * @return Boolean for whether the switch is triggered.
+	 */
+	public boolean isUpperLimitTriggered(){
+		return upperLimit.get();
+	}
+	/**
+	 * Checks if the lower elevator momentary switch is triggered.
+	 * @return Boolean for whether the switch is triggered.
+	 */
+	public boolean isLowerLimitTriggered(){
+		return lowerLimit.get();
+	}
 	/**
 	 * Gets the current height of the elevator in inches
 	 * 

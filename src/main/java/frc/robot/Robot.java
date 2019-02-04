@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class Robot extends TimedRobot {
 	private Xbox driver;
 	private Heading heading;
-	private BasicDrive drivetrain;
+	private DriveTrain dt;
 	private DigitalInput headingbutton;
 	private Slider slider;
 
@@ -59,7 +59,8 @@ public class Robot extends TimedRobot {
 		heading.reset();
 		headingbutton = new DigitalInput(5);
 		slider = new Slider();
-
+		dt = new DriveTrain();
+		elevator = new Elevator();
 	}
 
 	@Override
@@ -83,6 +84,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
+<<<<<<< HEAD
 		activePeriodic();
 	}
 
@@ -126,6 +128,21 @@ public class Robot extends TimedRobot {
 			state = States.HOMING;
 		}
 		update();
+=======
+		double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
+		double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
+
+		if(driver.getStartButtonPressed()){
+			elevator.resetEncoder();
+		}
+
+		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
+		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
+		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
+		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
+		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
+		//SmartDashboard.putNumber("PID", heading.turnRate());
+>>>>>>> b71247ecdecd5e99347503dbca214d405717d01e
 	}
 
 	/**
