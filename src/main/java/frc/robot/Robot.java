@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Robot extends TimedRobot {
 	private Xbox driver;
+	private Xbox operator;
 	private Heading heading;
 	private BasicDrive drivetrain;
 	private DigitalInput headingbutton;
@@ -61,6 +62,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		driver = new Xbox(0);
+		operator =  new Xbox(1);
 		heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);
@@ -74,6 +76,7 @@ public class Robot extends TimedRobot {
 		*  TODO: Added some way to mark a hatch to system
 		*
 		*/
+		debug();
 	}
 
 	@Override
@@ -115,14 +118,14 @@ public class Robot extends TimedRobot {
 		**/
 		
 		if (safeToMove()) {
-			if (/* Start hatch pickup */) {
+			if (driver.when("rightBumper")) {
 				arm.doStowDown();
 				elevator.setPosition(this.ELE_LOW_HATCH);
 				arm.startAlign();//unknown function to start slider movement
 				State = States.HATCH_PICKUP;
 			}
 
-			if (/* Start hatch place*/) {
+			if (operator.when("rightBumper")) {
 				if (arm.getPostion < arm.horizental) {
 					arm.setPosition(ARM_LOW_PLACE);
 					elevator.doPlace(-1);
@@ -133,7 +136,7 @@ public class Robot extends TimedRobot {
 				state = States.HATCH_PLACE;
 			}
 
-			if (/* Start cargo pickup */) {
+			if (driver.when("rightBumper")) {
 				arm.doHorizontal();
 				elevator.doStowUp(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
