@@ -18,6 +18,8 @@ public class Robot extends TimedRobot {
 	private BasicDrive drivetrain;
 	private DigitalInput headingbutton;
 	private Slider slider;
+	private Arm arm;
+	private Elevator elevator;
 
 	private enum States {
 		EMPTY,
@@ -47,6 +49,10 @@ public class Robot extends TimedRobot {
 	private final double GRAB_DIST = -1, STOW_SAFE = -1;
 
 	public boolean hasHatch = false;
+
+	//Whether or not to stow up.
+	//True is up, false is down.
+	public boolean stowUp = true;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -214,11 +220,11 @@ public class Robot extends TimedRobot {
 			break;
 		case CARGO_PICKUP:
 			arm.runIntake();
+			if (userMove) {
+				state = States.EMPTY;
+			}
 			if (arm.hasCargo()) {
 				state = States.TO_STOW;
-			}
-			if (userMove) {
-
 			}
 			break;
 		case HAS_CARGO:
@@ -227,7 +233,26 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case  TO_STOW:
-			
+			if (stowUp && pi.getDistance > STOW_SAFE) {
+				elevator.doStowUp(); //TODO: make sure this is the correct function.
+				arm.doStowUp();
+			} else if (pi.getDistance >STOW_SAFE) {
+				elevator.doStowDown();
+				arm.doStowUp();
+			}
+			if (arm.isComplete() && elevator.isComplete()) {
+				if (elevator.Target == elevator.stowDown || elevator.Target == elevator.stowDown) {
+					if (arm.Target == arm.stowUp || arm.target == arm.stowDown) {
+						if (hasHatch) {
+							state = States.HAS_HATCH;
+						} else if (arm.hasCargo) {
+							state = States.HAS_CARGO;
+						} else {
+							state = States.EMPTY;
+						}
+					}
+				}
+			}
 			break;
 		}
 	}
