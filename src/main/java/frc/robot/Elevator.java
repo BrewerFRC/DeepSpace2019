@@ -3,7 +3,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Victor;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 /**
  * A class to control the elevator
@@ -14,8 +15,8 @@ import edu.wpi.first.wpilibj.Victor;
  */
 public class Elevator {
 	//Intake intake;
-	Victor elevatorLeft = new Victor(Constants.ELEVATOR_LEFT);
-	Victor elevatorRight = new Victor(Constants.ELEVATOR_RIGHT);
+	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.ELEVATOR_LEFT);
+	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.ELEVATOR_RIGHT);
 	private Encoder encoder; 
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.LOWER_LIMIT);

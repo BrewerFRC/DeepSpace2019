@@ -4,10 +4,11 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 /**
  * Handles actions related to robot motion.
@@ -32,11 +33,11 @@ public class DriveTrain extends DifferentialDrive {
 	public static final double TURNMAX = 0.8;
 	
 	private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
-	private static final Talon 
-			frontL = new Talon(Constants.DRIVE_FL),
-			frontR = new Talon(Constants.DRIVE_FR),
-			backL = new Talon(Constants.DRIVE_BL),
-			backR = new Talon(Constants.DRIVE_BR);
+	private static final WPI_TalonSRX 
+			frontL = new WPI_TalonSRX(Constants.DRIVE_FL),
+			frontR = new WPI_TalonSRX(Constants.DRIVE_FR),
+			backL = new WPI_TalonSRX(Constants.DRIVE_BL),
+			backR = new WPI_TalonSRX(Constants.DRIVE_BR);
 	private static final SpeedControllerGroup left = new SpeedControllerGroup(frontL, backL);
 	private static final SpeedControllerGroup right = new SpeedControllerGroup(frontR, backR);
 	
