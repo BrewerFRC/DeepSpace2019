@@ -3,9 +3,13 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.Servo;
 
 
 public class Slider {
+
+    private Servo lServo = new Servo(Constants.SERVO_LEFT);
+    private Servo rServo = new Servo(Constants.SERVO_RIGHT);
 
     public static final int
     POT_LEFT_LIMIT = 200,
@@ -52,6 +56,18 @@ public class Slider {
         } else {
             targetInches = inches;
         }
+    }
+
+    public void fingerUp() {
+        lServo.set(0.39);
+        rServo.set(0.0);
+    }
+
+    public void fingerDown() {
+        //lServo.set(0.0);
+        //rServo.set(0.39)
+        lServo.set(0.03);
+        rServo.set(0.35);
     }
 
     public void update() { //add the motor boi

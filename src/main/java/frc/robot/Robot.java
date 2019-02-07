@@ -11,11 +11,13 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID;
+
 
 public class Robot extends TimedRobot {
 	private Xbox driver;
 	private Heading heading;
-	private BasicDrive drivetrain;
+	private DriveTrain dt;
 	private DigitalInput headingbutton;
 	private Slider slider;
 	private Arm arm;
@@ -60,10 +62,13 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		driver = new Xbox(0);
+		dt = new DriveTrain();
+		elevator = new Elevator();
 		heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);
+
+		driver = new Xbox(0);
 		slider = new Slider();
 
 	}
@@ -94,15 +99,15 @@ public class Robot extends TimedRobot {
 
 	public void activePeriodic() {
 		
-		if (safeToMove()) {
-			if (/* Start hatch pickup */) {
+		/*if (safeToMove()) {
+			if (/* Start hatch pickup ) {
 				arm.doStowDown();
 				elevator.setPosition(this.ELE_LOW_HATCH);
 				arm.startAlign();//unknown function to start slider movement
 				State = States.HATCH_PICKUP;
 			}
 
-			if (/* Start hatch place*/) {
+			if (/* Start hatch place) {
 				if (arm.getPostion < arm.horizental) {
 					arm.setPosition(ARM_LOW_PLACE);
 					elevator.doPlace(-1);
@@ -113,7 +118,7 @@ public class Robot extends TimedRobot {
 				state = States.HATCH_PLACE;
 			}
 
-			if (/* Start cargo pickup */) {
+			if (/* Start cargo pickup ) {
 				arm.doHorizontal();
 				elevator.doStowUp(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
@@ -121,17 +126,17 @@ public class Robot extends TimedRobot {
 			
 			/*
 			*  Need to change userMove when elevator or arm is being used by human
-			*/
-		}
+			
+		}	*/
 		
 
 		debug();
 		slider.update();
-		if (elevator.getState = HOMING) {
+		/*if (elevator.State = HOMING) {
 			arm.doStowUp();
 			state = States.HOMING;
-		}
-		update();
+		}*/
+		//update();
 	}
 
 	/**
@@ -148,7 +153,7 @@ public class Robot extends TimedRobot {
 			TODO: checks to see if things are in position
 			TODO: TO_STOW
 			TODO: think about more safeties
-		*/
+		
 		switch(state) {
 		case HOMING:
 			if (elevator.getState() != elevator.States.HOMING) {
@@ -254,7 +259,14 @@ public class Robot extends TimedRobot {
 				}
 			}
 			break;
-		}
+		}*/
+
+		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
+		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
+		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
+		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
+		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
+		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
 	/**
