@@ -303,31 +303,7 @@ public class Elevator {
 	 * @return The current state as a string.
 	 */
 	public String getStateReadable(States enumerableState){
-		String stateReadable;
-		switch (enumerableState){
-			case STOPPED:
-				stateReadable = "Stopped";
-				break;
-			case HOMING:
-				stateReadable = "Homing";
-				break;
-			case HOLDING:
-				stateReadable = "Holding";
-				break;
-			case MOVING:
-				stateReadable = "Moving";
-				break;
-			case JOYSTICK: 
-				stateReadable = "Joystick";
-				break;
-			case START:
-				stateReadable = "Start";
-				break;
-			default:
-				stateReadable = "Other";
-				break;
-		}
-		return stateReadable;
+		return enumerableState.toString();
 	}
 	
 	/**
