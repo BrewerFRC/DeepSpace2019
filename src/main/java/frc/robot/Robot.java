@@ -15,9 +15,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 public class Robot extends TimedRobot {
 	private Xbox driver;
 	private Heading heading;
-	private DriveTrain dt;
+	private BasicDrive drivetrain;
 	private DigitalInput headingbutton;
 	private Slider slider;
+	private Arm arm;
 	private Elevator elevator;
 
 	private enum States {
@@ -49,6 +50,13 @@ public class Robot extends TimedRobot {
 
 	public boolean hasHatch = false;
 
+	//Whether or not to stow up.
+	//True is up, false is down.
+	public boolean stowUp = true;
+
+	public Robot() {
+		//m_robotDrive.setExpiration(0.1);
+	}
 
 	@Override
 	public void robotInit() {
@@ -57,8 +65,7 @@ public class Robot extends TimedRobot {
 		heading.reset();
 		headingbutton = new DigitalInput(5);
 		slider = new Slider();
-		dt = new DriveTrain();
-		elevator = new Elevator();
+
 	}
 
 	@Override
@@ -86,13 +93,27 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
-		double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
-		double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
-
-		if(driver.getStartButtonPressed()){
-			elevator.resetEncoder();
-		}
-
+		/* Driver:
+		 * Left bumper is hard intake run
+		 * Right bumper is hatch pickup
+		 * left joystick is drive
+		 * Right joystick is arm
+		 * start is haHatch and back is hasCargo
+		 * B is spit cargo
+		 * A is cargo intake state
+		 * 
+		 * Operator:
+		 * Left bumper is Arm aim for bumper
+		 * Right bumper is place hatch
+		 * Left Joystick is drive
+		 * Right Joystick is elevator
+		 * Up arrow is up stow
+		 * Down arrow is down stow
+		 * A is low position(for placing[defaults to cargo])
+		 * B is middle position
+		 * Y is top position
+		**/
+		
 		if (safeToMove()) {
 			if (/* Start hatch pickup */) {
 				arm.doStowDown();
@@ -131,22 +152,15 @@ public class Robot extends TimedRobot {
 			state = States.HOMING;
 		}
 		update();
-
 	}
 
 	/**
 	 * Debugs data to smart dashboard
 	 **/
 	public void debug() {
-		Common.dashNum("Elevator Counts", elevator.getEncoder());
-		Common.dashNum("Elevator Inches", elevator.getInches());
-		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
-		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
-		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
-		//Common.dashNum("PID", heading.turnRate());
-		Common.dashNum("Degrees NavX", heading.getNavXAngle());
-		Common.dashNum("Target angle", heading.getTargetAngle());
-		Common.dashNum("PID", heading.turnRate());
+		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
+		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
+		SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 	
 	public void update() {
@@ -216,7 +230,7 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_PLACE:
 			int t = 0;
-			if (arm.isPressure && elevator.mo) {
+			if (arm.isPressure) {
 				arm.slider.dropFinger();
 				t++;
 			}
@@ -226,11 +240,11 @@ public class Robot extends TimedRobot {
 			break;
 		case CARGO_PICKUP:
 			arm.runIntake();
+			if (userMove) {
+				state = States.EMPTY;
+			}
 			if (arm.hasCargo()) {
 				state = States.TO_STOW;
-			}
-			if (userMove) {
-
 			}
 			break;
 		case HAS_CARGO:
@@ -239,7 +253,26 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case  TO_STOW:
-			
+			if (stowUp && pi.getDistance > STOW_SAFE) {
+				elevator.doStowUp(); //TODO: make sure this is the correct function.
+				arm.doStowUp();
+			} else if (pi.getDistance >STOW_SAFE) {
+				elevator.doStowDown();
+				arm.doStowUp();
+			}
+			if (arm.isComplete() && elevator.isComplete()) {
+				if (elevator.Target == elevator.stowDown || elevator.Target == elevator.stowDown) {
+					if (arm.Target == arm.stowUp || arm.target == arm.stowDown) {
+						if (hasHatch) {
+							state = States.HAS_HATCH;
+						} else if (arm.hasCargo) {
+							state = States.HAS_CARGO;
+						} else {
+							state = States.EMPTY;
+						}
+					}
+				}
+			}
 			break;
 		}
 	}
