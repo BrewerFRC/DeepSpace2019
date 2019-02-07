@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 
 
 public class Robot extends TimedRobot {
+<<<<<<< HEAD
 	private Xbox driver;
 	private Heading heading;
 	private DriveTrain dt;
@@ -55,6 +56,13 @@ public class Robot extends TimedRobot {
 	//Whether or not to stow up.
 	//True is up, false is down.
 	public boolean stowUp = true;
+=======
+	Xbox driver;
+	Heading heading;
+	DriveTrain dt;
+	DigitalInput headingbutton;
+	Slider slider;
+>>>>>>> eaa9bc5bbc79f765042065f3e775c4c1a5809fa6
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
