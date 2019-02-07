@@ -29,6 +29,6 @@ public class Constants{
         ANA_POT_SLIDER = 0, // TODO: Define this stuff
         INTAKE_POTENTIOMETER = 6000
 
-        //TODO: ACTUALLY MAKE SURE ALL OF THIS IS DEFINED BEFORE RIPPING ONE'S HAIR OUT
+        
         ;
 }
