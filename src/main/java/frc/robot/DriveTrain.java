@@ -33,19 +33,11 @@ public class DriveTrain extends DifferentialDrive {
 	public static final double TURNMAX = 0.8;
 	
 	private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
-<<<<<<< HEAD
 	private static final WPI_TalonSRX 
-			frontL = new WPI_TalonSRX(Constants.DRIVE_FL),
-			frontR = new WPI_TalonSRX(Constants.DRIVE_FR),
-			backL = new WPI_TalonSRX(Constants.DRIVE_BL),
-			backR = new WPI_TalonSRX(Constants.DRIVE_BR);
-=======
-	private static final Talon 
-			frontL = new Talon(Constants.PWM_DRIVE_FL),
-			frontR = new Talon(Constants.PWM_DRIVE_FR),
-			backL = new Talon(Constants.PWM_DRIVE_BL),
-			backR = new Talon(Constants.PWM_DRIVE_BR); 
->>>>>>> eaa9bc5bbc79f765042065f3e775c4c1a5809fa6
+			frontL = new WPI_TalonSRX(Constants.CAN_DRIVE_FL),
+			frontR = new WPI_TalonSRX(Constants.CAN_DRIVE_FR),
+			backL = new WPI_TalonSRX(Constants.CAN_DRIVE_BL),
+			backR = new WPI_TalonSRX(Constants.CAN_DRIVE_BR); 
 	private static final SpeedControllerGroup left = new SpeedControllerGroup(frontL, backL);
 	private static final SpeedControllerGroup right = new SpeedControllerGroup(frontR, backR);
 	
