@@ -15,19 +15,19 @@ public class Constants{
         ELEVATOR_LEFT = 0,
         ELEVATOR_RIGHT = 1,
 
-        PWM_SLIDER = 4,
-        INTAKE_ARM = 30, // TODO: Declare intake channels for constants
-        LEFT_INTAKE_MOTOR = 31,
-        RIGHT_INTAKE_MOTOR = 32,
+        PWM_SLIDER = 2,
+        INTAKE_ARM = 4, // TODO: Declare intake channels for constants
+        LEFT_INTAKE_MOTOR = 6,
+        RIGHT_INTAKE_MOTOR = 5,
 
-        ELEVATOR_ENCODER_A = 33,
-        ELEVATOR_ENCODER_B = 34,
+        ELEVATOR_ENCODER_A = 0,
+        ELEVATOR_ENCODER_B = 1,
         // DIOs
-        LOWER_LIMIT = 1234,
-        UPPER_LIMIT = 4564,
+        LOWER_LIMIT = 4,
+        UPPER_LIMIT = 5,
         // ANALOGS
         ANA_POT_SLIDER = 0, // TODO: Define this stuff
-        INTAKE_POTENTIOMETER = 6000
+        INTAKE_POTENTIOMETER = 1
 
         
         ;

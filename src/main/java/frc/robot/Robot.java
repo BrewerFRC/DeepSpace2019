@@ -28,14 +28,14 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		dt = new DriveTrain();
+		//dt = new DriveTrain();
 		elevator = new Elevator();
-		heading = new Heading();
+		/*heading = new Heading();
 		heading.reset();
-		headingbutton = new DigitalInput(5);
+		headingbutton = new DigitalInput(5);*/
 
 		driver = new Xbox(0);
-		slider = new Slider();
+		//slider = new Slider();
 	}
 
 	@Override
@@ -50,8 +50,8 @@ public class Robot extends TimedRobot {
 	}
 	@Override
 	public void teleopPeriodic() {
-		double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
-		double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
+		//double leftJoystickX = driver.getX(GenericHID.Hand.kLeft);
+		//double leftJoystickY = -driver.getY(GenericHID.Hand.kLeft);
 
 		if(driver.getStartButtonPressed()){
 			elevator.resetEncoder();
