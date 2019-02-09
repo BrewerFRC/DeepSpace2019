@@ -1,7 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Spark;
-import edu.wpi.first.wpilibj.AnalogInput;;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;;
 
 /**
  * A class to control a 4 bar arm in the 2019 robotics season
@@ -15,15 +16,17 @@ public class Arm {
     private static final Spark 
                     intakeArm =  new Spark(Constants.PWM_ARM_MOTOR),
                     intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
-    private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
+	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
+	private DigitalInput leftSwitch;
+	private DigitalInput rightSwitch;
     private PositionByVelocityPID pid;
 
     public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
     //The angle at which the intake is horizontal out the front.
-    FRONT_HORIZONTAL = 0,
-    MIN_POSITION = 210, MAX_POSITION = 3593, 
+	HORIZONTAL_POSITION = 100,//The arm's position at 0 degrees/parallel to floor.
+   // MIN_POSITION = 210, MAX_POSITION = 3593, 
     MIN_ANGLE = -12, MAX_ANGLE = 160, 
-    MIN_ABS_ANGLE = 0, //To be determined
+    MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 25,
     //Down powers
@@ -32,19 +35,19 @@ public class Arm {
     MIN_UP_POWER = 0, MAX_UP_POWER = 0.5,
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
-    MAX_VELOCITY = 120,
+    MAX_VELOCITY = 10,
     COUNTS_PER_DEGREE = 14.89444444,
-    PARTIALLY_LOADED_DISTANCE = 10,
+    //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
-    FULLY_LOADED_DISTANCE = 3,
+    //FULLY_LOADED_DISTANCE = 3,
     //How close to the targetHeight that elevator can be to complete
     ACCEPTABLE_ERROR = 2.0;
 
     //Ramp constants
-    final double MIDDLE_POWER = 0.7;
-	final double MAX_POWER = 1.0;
-	final double MIN_POWER = 0.0;
-    final double LOW_POWER = 0.08;
+    //final double MIDDLE_POWER = 0.7;
+	//final double MAX_POWER = 1.0;
+	//final double MIN_POWER = 0.0;
+    //final double LOW_POWER = 0.08;
     
     private double P_POS = 0, I_POS = 0, D_POS = 0,
 			P_VEL = 0.000, I_VEL = 0, D_VEL = 0.0, G = 0,
@@ -57,6 +60,7 @@ public class Arm {
 	public double position = 0;
 	private long previousMillis = Common.time();
 	private boolean previousIntakeSafe = false;
+	private double previousPosition;
 
 
     public enum States {
@@ -75,7 +79,7 @@ public class Arm {
 		pid.setVelocityScalars(P_VEL, I_VEL, D_VEL);
 		pid.setVelocityInverted(true);
 		pid.setPositionInverted(true);
-		pid.setTargetPosition(60);
+		pid.setTargetPosition(45);
 		//Thread t = new Thread(new PotUpdate());
 		//t.start();
 		Common.dashNum("G", G);
@@ -102,8 +106,8 @@ public class Arm {
         power += gTerm();
         power = rampPower(power);
         //intakeArm.setPower(power);
-		Common.dashNum("Intake arm Power", power);
-		Common.dashNum("Intake Last Power", lastPower);
+		Common.dashNum(" Power", power);
+		Common.dashNum("Arm Last Power", lastPower);
 		lastPower = power;
 	}
 	
@@ -126,11 +130,15 @@ public class Arm {
 		double maxPower = 0.0;
 		double minPower = 0.0;
         if (power > 0) {
-            maxPower  = Common.map(getPosition(), getMinAngle(), MAX_ANGLE, MAX_POWER, MIN_POWER);
-            power = Math.min(power, maxPower);
+			if(getPosition() >= MAX_ANGLE - DANGER_ZONE) {
+            	maxPower  = Common.map(getPosition(), MAX_ANGLE-DANGER_ZONE, MAX_ANGLE, MAX_UP_POWER, MIN_UP_POWER);
+				power = Math.min(power, maxPower);
+			}
         } else {
-            minPower = Common.map(getPosition(), MAX_ANGLE, getMinAngle(), -MAX_POWER, -MIN_POWER);
-            power = Math.max(power, minPower);
+			if (getPosition() <= getMinAngle()+DANGER_ZONE) {
+				minPower = Common.map(getPosition(), getMinAngle()-DANGER_ZONE, getMinAngle(), MAX_DOWN_POWER, MIN_DOWN_POWER);
+				power = Math.max(power, minPower);
+			}
         }
 		
 		return power;
@@ -141,6 +149,9 @@ public class Arm {
 	 * @return - the position
 	 */
 	public double getPosition() {
+		//return position;
+		previousPosition = position;
+		position = (getRawPosition() - HORIZONTAL) / COUNTS_PER_DEGREE; //210 is the lowest potentiometer reading when arm is fully down
 		return position;
 	}
 	
@@ -160,6 +171,7 @@ public class Arm {
 	 * @return -the velocity in degrees per second
 	 */
 	public double getVelocity() {
+		velocity = (position - previousPosition)/(1/Constants.REFRESH_RATE);
 		if (Double.isNaN(velocity)) {
 			Common.debug("Velocity NaN"+ velocity);
 			velocity = 0;
@@ -278,6 +290,8 @@ public class Arm {
 	public double getPositionTarget() {
 		return pid.getTargetPosition();
 	}
+
+
 	
 	/**
 	 * Whether or not the elevator is within acceptable range of the position target.
@@ -321,6 +335,15 @@ public class Arm {
 				break;
 		}
 	}
+
+	public void dashboard() {
+		Common.dashNum("Arm degrees", getPosition());
+		Common.dashNum("Arm raw position", getRawPosition());
+		Common.dashNum("Arm velocity", getVelocity());
+		Common.dashNum("Arm Position Target", getPositionTarget());
+		Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());
+	}
+
     /* From last year, if needed.
 	public class PotUpdate implements Runnable {
 
