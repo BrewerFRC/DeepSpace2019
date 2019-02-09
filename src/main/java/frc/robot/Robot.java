@@ -57,6 +57,8 @@ public class Robot extends TimedRobot {
 	//True is up, false is down.
 	public boolean stowUp = true;
 
+	static boolean teleopAllowed = false;
+
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
 	}
@@ -87,6 +89,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		elevator.home();
 		heading.reset();
 		//heading.setHeadingHold(true);
 	}
@@ -132,7 +135,7 @@ public class Robot extends TimedRobot {
 			arm.runIntake(); //out
 		}
 
-		if (safeToMove()) {
+		if (isTeleopAllowed()) {
 			//Driver
 			if (driver.when("rightBumper")) {
 				arm.doStowDown();
@@ -190,6 +193,23 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
 		SmartDashboard.putNumber("PID", heading.turnRate());
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+
+		elevator.update();
+
+		elevator.debug();
+		//SmartDashboard.putNumber("PID", heading.turnRate());
+	}
+
+	/**
+	 * Returns if it is okay for the armevator to move via command.
+	 * 
+	 * @return Whether it is okay to move the armevator.
+	 */
+	public static boolean isTeleopAllowed(){
+		return teleopAllowed;
 	}
 	
 	public void update() {
@@ -199,6 +219,11 @@ public class Robot extends TimedRobot {
 			TODO: TO_STOW
 			TODO: think about more safeties
 		*/
+		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
+			teleopAllowed =  false;
+		} else {
+			teleopAllowed = true;
+		}
 		switch(state) {
 		case HOMING:
 			if (elevator.getState() != elevator.States.HOMING) {
@@ -314,19 +339,6 @@ public class Robot extends TimedRobot {
 	 */
 	public States getState() {
 		return this.state;
-	}
-	
-	/**
-	 * Returns if it is safe to move the elevator/arm.
-	 * 
-	 * @return if it is safe to move the armevator.
-	 */
-	public boolean safeToMove() {
-		boolean safe = true;
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
-			safe =  false;
-		}
-		return safe;
 	}
 
 	/**

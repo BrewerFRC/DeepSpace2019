@@ -20,6 +20,7 @@ public class Constants{
         CAN_PDP = 6, //Should not be used
         CAN_VRM = 7,
 
+<<<<<<< HEAD
         // DIOs
         DIO_ENCODER_A = 0,
         DIO_ENCODER_B = 1,
@@ -32,4 +33,25 @@ public class Constants{
         ANA_POT_SLIDER = 0,
         ANA_ARM_POT = 1,
         ANA_IR_SENSOR = 2;
+=======
+        ELEVATOR_LEFT = 0,
+        ELEVATOR_RIGHT = 1,
+
+        PWM_SLIDER = 2,
+        INTAKE_ARM = 4, // TODO: Declare intake channels for constants
+        LEFT_INTAKE_MOTOR = 6,
+        RIGHT_INTAKE_MOTOR = 5,
+
+        ELEVATOR_ENCODER_A = 0,
+        ELEVATOR_ENCODER_B = 1,
+        // DIOs
+        LOWER_LIMIT = 4,
+        MAG_SWITCH = 5,
+        // ANALOGS
+        ANA_POT_SLIDER = 0, // TODO: Define this stuff
+        INTAKE_POTENTIOMETER = 1
+
+        
+        ;
+>>>>>>> d0d4a68326851063fd82e14c1bc6a7d9e9c8a0f9
 }
