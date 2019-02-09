@@ -251,11 +251,11 @@ public class Arm {
 	
 	public double getMinAngle() {
 		if (Robot.getElevator().intakeSafe()) {
-			Common.dashBool("MIn_ANGLE", true);
+			Common.dashBool("MIN_ANGLE", true);
 			return MIN_ANGLE;
 		} 
 		else {
-			Common.dashBool("MIn_ANGLE", false);
+			Common.dashBool("MIN_ANGLE", false);
 			return MIN_ELEVATOR_SAFE;
 		}
     }
