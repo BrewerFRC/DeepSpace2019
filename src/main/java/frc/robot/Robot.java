@@ -22,6 +22,8 @@ public class Robot extends TimedRobot {
 	Slider slider;
 	Elevator elevator;
 
+	static boolean teleopAllowed = false;
+
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
 	}
@@ -64,14 +66,13 @@ public class Robot extends TimedRobot {
 
 		elevator.update();
 
-		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
-		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
-		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
-		SmartDashboard.putBoolean("IsMagTriggered", elevator.isMagSwitchTriggered());
-		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
+		elevator.debug();
 		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
+	public static boolean isTeleopAllowed(){
+		return teleopAllowed;
+	}
 	
 	
 }

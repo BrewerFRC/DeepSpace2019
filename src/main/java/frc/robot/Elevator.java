@@ -32,10 +32,10 @@ public class Elevator {
 		SAFE_HEIGHT = ELEVATOR_HEIGHT - SAFETY_MARGIN,
 		//How close to the targetHeight that elevator can be to complete
 		ACCEPTABLE_ERROR = 1.0, 
-		//The location of the magnetic switch in inches
-		MAG_SWITCH_POINT = 23.75, 
+		//The location of the magnetic switch in inches, just below trigger point
+		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.15,
+		MAX_UP_POWER = 0.25,
 		MAX_DOWN_POWER = -0.12,
 		//The minimum power that the elevator can be run at upward
 		MIN_UP_POWER = 0.12,
@@ -112,12 +112,10 @@ public class Elevator {
 		if (power > 0.0) {  //Move up
 			if(getInches() >= SAFE_HEIGHT) { //hard limit on expected height
 				power = 0.0;
-			} else if(!magSwitch.get()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
-				if (getInches() < MAG_SWITCH_POINT) {  //Make sure encoder has counted enough inches
-					power = 0.0;
-					Common.debug("Magnetic switch fail, HOMING");
-					state = States.HOMING;
-				}
+			} else if(!magSwitchSafe()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
+				power = 0.0;
+				Common.debug("Magnetic switch fail, HOMING");
+				state = States.HOMING;
 			} else if(getInches()>= SAFE_HEIGHT-DANGER_ZONE) {
 				power = Math.min(power, Common.map(SAFE_HEIGHT-getInches(), 0.0, DANGER_ZONE, MIN_UP_POWER, MAX_UP_POWER));
 			} else {
@@ -253,11 +251,15 @@ public class Elevator {
 	 */
 	public boolean magSwitchSafe() {
 		//greater or equal to total height
-		if (!magSwitch.get() &&  getInches() < MAG_SWITCH_POINT) {
-			return true;
-		} else {
-			return false;
+		if (atMagSwitch()) {
+			if(getInches() > MAG_SWITCH_POINT){
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
+		return true;
 	}
 	
 	/**
@@ -328,11 +330,11 @@ public class Elevator {
 		return encoder.get();
 	}
 	/**
-	 * Checks if the upper elevator magnetic switch is triggered.
-	 * @return Boolean for whether the switch is triggered.
+	 * Checks if the elevator is at the magnetic switch.
+	 * @return Boolean true when at magnetic switch.
 	 */
-	public boolean isMagSwitchTriggered(){ // Should return false when triggered
-		return magSwitch.get();
+	public boolean atMagSwitch(){ // Should return false when triggered
+		return !magSwitch.get();
 	}
 	/**
 	 * Checks if the lower elevator momentary switch is triggered.
@@ -407,7 +409,7 @@ public class Elevator {
 		Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
-		Common.dashBool("Magnetic Sensor Triggered", magSwitch.get());
+		Common.dashBool("at Mag Switch", atMagSwitch());
 		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
@@ -419,13 +421,6 @@ public class Elevator {
 	 */
 	public void update() {
 		pid.update();
-		//Common.dashNum("Elevator encoder", getEncoder());
-		/*Common.dashNum("Elevator encoder in inches", getInches());
-		Common.dashBool("Magnetic Switch safe", magSwitchSafe());
-		Common.dashBool("Magnetic Switch Triggered", magSwitch.get());
-		Common.dashBool("at bottom", atBottom());
-		Common.dashStr("Elevator State", state.toString());
-		Common.dashNum("Elevator Velocity", getVelocity());*/
 		switch(state) {
 		case STOPPED:
 			setPower(0.0);
@@ -472,7 +467,7 @@ public class Elevator {
 		public void run() {
 			while (true) {
 				//counter++;
-				if(!magSwitch.get()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
+				if(atMagSwitch()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
 					if (getInches() < MAG_SWITCH_POINT) {  //Make sure encoder has counted enough inches
 						Common.debug("Magnetic switch fail, HOMING");
 						state = States.HOMING;
