@@ -35,19 +35,19 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.15,
-		MAX_DOWN_POWER = -0.12,
+		MAX_UP_POWER = 0.3,
+		MAX_DOWN_POWER = -0.14,
 		//The minimum power that the elevator can be run at upward
-		MIN_UP_POWER = 0.12,
-		MIN_DOWN_POWER = -0.02,
+		MIN_UP_POWER = 0.11,
+		MIN_DOWN_POWER = -0.08,
 		//The maximum power change; for power curving of PID and Xbox
 		MAX_DELTA_POWER = 0.1, 
 		//In inches per second, for velocity ramping
-		MIN_VELOCITY = 0.5,
+		MIN_VELOCITY = 1,
 		//In inches per second, for position PID
-		MAX_POS_VELOCITY = 3, // Was: 45in/s
+		MAX_POS_VELOCITY = 5, // Was: 45in/s
 		//Maximum velocity while using the joystick
-		MAX_J_VELOCITY = 3, // Was: 10 in/s
+		MAX_J_VELOCITY = 5, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
 		//For Velocity ramping
@@ -66,7 +66,7 @@ public class Elevator {
 	long startTime;
 	
 	PositionByVelocityPID pid = new PositionByVelocityPID(0, SAFE_HEIGHT, -MAX_POS_VELOCITY, MAX_POS_VELOCITY, MAX_DOWN_POWER, MAX_UP_POWER, 0, "Elevator PID");
-	double velP = 0.002, velI = 0.0, velD = 0.0;
+	double velP = 0.005, velI = 0.0, velD = 0.0;
 	double posP = 5, posI = 0.0, posD = 0.0;
 	
 	public enum States {
@@ -103,7 +103,7 @@ public class Elevator {
 	 */
 	public void setPower(double power) {
 		// Check safeties and stop power if necessary
-		Common.dashNum("setPower passed power", power);
+		//Common.dashNum("setPower passed power", power);
 		//TODO: Recode/re-enable when arm safety is necessary.
 		/*if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
 			power = MIN_UP_POWER;
@@ -407,6 +407,7 @@ public class Elevator {
 		Common.dashNum("Elevator Velocity", getVelocity());
 		Common.dashNum("Position PID Target", pid.getTargetPosition());
 		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
+		Common.dashNum("Get Rate", encoder.getRate());
 	}
 	
 	/**

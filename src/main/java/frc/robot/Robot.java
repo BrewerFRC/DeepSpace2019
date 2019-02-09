@@ -100,7 +100,12 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
-		
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+		elevator.update();
+		elevator.debug();
+
 		/*if (safeToMove()) {
 			if (/* Start hatch pickup ) {
 				arm.doStowDown();
@@ -132,8 +137,8 @@ public class Robot extends TimedRobot {
 		}	*/
 		
 
-		debug();
-		slider.update();
+		//debug();
+		//slider.update();
 		/*if (elevator.State = HOMING) {
 			arm.doStowUp();
 			state = States.HOMING;
@@ -145,9 +150,9 @@ public class Robot extends TimedRobot {
 	 * Debugs data to smart dashboard
 	 **/
 	public void debug() {
-		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
+		/*SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
-		SmartDashboard.putNumber("PID", heading.turnRate());
+		SmartDashboard.putNumber("PID", heading.turnRate());*/
 	}
 	
 	public void update() {
@@ -263,13 +268,6 @@ public class Robot extends TimedRobot {
 			break;
 		}*/
 
-		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
-			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
-		}
-
-		elevator.update();
-
-		elevator.debug();
 		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
