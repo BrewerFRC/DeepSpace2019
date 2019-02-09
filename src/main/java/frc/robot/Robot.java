@@ -45,6 +45,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		elevator.home();
 		//heading.reset();
 		//heading.setHeadingHold(true);
 	}
@@ -56,6 +57,12 @@ public class Robot extends TimedRobot {
 		if(driver.getStartButtonPressed()){
 			elevator.resetEncoder();
 		}
+
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+
+		elevator.update();
 
 		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
 		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
