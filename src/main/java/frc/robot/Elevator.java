@@ -15,13 +15,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
  */
 public class Elevator {
 	//Intake intake;
-<<<<<<< HEAD
-	Victor elevatorLeft = new Victor(Constants.CAN_ELEVATOR_L);
-	Victor elevatorRight = new Victor(Constants.CAN_ELEVATOR_R);
-=======
 	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.ELEVATOR_LEFT);
 	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.ELEVATOR_RIGHT);
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 	private Encoder encoder; 
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
@@ -309,35 +304,7 @@ public class Elevator {
 	 * @return The current state as a string.
 	 */
 	public String getStateReadable(States enumerableState){
-<<<<<<< HEAD
-		String stateReadable;
-		switch (enumerableState){
-			case STOPPED:
-				stateReadable = "Stopped";
-				break;
-			case HOMING:
-				stateReadable = "Homing";
-				break;
-			case HOLDING:
-				stateReadable = "Holding";
-				break;
-			case MOVING:
-				stateReadable = "Moving";
-				break;
-			case JOYSTICK: 
-				stateReadable = "Joystick";
-				break;
-			case START:
-				stateReadable = "Start";
-				break;
-			default:
-				stateReadable = "Other";
-				break;
-		}
-		return stateReadable;
-=======
 		return enumerableState.toString();
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 	}
 	
 	/**

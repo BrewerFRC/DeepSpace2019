@@ -11,22 +11,14 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
-<<<<<<< HEAD
-
-public class Robot extends TimedRobot {
-	private Xbox driver;
-	private Xbox operator;
-	private Heading heading;
-	private DriveTrain drivetrain;
-=======
 import edu.wpi.first.wpilibj.GenericHID;
 
 
 public class Robot extends TimedRobot {
 	private Xbox driver;
+	private Xbox operator;
 	private Heading heading;
 	private DriveTrain dt;
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 	private DigitalInput headingbutton;
 	private Slider slider;
 	private Arm arm;
@@ -86,10 +78,7 @@ public class Robot extends TimedRobot {
 		*  TODO: Added some way to mark a hatch to system
 		*
 		*/
-<<<<<<< HEAD
 		debug();
-=======
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 	}
 
 	@Override
@@ -107,7 +96,6 @@ public class Robot extends TimedRobot {
 	public void teleopPeriodic() {
 		activePeriodic();
 	}
-<<<<<<< HEAD
 
 	public void activePeriodic() {
 		/* Driver:
@@ -134,48 +122,23 @@ public class Robot extends TimedRobot {
 		if (safeToMove()) {
 			if (driver.when("rightBumper")) {
 				arm.doStowDown();
-				elevator.setPosition(this.ELE_LOW_HATCH);
+				elevator.moveToHeight(this.ELE_LOW_HATCH);
 				arm.startAlign();//unknown function to start slider movement
-				State = States.HATCH_PICKUP;
+				state = States.HATCH_PICKUP;
 			}
 
 			if (operator.when("rightBumper")) {
-				if (arm.getPostion < arm.horizental) {
-					arm.setPosition(ARM_LOW_PLACE);
+				if (arm.getPosition() < arm.horizental) {
+					arm.movePosition(ARM_LOW_PLACE);
 					elevator.doPlace(-1);
 				} else {
-					arm.setPosition(ARM_HIGH_PLACE);
+					arm.movePosition(ARM_HIGH_PLACE);
 					elevator.doPlace(1);
 				}
 				state = States.HATCH_PLACE;
 			}
 
 			if (driver.when("rightBumper")) {
-=======
-
-	public void activePeriodic() {
-		
-		/*if (safeToMove()) {
-			if (/* Start hatch pickup ) {
-				arm.doStowDown();
-				elevator.setPosition(this.ELE_LOW_HATCH);
-				arm.startAlign();//unknown function to start slider movement
-				State = States.HATCH_PICKUP;
-			}
-
-			if (/* Start hatch place) {
-				if (arm.getPostion < arm.horizental) {
-					arm.setPosition(ARM_LOW_PLACE);
-					elevator.doPlace(-1);
-				} else {
-					arm.setPosition(ARM_HIGH_PLACE);
-					elevator.doPlace(1);
-				}
-				state = States.HATCH_PLACE;
-			}
-
-			if (/* Start cargo pickup ) {
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 				arm.doHorizontal();
 				elevator.doStowUp(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
@@ -183,146 +146,9 @@ public class Robot extends TimedRobot {
 			
 			/*
 			*  Need to change userMove when elevator or arm is being used by human
-<<<<<<< HEAD
 			*/
 		}
 		
-=======
-			
-		}	*/
-		
-
-		debug();
-		slider.update();
-		/*if (elevator.State = HOMING) {
-			arm.doStowUp();
-			state = States.HOMING;
-		}*/
-		//update();
-	}
-
-	/**
-	 * Debugs data to smart dashboard
-	 **/
-	public void debug() {
-		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
-		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
-		SmartDashboard.putNumber("PID", heading.turnRate());
-	}
-	
-	public void update() {
-		/*
-			TODO: checks to see if things are in position
-			TODO: TO_STOW
-			TODO: think about more safeties
-		
-		switch(state) {
-		case HOMING:
-			if (elevator.getState() != elevator.States.HOMING) {
-				safe = true;
-				state = States.TO_STOW;
-			}
-			break;
-		case EMPTY:
-			if (arm.hasCargo()) {
-				state = States.HAS_CARGO;
-			} else if (arm.hasHatch()) {
-				state = States.HAS_HATCH;
-			}
-			break;
-		case HATCH_PICKUP:
-			if (HatchVision.getDistance() <= this.GRAB_DIST) {
-				state = States.HATCH_GRAB;
-				//Assumes arm will stop
-				arm.positionLowPlace();
-				elevator.doPlace(-1); //Down
-				arm.fingerSearch();//Starts fingerSearch
-			}
-			if (userMove) {
-				state = States.EMPTY;
-			}
-			break;
-		case HATCH_GRAB:
-			if (hasHatch) {
-				state = States.TO_STOW;
-			}
-			if (arm.isPressure()) { //Arm is pressed
-				if (!arm.fingerPressd()) {//Finger unpressed
-					arm.raiseFinger();
-					hasHatch = true;
-					state = States.HAS_HATCH;
-				} else {
-					state = States.HATCH_SEARCH;
-				}
-			}
-			break;
-		case HATCH_SEARCH:
-			if (arm.isPressure && !arm.pressed) {
-				arm.raiseFinger();
-				hasHatch = true;
-				state = States.TO_STOW;
-			}
-			//TODO: Needs safety?
-			if (!arm.slider.fingerSearching || arm.isPressure) {
-				state = States.HATCH_PICKUP;
-				arm.doStowDown();
-				elevator.setPosition(this.ELE_LOW_HATCH);
-				arm.startAlign();//unknown function to start slider movement
-			}
-			break;
-		case HAS_HATCH: 
-			if (!hasHatch) {
-				state = States.EMPTY;
-			}
-			break;
-		case HATCH_PLACE:
-			int t = 0;
-			if (arm.isPressure) {
-				arm.slider.dropFinger();
-				t++;
-			}
-			if (t >= 2) {
-				state = States.TO_STOW;
-			}
-			break;
-		case CARGO_PICKUP:
-			arm.runIntake();
-			if (userMove) {
-				state = States.EMPTY;
-			}
-			if (arm.hasCargo()) {
-				state = States.TO_STOW;
-			}
-			break;
-		case HAS_CARGO:
-			if (!arm.hasCargo) {
-				state = States.EMPTY;
-			}
-			break;
-		case  TO_STOW:
-			if (stowUp && pi.getDistance > STOW_SAFE) {
-				elevator.doStowUp(); //TODO: make sure this is the correct function.
-				arm.doStowUp();
-			} else if (pi.getDistance >STOW_SAFE) {
-				elevator.doStowDown();
-				arm.doStowUp();
-			}
-			if (arm.isComplete() && elevator.isComplete()) {
-				if (elevator.Target == elevator.stowDown || elevator.Target == elevator.stowDown) {
-					if (arm.Target == arm.stowUp || arm.target == arm.stowDown) {
-						if (hasHatch) {
-							state = States.HAS_HATCH;
-						} else if (arm.hasCargo) {
-							state = States.HAS_CARGO;
-						} else {
-							state = States.EMPTY;
-						}
-					}
-				}
-			}
-			break;
-		}*/
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 
 		debug();
 		slider.update();
@@ -334,7 +160,6 @@ public class Robot extends TimedRobot {
 	}
 
 	/**
-<<<<<<< HEAD
 	 * Debugs data to smart dashboard
 	 **/
 	public void debug() {
@@ -399,7 +224,7 @@ public class Robot extends TimedRobot {
 			if (!arm.slider.fingerSearching || arm.isPressure) {
 				state = States.HATCH_PICKUP;
 				arm.doStowDown();
-				elevator.setPosition(this.ELE_LOW_HATCH);
+				elevator.moveToHeight(this.ELE_LOW_HATCH);
 				arm.startAlign();//unknown function to start slider movement
 			}
 			break;
@@ -466,16 +291,6 @@ public class Robot extends TimedRobot {
 		return this.state;
 	}
 	
-=======
-	 * Returns state of robot.
-	 * 
-	 * @return state of robot.
-	 */
-	public States getState() {
-		return this.state;
-	}
-	
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 	/**
 	 * Returns if it is safe to move the elevator/arm.
 	 * 
@@ -489,11 +304,4 @@ public class Robot extends TimedRobot {
 		return safe;
 	}
 
-<<<<<<< HEAD
-=======
-	/*public static Elevator getElevator() {
-		return Elevator;
-	}*/
-
->>>>>>> 87577c4cc71cb805c05693170e68b398416bf927
 }
