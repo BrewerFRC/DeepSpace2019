@@ -4,31 +4,30 @@ public class Constants{
     public static final int 
         REFRESH_RATE = 20,
         // PWMs 
-        DRIVE_BL = 6,
-        DRIVE_BR = 8,
-        DRIVE_FL = 7,
-        DRIVE_FR = 9,
-
-        SERVO_LEFT = 5,
-        SERVO_RIGHT = 3,
-
-        ELEVATOR_LEFT = 4,
-        ELEVATOR_RIGHT = 5,
-
-        PWM_SLIDER = 2,
-        INTAKE_ARM = 4, // TODO: Declare intake channels for constants
-        LEFT_INTAKE_MOTOR = 6,
-        RIGHT_INTAKE_MOTOR = 5,
-
-        ELEVATOR_ENCODER_A = 0,
-        ELEVATOR_ENCODER_B = 1,
+        PWM_SLIDER_MOTOR = 0,
+        PWM_ARM_MOTOR = 1,
+        PWM_SERVO_LEFT = 2,
+        PWM_SERVO_RIGHT = 3,
+        PWM_INTAKE_MOTOR = 4,
         // DIOs
-        LOWER_LIMIT = 4,
-        MAG_SWITCH = 5,
-        // ANALOGS
-        ANA_POT_SLIDER = 0, // TODO: Define this stuff
-        INTAKE_POTENTIOMETER = 1
+        DIO_LIFT_ENCODER_A = 0,
+        DIO_LIFT_ENCODER_B = 1,
+        DIO_SLIDER_LEFT_LIMIT = 2,
+        DIO_SLIDER_RIGHT_LIMIT = 3,
+        DIO_LOWER_LIMIT = 4,
+        DIO_MAG_SWITCH = 5,
+        //whatever the sensor te finger uses = 6
+        //CAN
+        CAN_DRIVE_BL = 2,
+        CAN_DRIVE_FL = 0,
+        CAN_DRIVE_BR = 3,
+        CAN_DRIVE_FR = 1,
 
+        CAN_LIFT_R = 5,
+        CAN_LIFT_L = 4,
         
-        ;
+        // ANALOGS
+        ANA_POT_SLIDER = 0,
+        ANA_ARM_POT = 1,
+        ANA_IR_SENSOR = 2;
 }

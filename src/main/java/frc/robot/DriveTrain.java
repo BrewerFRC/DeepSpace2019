@@ -34,10 +34,10 @@ public class DriveTrain extends DifferentialDrive {
 	
 	private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
 	private static final WPI_TalonSRX 
-			frontL = new WPI_TalonSRX(Constants.DRIVE_FL),
-			frontR = new WPI_TalonSRX(Constants.DRIVE_FR),
-			backL = new WPI_TalonSRX(Constants.DRIVE_BL),
-			backR = new WPI_TalonSRX(Constants.DRIVE_BR);
+			frontL = new WPI_TalonSRX(Constants.CAN_DRIVE_FL),
+			frontR = new WPI_TalonSRX(Constants.CAN_DRIVE_FR),
+			backL = new WPI_TalonSRX(Constants.CAN_DRIVE_BL),
+			backR = new WPI_TalonSRX(Constants.CAN_DRIVE_BR); 
 	private static final SpeedControllerGroup left = new SpeedControllerGroup(frontL, backL);
 	private static final SpeedControllerGroup right = new SpeedControllerGroup(frontR, backR);
 	
