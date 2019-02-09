@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.AnalogInput;;
  * @author Brent Roberts
  */
 public class Arm {
-    private Slider slider;
+	private Slider slider;
+	private Elevator elevator;
     private static final Spark 
                     intakeArm =  new Spark(Constants.PWM_ARM_MOTOR),
                     intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
@@ -66,7 +67,8 @@ public class Arm {
     }
     public States state = States.HOLDING;
 
-    public Arm() {
+    public Arm(Elevator elevator) {
+		this.elevator = elevator;
         slider =  new Slider();
 		pid = new PositionByVelocityPID(MIN_ANGLE, MAX_ANGLE, -MAX_VELOCITY, MAX_VELOCITY, 0.01, "intake");
 		pid.setPositionScalars(P_POS, I_POS, D_POS);
@@ -85,14 +87,14 @@ public class Arm {
 	 * @param power - the power
 	 */
 	public void setArmPower(double power) {
-		double maxAngle = getMinAngle();
+		double minAngle = getMinAngle();
 		if (power > 0.0) {
-			if (getPosition() >= maxAngle) {
+			if (getPosition() >= MAX_ANGLE) {
 				power = 0.0;
 				pid.reset();
 			}
 		} else {
-			if (getPosition() <= MIN_ANGLE) { 
+			if (getPosition() <= minAngle) { 
 				power = 0.0;
 				pid.reset();
 			}
@@ -127,8 +129,8 @@ public class Arm {
             maxPower  = Common.map(getPosition(), getMinAngle(), MAX_ANGLE, MAX_POWER, MIN_POWER);
             power = Math.min(power, maxPower);
         } else {
-            minPower = Common.map(getPosition(), MAX_ANGLE, getMinAngle(), -MAX_POWER, MIN_POWER);
-            power = Math.max(power, maxPower);
+            minPower = Common.map(getPosition(), MAX_ANGLE, getMinAngle(), -MAX_POWER, -MIN_POWER);
+            power = Math.max(power, minPower);
         }
 		
 		return power;
@@ -249,7 +251,7 @@ public class Arm {
 	}
 	
 	public double getMinAngle() {
-		if (Robot.getElevator().intakeSafe()) {
+		if (elevator.intakeSafe()) {
 			Common.dashBool("MIN_ANGLE", true);
 			return MIN_ANGLE;
 		} 
@@ -294,10 +296,10 @@ public class Arm {
 				setAccelArmPower(0.0);
 				break;
 			case HOLDING:
-				if (!previousIntakeSafe && Robot.getElevator().intakeSafe()) {
+				if (!previousIntakeSafe && elevator.intakeSafe()) {
 					pid.resetVelocityPID();
 				}
-				previousIntakeSafe = Robot.getElevator().intakeSafe();
+				previousIntakeSafe = elevator.intakeSafe();
 				pidPosMove();
 				
 				//moveVelocity(0.0);
@@ -314,7 +316,7 @@ public class Arm {
 				//Common.debug("new State Idle");
 				if (state == States.JOYSTICK){
 					state = States.HOLDING;
-					pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*0.1, getMaxAngle()-1)));
+					pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*0.1, MAX_ANGLE-1)));
 				}
 				break;
 		}
@@ -345,7 +347,5 @@ public class Arm {
 		}
 		
 	}*/
-
-}
 
 }
