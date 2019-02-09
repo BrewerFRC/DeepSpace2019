@@ -21,17 +21,19 @@ public class Elevator {
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.LOWER_LIMIT);
 	//false = pressed
-	private DigitalInput upperLimit = new DigitalInput(Constants.UPPER_LIMIT);
+	private DigitalInput magSwitch = new DigitalInput(Constants.MAG_SWITCH);
 	//Elevator height in inches(random value
-	public final double COUNTS_PER_INCH = 7414/65.5, 
-			//Absolute elevator travel is 66.75 inches
-			ELEVATOR_HEIGHT = 66.5,
-			//The height the elevator should be positioned at to drop in the switch.
-			SWITCH_HEIGHT = 25,
+	public final double COUNTS_PER_INCH = 7120/62.75, 
+			//Absolute elevator travel is 62.75 inches
+			ELEVATOR_HEIGHT = 62.75,
+			// The distance from absolute height that the elevator is considered safe to.
+			SAFETY_MARGIN = 12,
+			// The maximum height that the robot is allowed
+			SAFE_HEIGHT = ELEVATOR_HEIGHT - SAFETY_MARGIN,
 			//How close to the targetHeight that elevator can be to complete
-			ACCEPTABLE_ERROR = 1.0,
-			//The location of the upper limit switch in inches
-			UPPER_LIMIT_POINT = 57.5,
+			ACCEPTABLE_ERROR = 1.0, 
+			//The location of the magnetic switch in inches
+			MAG_SWITCH_POINT = 57.5,
 			//The maximum power that the elevator can be run at upward
 			MAX_UP_POWER = 1.0,
 			MAX_DOWN_POWER = -0.9,
@@ -63,7 +65,7 @@ public class Elevator {
 			previousCounts = 0.0;
 	long startTime;
 	
-	PositionByVelocityPID pid = new PositionByVelocityPID(0, ELEVATOR_HEIGHT, -MAX_POS_VELOCITY, MAX_POS_VELOCITY, MAX_DOWN_POWER, MAX_UP_POWER, 0, "Elevator PID");
+	PositionByVelocityPID pid = new PositionByVelocityPID(0, SAFE_HEIGHT, -MAX_POS_VELOCITY, MAX_POS_VELOCITY, MAX_DOWN_POWER, MAX_UP_POWER, 0, "Elevator PID");
 	double velP = 0.002, velI = 0.0, velD = 0.0;
 	double posP = 5, posI = 0.0, posD = 0.0;
 	
@@ -83,14 +85,14 @@ public class Elevator {
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
 		//defaults to 100 Ms, the time of the sample that the current sample is compare to, changes the units
 		elevatorRight.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, 0);*/
-		encoder = new Encoder(Constants.ELEVATOR_ENCODER_A, Constants.ELEVATOR_ENCODER_B, true, EncodingType.k1X);
+		encoder = new Encoder(Constants.ELEVATOR_ENCODER_A, Constants.ELEVATOR_ENCODER_B, true, EncodingType.k4X);
 		elevatorLeft.setInverted(true);
 		pid.setVelocityScalars(velP, velI, velD);
 		pid.setVelocityInverted(true);
 		pid.setPositionScalars(posP, posI, posD);
 		pid.setPositionInverted(true);
 		
-		Thread t = new Thread(new UpperLimitTask()); // This starts the new thread for the magnetic sensor.
+		Thread t = new Thread(new MagSwitchTask()); // This starts the new thread for the magnetic sensor.
 		t.start();
 	}
 	
@@ -106,16 +108,16 @@ public class Elevator {
 			pid.reset();
 		}
 		if (power > 0.0) {  //Move up
-			if(getInches() >= ELEVATOR_HEIGHT) { //hard limit on expected height
+			if(getInches() >= SAFE_HEIGHT) { //hard limit on expected height
 				power = 0.0;
-			} else if(!upperLimit.get()) {  //Have we made it to the upper limit trigger point(limit switch false = reached)
-				if (getInches() < UPPER_LIMIT_POINT) {  //Make sure encoder has counted enough inches
+			} else if(!magSwitch.get()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
+				if (getInches() < MAG_SWITCH_POINT) {  //Make sure encoder has counted enough inches
 					power = 0.0;
-					Common.debug("Upper Limit fail, HOMING");
+					Common.debug("Magnetic switch fail, HOMING");
 					state = States.HOMING;
 				}
-			} else if(getInches()>= ELEVATOR_HEIGHT-DANGER_ZONE) {
-				power = Math.min(power, Common.map(ELEVATOR_HEIGHT-getInches(), 0.0, DANGER_ZONE, MIN_UP_POWER, MAX_UP_POWER));
+			} else if(getInches()>= SAFE_HEIGHT-DANGER_ZONE) {
+				power = Math.min(power, Common.map(SAFE_HEIGHT-getInches(), 0.0, DANGER_ZONE, MIN_UP_POWER, MAX_UP_POWER));
 			} else {
 				power = Math.min(power, MAX_UP_POWER);
 			}
@@ -202,7 +204,7 @@ public class Elevator {
 	 * @param targetVelocity -The target speed for the robot to move in inches per second
 	 */
 	public void pidVelMove(double targetVelocity) {
-		double SAFE_HEIGHT = ELEVATOR_HEIGHT - 0.25;
+		 
 		if (targetVelocity >= 0.0) {
 			if (getInches() >= SAFE_HEIGHT - DANGER_VEL_ZONE) {
 				double rampMap = Common.map(SAFE_HEIGHT-getInches(), 0, DANGER_VEL_ZONE, MIN_VELOCITY, MAX_J_VELOCITY);
@@ -235,7 +237,7 @@ public class Elevator {
 	 * @return - True when it is safe to move the intake over the back
 	 */
 	public boolean intakeSafe() {
-		if (getInches() >= ELEVATOR_HEIGHT-1.4) {
+		if (getInches() >= SAFE_HEIGHT-1.4) {
 			return true;
 		} else {
 			return false;
@@ -247,9 +249,9 @@ public class Elevator {
 	 * 
 	 * @return - true = at top
 	 */
-	public boolean upperLimitSafe() {
+	public boolean magSwitchSafe() {
 		//greater or equal to total height
-		if (!upperLimit.get() &&  getInches() < UPPER_LIMIT_POINT) {
+		if (!magSwitch.get() &&  getInches() < MAG_SWITCH_POINT) {
 			return true;
 		} else {
 			return false;
@@ -274,7 +276,7 @@ public class Elevator {
 	 * @return -Elevator height as a percentage
 	 */
 	public double getElevatorPercent() {
-		return Common.map(getInches(), 0, ELEVATOR_HEIGHT, 0, 1);
+		return Common.map(getInches(), 0, SAFE_HEIGHT, 0, 1);
 	}
 	
 	/**
@@ -327,8 +329,8 @@ public class Elevator {
 	 * Checks if the upper elevator magnetic switch is triggered.
 	 * @return Boolean for whether the switch is triggered.
 	 */
-	public boolean isUpperLimitTriggered(){
-		return upperLimit.get();
+	public boolean isMagSwitchTriggered(){ // Should return false when triggered
+		return magSwitch.get();
 	}
 	/**
 	 * Checks if the lower elevator momentary switch is triggered.
@@ -400,11 +402,11 @@ public class Elevator {
 	 * Prints standard debug information about elevator components.
 	 */
 	public void debug() {
-		Common.dashNum("Elevator encoder", getEncoder());
-		Common.dashNum("Elevator encoder in inches", getInches());
-		Common.dashBool("upper limits safe", upperLimitSafe());
-		Common.dashBool("upper Limit Triggered", upperLimit.get());
-		Common.dashBool("at bottom", atBottom());
+		Common.dashNum("Elevator Encoder", getEncoder());
+		Common.dashNum("Elevator Encoder in Inches", getInches());
+		Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
+		Common.dashBool("Magnetic Sensor Triggered", magSwitch.get());
+		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
 	}
@@ -417,8 +419,8 @@ public class Elevator {
 		pid.update();
 		//Common.dashNum("Elevator encoder", getEncoder());
 		Common.dashNum("Elevator encoder in inches", getInches());
-		Common.dashBool("upper limits safe", upperLimitSafe());
-		Common.dashBool("upper Limit Triggered", upperLimit.get());
+		Common.dashBool("Magnetic Switch safe", magSwitchSafe());
+		Common.dashBool("Magnetic Switch Triggered", magSwitch.get());
 		Common.dashBool("at bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
@@ -455,21 +457,21 @@ public class Elevator {
 			//Common.debug("new State Idle");
 			if (state == States.JOYSTICK){
 				state = States.HOLDING;
-				pid.setTargetPosition(Math.max(0, Math.min(ELEVATOR_HEIGHT - 0.25, getInches() + 0.13*getVelocity())));
+				pid.setTargetPosition(Math.max(0, Math.min(SAFE_HEIGHT, getInches() + 0.13*getVelocity())));
 			}
 			break;
 		}
 	}
 	
-	public class UpperLimitTask implements Runnable {
+	public class MagSwitchTask implements Runnable {
 		//private long previousTime;
 		//private int counter = 0;
 		public void run() {
 			while (true) {
 				//counter++;
-				if(!upperLimit.get()) {  //Have we made it to the upper limit trigger point(limit switch false = reached)
-					if (getInches() < UPPER_LIMIT_POINT) {  //Make sure encoder has counted enough inches
-						Common.debug("Upper Limit fail, HOMING");
+				if(!magSwitch.get()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
+					if (getInches() < MAG_SWITCH_POINT) {  //Make sure encoder has counted enough inches
+						Common.debug("Magnetic switch fail, HOMING");
 						state = States.HOMING;
 					}
 				}

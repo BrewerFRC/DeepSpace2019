@@ -24,7 +24,7 @@ public class Constants{
         ELEVATOR_ENCODER_B = 1,
         // DIOs
         LOWER_LIMIT = 4,
-        UPPER_LIMIT = 5,
+        MAG_SWITCH = 5,
         // ANALOGS
         ANA_POT_SLIDER = 0, // TODO: Define this stuff
         INTAKE_POTENTIOMETER = 1
