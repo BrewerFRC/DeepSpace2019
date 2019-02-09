@@ -16,7 +16,7 @@ public class Robot extends TimedRobot {
 	private Xbox driver;
 	private Xbox operator;
 	private Heading heading;
-	private BasicDrive drivetrain;
+	private DriveTrain drivetrain;
 	private DigitalInput headingbutton;
 	private Slider slider;
 	private Arm arm;
