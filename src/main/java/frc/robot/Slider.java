@@ -70,7 +70,7 @@ public class Slider {
         rServo.set(0.35);
     }
 
-    public void update() { //add the motor boi
+    public void update() {
         double power;
         if (Common.between(potInches(), targetInches - ALLOWANCE, targetInches + ALLOWANCE)) {
 		    power = 0;
@@ -84,9 +84,10 @@ public class Slider {
 	    if (INVERT_MOTOR == true) {
 		   power = -power;
         }
-        Common.dashNum("MOTOR_POWER", power);
-        Common.dashNum("Target Inches", targetInches);
-        Common.dashNum("Inches", potInches());
+        //debug necessary?
+        Common.dashNum("Slider power", power);
+        Common.dashNum("Slider Target Inches", targetInches);
+        Common.dashNum("Slider Inches", potInches());
 		motor.set(power);
     }
 }
