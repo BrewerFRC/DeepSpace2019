@@ -20,20 +20,6 @@ public class Constants{
         CAN_PDP = 6, //Should not be used
         CAN_VRM = 7,
 
-<<<<<<< HEAD
-        // DIOs
-        DIO_ENCODER_A = 0,
-        DIO_ENCODER_B = 1,
-        DIO_SLIDER_LEFT_LIMIT = 2,
-        DIO_SLIDER_RIGHT_LIMIT = 3,
-        DIO_LOWER_LIMIT = 4,
-        DIO_UPPER_LIMIT = 5,
-        //whatever the sensor te finger uses = 6
-        // ANALOGS
-        ANA_POT_SLIDER = 0,
-        ANA_ARM_POT = 1,
-        ANA_IR_SENSOR = 2;
-=======
         ELEVATOR_LEFT = 0,
         ELEVATOR_RIGHT = 1,
 
@@ -53,5 +39,4 @@ public class Constants{
 
         
         ;
->>>>>>> d0d4a68326851063fd82e14c1bc6a7d9e9c8a0f9
 }

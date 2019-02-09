@@ -21,11 +21,7 @@ public class Elevator {
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
 	//false = pressed
-<<<<<<< HEAD
-	private DigitalInput upperLimit = new DigitalInput(Constants.DIO_UPPER_LIMIT);
-=======
 	private DigitalInput magSwitch = new DigitalInput(Constants.MAG_SWITCH);
->>>>>>> d0d4a68326851063fd82e14c1bc6a7d9e9c8a0f9
 	//Elevator height in inches(random value
 	public final double COUNTS_PER_INCH = 7120/62.75, 
 		//Absolute elevator travel is 62.75 inches
