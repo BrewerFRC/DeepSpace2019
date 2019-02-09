@@ -19,7 +19,6 @@ public class Robot extends TimedRobot {
 	private Xbox operator;
 	private Heading heading;
 	private DriveTrain dt;
-	private DigitalInput headingbutton;
 	private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
@@ -42,7 +41,8 @@ public class Robot extends TimedRobot {
 	private boolean userMove = false;
 
 	//Position constants
-	private final double ELE_LOW_CARGO=-1, ELE_MID_CARGO=-1, ELE_HIGH_CARGO=-1, ELE_LOW_HATCH=-1,
+	//Ball is 13 inches abover elevator roughly
+	private final double ELE_LOW_CARGO=14.5, ELE_MID_CARGO=-1, ELE_HIGH_CARGO=-1, ELE_LOW_HATCH=-1,
 	ELE_MID_HATCH=-1, ELE_HIGH_HATCH=-1, ARM_LOW_PLACE=-1, ARM_HIGH_PLACE =-1;
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -67,7 +67,6 @@ public class Robot extends TimedRobot {
 		operator =  new Xbox(1);
 		heading = new Heading();
 		heading.reset();
-		headingbutton = new DigitalInput(5);
 		slider = new Slider();
 
 	}
@@ -103,7 +102,7 @@ public class Robot extends TimedRobot {
 		 * Right bumper is hatch pickup
 		 * left joystick is drive
 		 * Right joystick is arm
-		 * start is haHatch and back is hasCargo
+		 * start is hasHatch and back is hasCargo
 		 * B is spit cargo
 		 * A is cargo intake state
 		 * 
@@ -118,8 +117,23 @@ public class Robot extends TimedRobot {
 		 * B is middle position
 		 * Y is top position
 		**/
-		
+		userMove = false;
+
+
+		double forward = joystickX(GenericHID.Hand.kLeft); 
+		double turn = joystickY(GenericHID.Hand.kRight);
+		dt.accelDrive(forward, turn);
+
+		if (driver.getPressed("leftBumper")) {
+			arm.runIntake(); //in
+		}
+
+		if (driver.when("b")) {
+			arm.runIntake(); //out
+		}
+
 		if (safeToMove()) {
+			//Driver
 			if (driver.when("rightBumper")) {
 				arm.doStowDown();
 				elevator.moveToHeight(this.ELE_LOW_HATCH);
@@ -127,6 +141,20 @@ public class Robot extends TimedRobot {
 				state = States.HATCH_PICKUP;
 			}
 
+			if (driver.when("a")) {
+				arm.doHorizontal();
+				elevator.doStowUp(); //Is this the same position?
+				state =  States.CARGO_PICKUP;
+			}
+
+			//Joystick
+			double armMove = driver.deadzone(driver.getX(GenericHID.Hand.kRight));
+			if (Math.abs(armMove) > 0) {
+				userMove = true;
+				arm.joystickControl(armMove);
+			}
+
+			//Operator
 			if (operator.when("rightBumper")) {
 				if (arm.getPosition() < arm.horizental) {
 					arm.movePosition(ARM_LOW_PLACE);
@@ -138,11 +166,7 @@ public class Robot extends TimedRobot {
 				state = States.HATCH_PLACE;
 			}
 
-			if (driver.when("rightBumper")) {
-				arm.doHorizontal();
-				elevator.doStowUp(); //Is this the same position?
-				state =  States.CARGO_PICKUP;
-			}
+			
 			
 			/*
 			*  Need to change userMove when elevator or arm is being used by human
@@ -152,7 +176,7 @@ public class Robot extends TimedRobot {
 
 		debug();
 		slider.update();
-		if (elevator.getState = HOMING) {
+		if (elevator.state == elevator.States.HOMING) {
 			arm.doStowUp();
 			state = States.HOMING;
 		}
@@ -170,6 +194,7 @@ public class Robot extends TimedRobot {
 	
 	public void update() {
 		/*
+			TODO: center slider with cargo
 			TODO: checks to see if things are in position
 			TODO: TO_STOW
 			TODO: think about more safeties
@@ -304,4 +329,29 @@ public class Robot extends TimedRobot {
 		return safe;
 	}
 
+	/**
+     * Gets the highest joystick x value from the defined hand.
+     * 
+     * @param hand the hand to get the value from.
+     * @return double the value.
+     */
+    public double joystickX(GenericHID.Hand hand) {
+    	if (hand == GenericHID.Hand.kLeft) {
+    		return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand);
+    	}
+    	return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand);
+    }
+    
+    /**
+     * Gets the highest joystick y value from the defined hand.
+     * 
+     * @param hand the hand to get the value from.
+     * @return double the value.
+     */
+    public double joystickY(GenericHID.Hand hand) {
+    	if (hand == GenericHID.Hand.kLeft) {
+    		return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand);
+    	}
+    	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand);
+    }
 }
