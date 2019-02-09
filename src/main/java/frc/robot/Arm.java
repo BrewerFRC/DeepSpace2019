@@ -17,8 +17,7 @@ public class Arm {
     private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
     private PositionByVelocityPID pid;
 
-    public final double
-    MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
+    public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
     //The angle at which the intake is horizontal out the front.
     FRONT_HORIZONTAL = 0,
     MIN_POSITION = 210, MAX_POSITION = 3593, 
