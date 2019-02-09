@@ -15,13 +15,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
  */
 public class Elevator {
 	//Intake intake;
-	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.ELEVATOR_LEFT);
-	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.ELEVATOR_RIGHT);
+	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.CAN_LIFT_L);
+	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.CAN_LIFT_R);
 	private Encoder encoder; 
 	//true = pressed
-	private DigitalInput lowerLimit = new DigitalInput(Constants.LOWER_LIMIT);
+	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
 	//false = pressed
-	private DigitalInput magSwitch = new DigitalInput(Constants.MAG_SWITCH);
+	private DigitalInput magSwitch = new DigitalInput(Constants.DIO_MAG_SWITCH);
 	//Elevator height in inches(random value
 	public final double COUNTS_PER_INCH = 7120/62.75, 
 		//Absolute elevator travel is 62.75 inches
@@ -85,7 +85,7 @@ public class Elevator {
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
 		//defaults to 100 Ms, the time of the sample that the current sample is compare to, changes the units
 		elevatorRight.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, 0);*/
-		encoder = new Encoder(Constants.ELEVATOR_ENCODER_A, Constants.ELEVATOR_ENCODER_B, true, EncodingType.k4X);
+		encoder = new Encoder(Constants.DIO_LIFT_ENCODER_A, Constants.DIO_LIFT_ENCODER_B, true, EncodingType.k4X);
 		elevatorLeft.setInverted(true);
 		pid.setVelocityScalars(velP, velI, velD);
 		pid.setVelocityInverted(true);

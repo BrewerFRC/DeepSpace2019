@@ -81,10 +81,7 @@ public class Slider {
 			    power = - MOTOR_POWER;
             }
         }
-	    if (INVERT_MOTOR == true) {
-		   power = -power;
-        }
-        //debug necessary?
+	    // debug necessary?
         Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
