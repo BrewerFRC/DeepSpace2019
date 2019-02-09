@@ -35,7 +35,7 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.25,
+		MAX_UP_POWER = 0.15,
 		MAX_DOWN_POWER = -0.12,
 		//The minimum power that the elevator can be run at upward
 		MIN_UP_POWER = 0.12,
@@ -134,11 +134,10 @@ public class Elevator {
 				}
 			}
 		}
-		//power = encoderTest(power); //TODO: Re-enable this, however, it will always fail when motors are disabled.
+		power = encoderTest(power); 
 		lastPower = power;
-		//TODO: Re-enable elevator motor power here
-		/*elevatorRight.set(power); 
-		elevatorLeft.set(power);*/
+		elevatorRight.set(power); 
+		elevatorLeft.set(power);
 		Common.dashNum("Elevator power", power);
 	}
 	/**
@@ -337,13 +336,6 @@ public class Elevator {
 		return !magSwitch.get();
 	}
 	/**
-	 * Checks if the lower elevator momentary switch is triggered.
-	 * @return Boolean for whether the switch is triggered.
-	 */
-	public boolean isLowerLimitTriggered(){
-		return lowerLimit.get();
-	}
-	/**
 	 * Gets the current height of the elevator in inches
 	 * 
 	 * @return -The current height of the elevator in counts 
@@ -370,7 +362,7 @@ public class Elevator {
 	public void joystickControl(double jInput) {
 		//overrules moveToHeight()
 		Common.dashNum("Elevator Joystick", jInput);
-		if (state != States.STOPPED && state != States.HOMING){
+		if (state != States.STOPPED && state != States.HOMING && Robot.isTeleopAllowed()){
 			if (jInput != 0) {
 				double jMap = Common.map(-jInput, -1, 1, -MAX_J_VELOCITY, MAX_J_VELOCITY);
 				Common.dashNum("jMap", jMap);
@@ -413,6 +405,8 @@ public class Elevator {
 		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
+		Common.dashNum("Position PID Target", pid.getTargetPosition());
+		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
 	}
 	
 	/**
@@ -426,7 +420,7 @@ public class Elevator {
 			setPower(0.0);
 			break;
 		case HOMING:
-			if (lowerLimit.get()) { 
+			if (atBottom()) { 
 				resetEncoder();
 				setPower(0.0);
 				pid.setTargetPosition(0);

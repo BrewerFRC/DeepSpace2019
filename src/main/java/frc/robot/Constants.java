@@ -12,8 +12,8 @@ public class Constants{
         SERVO_LEFT = 5,
         SERVO_RIGHT = 3,
 
-        ELEVATOR_LEFT = 0,
-        ELEVATOR_RIGHT = 1,
+        ELEVATOR_LEFT = 4,
+        ELEVATOR_RIGHT = 5,
 
         PWM_SLIDER = 2,
         INTAKE_ARM = 4, // TODO: Declare intake channels for constants

@@ -22,7 +22,7 @@ public class Robot extends TimedRobot {
 	Slider slider;
 	Elevator elevator;
 
-	static boolean teleopAllowed = false;
+	static boolean teleopAllowed = true;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
