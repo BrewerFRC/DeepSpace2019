@@ -56,20 +56,21 @@ public class Robot extends TimedRobot {
 	//True is up, false is down.
 	public boolean stowUp = true;
 
+	static boolean teleopAllowed = false;
+
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
 	}
 
 	@Override
 	public void robotInit() {
-		dt = new DriveTrain();
+		//dt = new DriveTrain();
 		elevator = new Elevator();
-		heading = new Heading();
+		/*heading = new Heading();
 		heading.reset();
-		headingbutton = new DigitalInput(5);
+		headingbutton = new DigitalInput(5);*/
 
 		driver = new Xbox(0);
-		slider = new Slider();
 
 	}
 
@@ -88,7 +89,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		heading.reset();
+		elevator.home();
+		//heading.reset();
 		//heading.setHeadingHold(true);
 	}
 
@@ -261,11 +263,13 @@ public class Robot extends TimedRobot {
 			break;
 		}*/
 
-		SmartDashboard.putNumber("Elevator Counts", elevator.getEncoder());
-		SmartDashboard.putNumber("Elevator Inches", elevator.getInches());
-		SmartDashboard.putString("Current State", elevator.getStateReadable(elevator.getState()));
-		SmartDashboard.putBoolean("IsMagTriggered", elevator.isUpperLimitTriggered());
-		SmartDashboard.putBoolean("IsLowerLimitTriggered", elevator.isLowerLimitTriggered());
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+
+		elevator.update();
+
+		elevator.debug();
 		//SmartDashboard.putNumber("PID", heading.turnRate());
 	}
 
@@ -276,6 +280,9 @@ public class Robot extends TimedRobot {
 	 */
 	public States getState() {
 		return this.state;
+	}
+	public static boolean isTeleopAllowed(){
+		return teleopAllowed;
 	}
 	
 	/**

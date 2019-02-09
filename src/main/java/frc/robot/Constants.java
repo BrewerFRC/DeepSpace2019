@@ -10,8 +10,8 @@ public class Constants{
         PWM_SERVO_RIGHT = 3,
         PWM_INTAKE_MOTOR = 4,
         // DIOs
-        DIO_ENCODER_A = 0,
-        DIO_ENCODER_B = 1,
+        DIO_ELE_ENCODER_A = 0,
+        DIO_ELE_ENCODER_B = 1,
         DIO_SLIDER_LEFT_LIMIT = 2,
         DIO_SLIDER_RIGHT_LIMIT = 3,
         DIO_LOWER_LIMIT = 4,
