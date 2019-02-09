@@ -136,7 +136,7 @@ public class Arm {
 			}
         } else {
 			if (getPosition() <= getMinAngle()+DANGER_ZONE) {
-				minPower = Common.map(getPosition(), getMinAngle()-DANGER_ZONE, getMinAngle(), MAX_DOWN_POWER, MIN_DOWN_POWER);
+				minPower = Common.map(getPosition(), getMinAngle()+DANGER_ZONE, getMinAngle(), MAX_DOWN_POWER, MIN_DOWN_POWER);
 				power = Math.max(power, minPower);
 			}
         }
@@ -263,7 +263,7 @@ public class Arm {
 	}
 	
 	public double getMinAngle() {
-		if (elevator.intakeSafe()) {
+		if (elevator.intakeSafe()) {  //Is elevator
 			Common.dashBool("MIN_ANGLE", true);
 			return MIN_ANGLE;
 		} 
