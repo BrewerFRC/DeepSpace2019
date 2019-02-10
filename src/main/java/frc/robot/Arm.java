@@ -17,8 +17,8 @@ public class Arm {
                     intakeArm =  new Spark(Constants.PWM_ARM_MOTOR),
                     intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
 	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
-	private DigitalInput leftSwitch;
-	private DigitalInput rightSwitch;
+	//private DigitalInput leftSwitch;
+	//private DigitalInput rightSwitch;
     private PositionByVelocityPID pid;
 
     public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
@@ -151,7 +151,7 @@ public class Arm {
 	public double getPosition() {
 		//return position;
 		previousPosition = position;
-		position = (getRawPosition() - HORIZONTAL) / COUNTS_PER_DEGREE; //210 is the lowest potentiometer reading when arm is fully down
+		position = (getRawPosition() - HORIZONTAL_POSITION) / COUNTS_PER_DEGREE; //210 is the lowest potentiometer reading when arm is fully down
 		return position;
 	}
 	
