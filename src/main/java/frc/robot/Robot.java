@@ -19,7 +19,7 @@ public class Robot extends TimedRobot {
 	private Heading heading;
 	private DriveTrain dt;
 	private DigitalInput headingbutton;
-	private Slider slider;
+	//private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
 
@@ -66,6 +66,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		//dt = new DriveTrain();
 		elevator = new Elevator();
+		arm = new Arm(elevator);
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -105,6 +106,11 @@ public class Robot extends TimedRobot {
 		}
 		elevator.update();
 		elevator.debug();
+		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
+			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
+		}
+		arm.update();
+		arm.dashboard();
 
 		/*if (safeToMove()) {
 			if (/* Start hatch pickup ) {

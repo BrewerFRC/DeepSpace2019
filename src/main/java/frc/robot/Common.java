@@ -96,7 +96,7 @@ public class Common {
 	/**
 	 * Gets an double from smartDashboard.
 	 * 
-	 * @param title of value to get.
+	 * @param title of value to get, dashNum adds a colon.
 	 * @return value from smartDashboard, 999 is an default value.
 	 */
 	public static double getNum(String title) {

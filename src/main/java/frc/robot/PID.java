@@ -66,7 +66,7 @@ public class PID {
 		//this.i = SmartDashboard.getNumber(this.name + "I", this.i);
 		//this.d = SmartDashboard.getNumber(this.name + "D", this.d);
 		//SmartDashboard.putNumber(this.name + "DShow", this.d);
-		SmartDashboard.putNumber(this.name + "Target", getTarget());
+		SmartDashboard.putNumber(this.name + " Target", getTarget());
 	}
 	
 	/**
@@ -268,7 +268,7 @@ public class PID {
 			this.output = Math.min(Math.max(this.output, Outmin), Outmax);
 		}
 		double r = (inverted) ? -this.output : this.output;
-		SmartDashboard.putNumber(this.name + "Calc", r);
+		SmartDashboard.putNumber(this.name + " Calc", r);
 
 		return r;
 	}
