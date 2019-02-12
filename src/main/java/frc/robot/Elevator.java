@@ -50,6 +50,16 @@ public class Elevator {
 		MAX_J_VELOCITY = 5, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
+		//The distance from the floor that the arm pivots in inches
+		INCHES_FROM_FLOOR = 10.5,
+		//How much safe space (in inches) to remove taking into account the bumpers
+		BUMPER_OFFSET = -7.5,
+		//How much space (in inches) to be used as a buffer in order to prevent collisions
+		ARM_ARC_BUFFER = 2,
+		//How far, in inches, the bottom of the forbar is from its respective pivot point.
+		FORBAR_YEXT = 2,
+		//The length of the arm in inches.
+		ARM_LEN = 100,
 		//For Velocity ramping
 		DANGER_VEL_ZONE = 20;
 	
@@ -229,7 +239,24 @@ public class Elevator {
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
-	
+
+	/**
+	 * 
+	 * @return
+	 */
+	public double maxArmSafeAngle(){
+		double yElevation = getInches() + INCHES_FROM_FLOOR + BUMPER_OFFSET;
+		double yAvailable = yElevation - (FORBAR_YEXT + ARM_ARC_BUFFER);
+
+		if(yAvailable < ARM_LEN) 
+		{
+			return -Math.asin(yAvailable/ARM_LEN);
+		}
+		else
+		{
+			return -90;
+		}
+	}
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
 	 * 
