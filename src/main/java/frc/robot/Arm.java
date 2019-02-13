@@ -23,23 +23,23 @@ public class Arm {
 
     public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
     //The angle at which the intake is horizontal out the front.
-	HORIZONTAL_POSITION = 2468,//The arm's position at 0 degrees/parallel to floor.
+	HORIZONTAL_POSITION = 2491,//The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-    MIN_ANGLE = -5, MAX_ANGLE = 45, 
+    MIN_ANGLE = -5, MAX_ANGLE = 60, 
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
-    DANGER_ZONE = 10,
+    DANGER_ZONE = 20,
     //up powers
-    MIN_POWER = 0, MAX_POWER = 0.4,
+    MIN_POWER = 0, MAX_POWER = 0.5, 
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
-    MAX_VELOCITY = 10,
-    COUNTS_PER_DEGREE = 13.6,
+    MAX_VELOCITY = 20,
+    COUNTS_PER_DEGREE = (3692 - HORIZONTAL_POSITION) / 90, // was 13.6,
     //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
     //FULLY_LOADED_DISTANCE = 3,
     //How close to the targetHeight that elevator can be to complete
-    ACCEPTABLE_ERROR = 2.0;
+    ACCEPTABLE_ERROR = 1.0;
 
     //Ramp constants
     //final double MIDDLE_POWER = 0.7;
@@ -47,7 +47,7 @@ public class Arm {
 	//final double MIN_POWER = 0.0;
     //final double LOW_POWER = 0.08;
     
-    private double P_POS = 0.1, I_POS = 0, D_POS = 0,
+    private double P_POS = 0.5, I_POS = 0, D_POS = 0, //P was .4
 			P_VEL = 0.002, I_VEL = 0, D_VEL = 0.0, G = 0.17,
 			lastPower = 0, previousReading = 0;
 	
@@ -369,7 +369,6 @@ public class Arm {
 		Common.dashNum("Arm degrees", getPosition());
 		Common.dashNum("Arm raw position", getRawPosition());
 		Common.dashNum("Arm velocity", getVelocity());
-		
 		//Common.dashNum("Arm Position Target", getPositionTarget());
         //Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());
         Common.dashStr("Arm state", state.toString());

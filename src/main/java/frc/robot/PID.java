@@ -215,7 +215,13 @@ public class PID {
 	public double calc(double input) {
 		
 		//Integral calculation
-		double error = input - target;
+		double error;
+		if (!inverted) {
+			error = input - target;
+		} else {
+			error =  target - input;
+		}
+		Common.dashNum(this.name+" Error", error);
 		sumError += error * deltaTime;
 		int sign = -1;
 		
@@ -261,13 +267,14 @@ public class PID {
 		}
 		r = Math.min(Math.max(r, Outmin), Outmax);
 		return r;*/
-		if (inverted) {
+		/*if (inverted) {
 			this.output = Math.min(Math.max(this.output, -Outmax), -Outmin);
 		}
 		else {
 			this.output = Math.min(Math.max(this.output, Outmin), Outmax);
 		}
-		double r = (inverted) ? -this.output : this.output;
+		double r = (inverted) ? -this.output : this.output;*/
+		double r = this.output = Math.min(Math.max(this.output, Outmin), Outmax);
 		SmartDashboard.putNumber(this.name + " Calc", r);
 
 		return r;

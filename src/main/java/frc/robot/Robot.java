@@ -109,6 +109,15 @@ public class Robot extends TimedRobot {
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
+		if (driver.when("a")) {
+			arm.movePosition(20);
+		}
+		if (driver.when("b")) {
+			arm.movePosition(10);
+		}
+		if (driver.when("x")) {
+			arm.movePosition(50);
+		}
 		arm.update();
 		arm.dashboard();
 
