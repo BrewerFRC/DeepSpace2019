@@ -2,7 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalInput;;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Talon;
 
 /**
  * A class to control a 4 bar arm in the 2019 robotics season
@@ -13,9 +14,8 @@ import edu.wpi.first.wpilibj.DigitalInput;;
 public class Arm {
 	private Slider slider;
 	private Elevator elevator;
-    private static final Spark 
-                    intakeArm =  new Spark(Constants.PWM_ARM_MOTOR),
-                    intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
+	private static final Spark intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
+	private static final Talon intakeArm =  new Talon(Constants.PWM_ARM_MOTOR);
 	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
 	//private DigitalInput leftSwitch;
 	//private DigitalInput rightSwitch;
