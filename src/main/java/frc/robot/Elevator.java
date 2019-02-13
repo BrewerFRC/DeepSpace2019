@@ -50,18 +50,20 @@ public class Elevator {
 		MAX_J_VELOCITY = 5, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
-		//The distance from the floor that the arm pivots in inches
-		INCHES_FROM_FLOOR = 10.5,
-		//How much safe space (in inches) to remove taking into account the bumpers
-		BUMPER_OFFSET = -7.5,
-		//How much space (in inches) to be used as a buffer in order to prevent collisions
-		ARM_ARC_BUFFER = 2,
-		//How far, in inches, the bottom of the forbar is from its respective pivot point.
-		FORBAR_YEXT = 2,
-		//The length of the arm in inches.
-		ARM_LEN = 100,
 		//For Velocity ramping
-		DANGER_VEL_ZONE = 20;
+		DANGER_VEL_ZONE = 20,
+		//The distance from the floor to the arm pivot on the elevator in inches.
+		ARM_PIVOT_TO_FLOOR = 10.5,
+		//How much safe space (in inches) to remove taking into account the bumpers
+		BUMPER_INCHES_TO_FLOOR = -7.5,
+		//Minimum Y distance above bumper or floor to hand 
+		Y_HAND_SAFETY = 2,
+		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
+		Y_HAND_EXT = 11.07,
+		//The minimum angle at which the bumper can be cleared.
+		MIN_BUMPER_CLEAR_ANGLE = -1,
+		//The length of the arm in inches pivot to pivot.
+		ARM_LEN = 19.887;
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
@@ -241,14 +243,15 @@ public class Elevator {
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Checks for a safe angle that the arm can be moved to a height.
+	 * @param height the height to check safe angle of.
+	 * @return the safe angle.
 	 */
-	public double maxArmSafeAngle(){
-		double yElevation = getInches() + INCHES_FROM_FLOOR + BUMPER_OFFSET;
-		double yAvailable = yElevation - (FORBAR_YEXT + ARM_ARC_BUFFER);
+	public double minArmSafeAngle(double height){
+		double yElevation = height + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR;
+		double yAvailable = yElevation - (Y_HAND_EXT + Y_HAND_SAFETY);
 
-		if(yAvailable < ARM_LEN) 
+		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
 		{
 			return -Math.asin(yAvailable/ARM_LEN);
 		}
@@ -256,6 +259,14 @@ public class Elevator {
 		{
 			return -90;
 		}
+	}
+	/**
+	 * Checks for a safe height that the arm can be moved to a given angle.
+	 * @param angle the angle to check safe height of.
+	 * @return the safe height.
+	 */
+	public double minArmSafeHeight(double angle){
+		return -Math.sin(angle) * ARM_LEN + BUMPER_INCHES_TO_FLOOR + Y_HAND_SAFETY - (Y_HAND_EXT + ARM_PIVOT_TO_FLOOR);
 	}
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
@@ -448,6 +459,8 @@ public class Elevator {
 			setPower(0.0);
 			break;
 		case HOMING:
+			double safeAngle = minArmSafeAngle(0);
+			//TODO: set this target angle 
 			if (atBottom()) { 
 				resetEncoder();
 				setPower(0.0);
