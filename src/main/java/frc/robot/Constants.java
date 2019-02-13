@@ -5,7 +5,7 @@ public class Constants{
         REFRESH_RATE = 20,
         // PWMs 
         PWM_SLIDER_MOTOR = 0,
-        PWM_ARM_MOTOR = 1,
+        PWM_ARM_MOTOR = 9,
         PWM_SERVO_LEFT = 2,
         PWM_SERVO_RIGHT = 3,
         PWM_INTAKE_MOTOR = 4,
