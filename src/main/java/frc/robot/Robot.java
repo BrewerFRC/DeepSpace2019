@@ -91,6 +91,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		elevator.home();
+		arm.init();
 		//heading.reset();
 		//heading.setHeadingHold(true);
 	}

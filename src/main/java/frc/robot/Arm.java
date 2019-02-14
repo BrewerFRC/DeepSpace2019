@@ -25,15 +25,15 @@ public class Arm {
     //The angle at which the intake is horizontal out the front.
 	HORIZONTAL_POSITION = 2491,//The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-    MIN_ANGLE = -5, MAX_ANGLE = 60, 
+    MIN_ANGLE = 0, MAX_ANGLE = 80, 
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 20,
     //up powers
-    MIN_POWER = 0, MAX_POWER = 0.5, 
+    MIN_POWER = 0, MAX_POWER = 0.75, 
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
-    MAX_VELOCITY = 20,
+    MAX_VELOCITY = 50,
     COUNTS_PER_DEGREE = (3692 - HORIZONTAL_POSITION) / 90, // was 13.6,
     //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
@@ -46,9 +46,12 @@ public class Arm {
 	//final double MAX_POWER = 1.0;
 	//final double MIN_POWER = 0.0;
     //final double LOW_POWER = 0.08;
-    
-    private double P_POS = 0.5, I_POS = 0, D_POS = 0, //P was .4
-			P_VEL = 0.002, I_VEL = 0, D_VEL = 0.0, G = 0.17,
+	
+    private double P_POS = 1.8, I_POS = 0, D_POS = 0.21, //P.6 D.35// P0.2 D0.4 / P0.4 D0.5 / D was 1.0
+			P_VEL = 0.0006, I_VEL = 0.0000000, D_VEL = 0.40, G = 0.17,   //.0017 .8 /P0.0016 D2.0/P0.0016 D4.0/ P0.002 D4.0 / P0.0025 D2.5 , P0.003 D1.8
+			//P_VEL = 0.0010, I_VEL = 0.0000000, D_VEL = 0.7, G = 0.17,   //.0017 .8 /P0.0016 D2.0/P0.0016 D4.0/ P0.002 D4.0 / P0.0025 D2.5 , P0.003 D1.8
+			//P_VEL = 0.003, I_VEL = 0.0000000, D_VEL = 1.6, G = 0.17,  //max power 0.6 
+			//P_VEL = 0.003, I_VEL = 0.000001, D_VEL = 0.05, G = 0.17,  //P was 0.002
 			lastPower = 0, previousReading = 0;
 	
 	private long intakeTime = 0;
@@ -84,30 +87,44 @@ public class Arm {
 		Common.dashNum("G", G);
 	}
 
+	/**
+	 * Initialize arm PID and State.  Call whenever you enable robot.
+	 */
+	public void init() {
+		lastPower = 0.0;
+		position = calcPosition();
+		previousPosition = position;
+		velocity = 0.0;
+		pid.resetVelocityPID();
+		state = States.HOLDING;
+		previousMillis=Common.time();
+	}
+
 /**
 	 * Sets the power of the intake arm.
 	 * 
 	 * @param power - the power
 	 */
 	public void setArmPower(double power) {
-		double minAngle = getMinAngle();
 		Common.dashNum("Arm Power input", power);
 		if (power > 0.0) {
             power = Math.min(power, MAX_POWER);
 			if (getPosition() >= MAX_ANGLE) {
 				power = 0.0;
 				pid.reset();
+				Common.debug("setArmPower: arm above MAX_ANGLE forced PID reset");
 			}
 		} else {
             power = Math.max(power, -MAX_POWER);
-			if (getPosition() <= minAngle) { 
+			if (getPosition() <= getMinAngle()) { 
 				power = 0.0;
 				pid.reset();
+				Common.debug("setArmPower: arm below getMinAngle() forced PID reset");
 			}
         }
         //Common.dashNum("Arm power before ramp", power);
-		power = rampPower(power);
-		lastPower = power;
+//		power = rampPower(power);
+		//lastPower = power;
 		//Can exceed max
         power += gTerm();		
 		intakeArm.set(power);
@@ -118,15 +135,14 @@ public class Arm {
 	private void setAccelArmPower(double targetPower) {
 		Common.dashNum("arm accel input", targetPower);
 		double power = targetPower; 	
-		/*if (Math.abs(lastPower - targetPower) > MAX_DELTA_POWER) {
+		if (Math.abs(lastPower - targetPower) > MAX_DELTA_POWER) {
 			if (lastPower > targetPower) {
 				power = lastPower - MAX_DELTA_POWER;
 			} else {
 				power = lastPower + MAX_DELTA_POWER;
 			}
-		} else {
-			power = targetPower;
-		}*/
+		}
+		lastPower = power;
 		setArmPower(power);
 	}
 	
@@ -224,6 +240,7 @@ public class Arm {
 		//If velocity changes direction, reset pid to speed up response.
 		if ((lastVelocityTarget > 0 && velocity < 0) || (lastVelocityTarget < 0 && velocity > 0)) {
 			pid.resetVelocityPID();
+			Common.debug("Arm.moveVelocity resetVelocityPID due to velocity direction change");
 		}
 		if (getPosition() < minAngle && velocity < 0) { // was >
 			pid.setTargetVelocity(0.0);
@@ -313,7 +330,14 @@ public class Arm {
 		return pid.getTargetPosition();
 	}
 
-
+	/**
+	 * Returns potentiometer reading to degrees (0 degrees is horizontal)
+	 * 
+	 * @return Degrees
+	 */
+	public double calcPosition() {
+		return (getRawPosition() - HORIZONTAL_POSITION) / COUNTS_PER_DEGREE;
+	}
 	
 	/**
 	 * Whether or not the elevator is within acceptable range of the position target.
@@ -324,14 +348,20 @@ public class Arm {
 		return Math.abs(pid.getTargetPosition() - getPosition()) < ACCEPTABLE_ERROR;
 	}
 	
-	public void update() {
+	public void 
+	update() {
         pid.update();
         //Upate position
         previousPosition = position;
-        position = (getRawPosition() - HORIZONTAL_POSITION) / COUNTS_PER_DEGREE;
+        position = previousPosition * 0.9 + calcPosition() * 0.1;
 		// Update Velocity
+		long millis = Common.time();
+		double loopTime = (millis - previousMillis) / 1000.0;
+		double delta = position - previousPosition;
+		velocity = velocity * 0.9 + delta / loopTime * 0.1;
+		previousMillis = millis;
 		previousVelocity = velocity;
-		velocity = velocity*.9+(position - previousPosition)/(1.0/Constants.REFRESH_RATE)*.1;
+		//velocity = velocity*.9+(position - previousPosition)/(1.0/Constants.REFRESH_RATE)*.1;
 		//
         //G = Common.getNum("G:", 0);
         Common.dashNum("G", G);
@@ -359,7 +389,7 @@ public class Arm {
 				//Common.debug("new State Idle");
 				if (state == States.JOYSTICK){
 					state = States.HOLDING;
-					pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*0.1, MAX_ANGLE-1)));
+					pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*.5, MAX_ANGLE-1)));
 				}
 				break;
 		}

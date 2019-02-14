@@ -214,16 +214,13 @@ public class PID {
 	 */
 	public double calc(double input) {
 		
-		//Integral calculation
-		double error;
-		if (!inverted) {
-			error = input - target;
-		} else {
-			error =  target - input;
-		}
+
+		double error = input - target;
+		if (inverted) 
+			error = -error;
 		Common.dashNum(this.name+" Error", error);
+		//Integral calculation
 		sumError += error * deltaTime;
-		int sign = -1;
 		
 		//Derivative calculation
 		double derivative = (error - previousError) / deltaTime;
@@ -231,6 +228,7 @@ public class PID {
 		
 		//Calculate output
 		double output = p*error + i*sumError + d*derivative;
+		int sign = -1;
 		if(output > 0) 
 			sign = 1;
 		output = Math.abs(output)+ min;
