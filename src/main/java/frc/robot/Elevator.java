@@ -35,8 +35,8 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.3,
-		MAX_DOWN_POWER = -0.14,
+		MAX_UP_POWER = 0.5,
+		MAX_DOWN_POWER = -0.24,  
 		//The minimum power that the elevator can be run at upward
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
@@ -47,7 +47,7 @@ public class Elevator {
 		//In inches per second, for position PID
 		MAX_POS_VELOCITY = 5, // Was: 45in/s
 		//Maximum velocity while using the joystick
-		MAX_J_VELOCITY = 5, // Was: 10 in/s
+		MAX_J_VELOCITY = 20, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
 		//The distance from the floor that the arm pivots in inches
@@ -145,6 +145,7 @@ public class Elevator {
 			}
 		}
 		power = encoderTest(power); 
+		
 		lastPower = power;
 		elevatorRight.set(power); 
 		elevatorLeft.set(power);

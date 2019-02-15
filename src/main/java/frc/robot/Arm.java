@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Talon;
  * @author Brent Roberts
  */
 public class Arm {
-	private Slider slider;
+	public Slider slider;
 	private Elevator elevator;
 	private static final Spark intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
 	private static final Talon intakeArm =  new Talon(Constants.PWM_ARM_MOTOR);
@@ -25,7 +25,7 @@ public class Arm {
     //The angle at which the intake is horizontal out the front.
 	HORIZONTAL_POSITION = 2491,//The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-    MIN_ANGLE = 0, MAX_ANGLE = 80, 
+    MIN_ANGLE = -80, MAX_ANGLE = 80, 
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 20,
@@ -93,11 +93,13 @@ public class Arm {
 	public void init() {
 		lastPower = 0.0;
 		position = calcPosition();
+		movePosition(position);
 		previousPosition = position;
 		velocity = 0.0;
 		pid.resetVelocityPID();
 		state = States.HOLDING;
 		previousMillis=Common.time();
+		slider.setTarget(0);
 	}
 
 /**
@@ -393,6 +395,7 @@ public class Arm {
 				}
 				break;
 		}
+		slider.update();
 	}
 
 	public void dashboard() {

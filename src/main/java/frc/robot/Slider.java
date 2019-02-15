@@ -12,18 +12,18 @@ public class Slider {
     private Servo rServo = new Servo(Constants.PWM_SERVO_RIGHT);
 
     public static final int
-    POT_LEFT_LIMIT = 200,
-    POT_RIGHT_LIMIT = 3900,
-    POT_CENTER = 2048;
+    POT_LEFT_LIMIT = 235,
+    POT_RIGHT_LIMIT = 1237,
+    POT_CENTER = 741;
     public static final double
-    INCH_LEFT_LIMIT = -4,
-    INCH_RIGHT_LIMIT = 4,
+    INCH_LEFT_LIMIT = -3.2,
+    INCH_RIGHT_LIMIT = 3.2,
     INCH_CENTER = 0,
     FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
-    MOTOR_POWER = 0.4d,
-    ALLOWANCE = 0.5d;
+    MOTOR_POWER = 1d,
+    ALLOWANCE = 0.1d;
     public static final boolean
-    INVERT_MOTOR = false,
+    INVERT_MOTOR = true,
     INVERT_TARGET = false;
 
     private double targetInches = 0.0d;
@@ -70,6 +70,10 @@ public class Slider {
         rServo.set(0.35);
     }
 
+    public void forcePower(double power) {
+        motor.set(power);
+    }
+
     public void update() {
         double power;
         if (Common.between(potInches(), targetInches - ALLOWANCE, targetInches + ALLOWANCE)) {
@@ -80,11 +84,15 @@ public class Slider {
             } else {
 			    power = - MOTOR_POWER;
             }
+            if (INVERT_MOTOR) {
+                power = - power;
+            }
         }
 	    // debug necessary?
         Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
+        Common.dashNum("Current Pot Reading", currentPotReading());
 		motor.set(power);
     }
 }

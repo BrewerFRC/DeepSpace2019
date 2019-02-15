@@ -119,6 +119,23 @@ public class Robot extends TimedRobot {
 		if (driver.when("x")) {
 			arm.movePosition(50);
 		}
+		if (driver.when("dPadUp")) {
+			arm.slider.fingerUp();
+		}
+		if (driver.when("dPadDown")) {
+			arm.slider.fingerDown();
+		}
+		if (driver.getPressed("leftBumper")) {
+			arm.slider.setTarget(-2);
+		}
+		else if (driver.getPressed("rightBumper")) {
+			arm.slider.setTarget(2);
+		}
+		else {
+				arm.slider.setTarget(0);
+		}
+		
+
 		arm.update();
 		arm.dashboard();
 
