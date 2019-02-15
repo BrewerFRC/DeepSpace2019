@@ -55,15 +55,16 @@ public class Elevator {
 		//The distance from the floor to the arm pivot on the elevator in inches.
 		ARM_PIVOT_TO_FLOOR = 10.5,
 		//How much safe space (in inches) to remove taking into account the bumpers
-		BUMPER_INCHES_TO_FLOOR = -7.5,
+		BUMPER_INCHES_TO_FLOOR = 7.5,
 		//Minimum Y distance above bumper or floor to hand 
-		Y_HAND_SAFETY = 2,
+		Y_HAND_SAFETY = 0.5,
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
-		Y_HAND_EXT = 11.07,
+		Y_HAND_EXT = 10.87,
 		//The minimum angle at which the bumper can be cleared.
 		MIN_BUMPER_CLEAR_ANGLE = -1,
 		//The length of the arm in inches pivot to pivot.
-		ARM_LEN = 19.887;
+        ARM_LEN = 19.887,
+        PIVOT_TO_BOTTOM = 5.875;s
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
