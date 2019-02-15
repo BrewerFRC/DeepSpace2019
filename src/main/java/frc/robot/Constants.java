@@ -5,10 +5,11 @@ public class Constants{
         REFRESH_RATE = 20,
         // PWMs 
         PWM_SLIDER_MOTOR = 0,
-        PWM_ARM_MOTOR = 1,
+        PWM_ARM_MOTOR = 9,
         PWM_SERVO_LEFT = 2,
         PWM_SERVO_RIGHT = 3,
         PWM_INTAKE_MOTOR = 4,
+        PWM_FLOOR_PICKUP = 5,
         // DIOs
         DIO_LIFT_ENCODER_A = 0,
         DIO_LIFT_ENCODER_B = 1,
@@ -29,5 +30,6 @@ public class Constants{
         // ANALOGS
         ANA_POT_SLIDER = 0,
         ANA_ARM_POT = 1,
-        ANA_IR_SENSOR = 2;
+        ANA_IR_SENSOR = 2,
+        ANA_FLOOR_POT = 4;
 }

@@ -2,7 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalInput;;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Talon;
 
 /**
  * A class to control a 4 bar arm in the 2019 robotics season
@@ -13,9 +14,8 @@ import edu.wpi.first.wpilibj.DigitalInput;;
 public class Arm {
 	private Slider slider;
 	private Elevator elevator;
-    private static final Spark 
-                    intakeArm =  new Spark(Constants.PWM_ARM_MOTOR),
-                    intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
+	private static final Spark intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
+	private static final Talon intakeArm =  new Talon(Constants.PWM_ARM_MOTOR);
 	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
 	//private DigitalInput leftSwitch;
 	//private DigitalInput rightSwitch;
@@ -23,20 +23,18 @@ public class Arm {
 
     public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
     //The angle at which the intake is horizontal out the front.
-	HORIZONTAL_POSITION = 100,//The arm's position at 0 degrees/parallel to floor.
+	HORIZONTAL_POSITION = 2468,//The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-    MIN_ANGLE = -12, MAX_ANGLE = 160, 
-    MIN_ABS_ANGLE = -45, //To be determined
+    MIN_ANGLE = -5, MAX_ANGLE = 45, 
+    //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
-    DANGER_ZONE = 25,
-    //Down powers
-    MIN_DOWN_POWER = 0, MAX_DOWN_POWER = -0.1,
+    DANGER_ZONE = 10,
     //up powers
-    MIN_UP_POWER = 0, MAX_UP_POWER = 0.5,
+    MIN_POWER = 0, MAX_POWER = 0.4,
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
     MAX_VELOCITY = 10,
-    COUNTS_PER_DEGREE = 14.89444444,
+    COUNTS_PER_DEGREE = 13.6,
     //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
     //FULLY_LOADED_DISTANCE = 3,
@@ -49,8 +47,8 @@ public class Arm {
 	//final double MIN_POWER = 0.0;
     //final double LOW_POWER = 0.08;
     
-    private double P_POS = 0, I_POS = 0, D_POS = 0,
-			P_VEL = 0.000, I_VEL = 0, D_VEL = 0.0, G = 0,
+    private double P_POS = 0.1, I_POS = 0, D_POS = 0,
+			P_VEL = 0.002, I_VEL = 0, D_VEL = 0.0, G = 0.17,
 			lastPower = 0, previousReading = 0;
 	
 	private long intakeTime = 0;
@@ -60,8 +58,8 @@ public class Arm {
 	public double position = 0;
 	private long previousMillis = Common.time();
 	private boolean previousIntakeSafe = false;
-	private double previousPosition;
-
+	private double previousPosition = 0;
+	private double previousVelocity = 0;
 
     public enum States {
 		STOPPED, //The state that arm starts, does nothing unless the home function is run.
@@ -73,13 +71,14 @@ public class Arm {
 
     public Arm(Elevator elevator) {
 		this.elevator = elevator;
-        slider =  new Slider();
-		pid = new PositionByVelocityPID(MIN_ANGLE, MAX_ANGLE, -MAX_VELOCITY, MAX_VELOCITY, 0.01, "intake");
+		slider =  new Slider();
+		intakeArm.setInverted(true);
+		pid = new PositionByVelocityPID(MIN_ANGLE, MAX_ANGLE, -MAX_VELOCITY, MAX_VELOCITY, -MAX_POWER, MAX_POWER, 0.0, "Arm ");
 		pid.setPositionScalars(P_POS, I_POS, D_POS);
 		pid.setVelocityScalars(P_VEL, I_VEL, D_VEL);
 		pid.setVelocityInverted(true);
 		pid.setPositionInverted(true);
-		pid.setTargetPosition(45);
+		pid.setTargetPosition(10);
 		//Thread t = new Thread(new PotUpdate());
 		//t.start();
 		Common.dashNum("G", G);
@@ -92,28 +91,34 @@ public class Arm {
 	 */
 	public void setArmPower(double power) {
 		double minAngle = getMinAngle();
+		Common.dashNum("Arm Power input", power);
 		if (power > 0.0) {
+            power = Math.min(power, MAX_POWER);
 			if (getPosition() >= MAX_ANGLE) {
 				power = 0.0;
 				pid.reset();
 			}
 		} else {
+            power = Math.max(power, -MAX_POWER);
 			if (getPosition() <= minAngle) { 
 				power = 0.0;
 				pid.reset();
 			}
         }
-        power += gTerm();
-        power = rampPower(power);
-        //intakeArm.setPower(power);
-		Common.dashNum(" Power", power);
-		Common.dashNum("Arm Last Power", lastPower);
+        //Common.dashNum("Arm power before ramp", power);
+		power = rampPower(power);
 		lastPower = power;
+		//Can exceed max
+        power += gTerm();		
+		intakeArm.set(power);
+		Common.dashNum("Arm Power", power);
+		Common.dashNum("Arm Last Power", lastPower);
 	}
 	
 	private void setAccelArmPower(double targetPower) {
-		double power = 0; 	
-		if (Math.abs(lastPower - targetPower) > MAX_DELTA_POWER) {
+		Common.dashNum("arm accel input", targetPower);
+		double power = targetPower; 	
+		/*if (Math.abs(lastPower - targetPower) > MAX_DELTA_POWER) {
 			if (lastPower > targetPower) {
 				power = lastPower - MAX_DELTA_POWER;
 			} else {
@@ -121,7 +126,7 @@ public class Arm {
 			}
 		} else {
 			power = targetPower;
-		}
+		}*/
 		setArmPower(power);
 	}
 	
@@ -131,16 +136,19 @@ public class Arm {
 		double minPower = 0.0;
         if (power > 0) {
 			if(getPosition() >= MAX_ANGLE - DANGER_ZONE) {
-            	maxPower  = Common.map(getPosition(), MAX_ANGLE-DANGER_ZONE, MAX_ANGLE, MAX_UP_POWER, MIN_UP_POWER);
+            	maxPower  = Common.map(getPosition(), MAX_ANGLE-DANGER_ZONE, MAX_ANGLE, MAX_POWER, MIN_POWER);
+				//Common.dashNum("Arm top curve", maxPower);
 				power = Math.min(power, maxPower);
 			}
         } else {
 			if (getPosition() <= getMinAngle()+DANGER_ZONE) {
-				minPower = Common.map(getPosition(), getMinAngle()+DANGER_ZONE, getMinAngle(), MAX_DOWN_POWER, MIN_DOWN_POWER);
+				minPower = Common.map(getPosition(), getMinAngle(), getMinAngle()+DANGER_ZONE, -MAX_POWER, -MIN_POWER);
+				//Common.debug("ramping bottom");
+				//Common.dashNum("Arm bottom curve", minPower);
 				power = Math.max(power, minPower);
 			}
         }
-		
+		Common.dashNum("Post ramp power", power);
 		return power;
     }
     /**
@@ -173,7 +181,9 @@ public class Arm {
 	public double getVelocity() {
 		velocity = (position - previousPosition)/(1/Constants.REFRESH_RATE);
 		if (Double.isNaN(velocity)) {
-			Common.debug("Velocity NaN"+ velocity);
+            Common.debug("Delta position "+ (position - previousPosition));
+            Common.debug("Delta time is "+ (1.0/Constants.REFRESH_RATE));
+			Common.debug("Velocity NaN "+ velocity);
 			velocity = 0;
 		}
 		return velocity;
@@ -193,10 +203,18 @@ public class Arm {
 	 * Uses a PID to move the robot at the PID target positon.
 	 */
 	public void pidPosMove() {
-		double pidPosCalc = pid.calc(getPosition(), getVelocity());
-        Common.dashNum("pidPosCalc for intake arm", pidPosCalc);
+		if (getPosition() == getPositionTarget()) {
+			Common.debug("Arm target reached "+getPositionTarget());
+		}
+       /* double pidVelCalc = pid.calcPosition(getPosition());
+        pid.setTargetVelocity(pidVelCalc);
+		double pidPowCalc = pid.calcVelocity(getVelocity());*/
+		double pidPowCalc = pid.calc(getPosition(), getVelocity());
+        //Common.dashNum("Position move target power for arm", pidVelCalc);
+        //Common.dashNum("Position move target velocity for arm", pidPowCalc);
+        //Common.dashNum("pid ")
         //Got rid of G term because baked into arm.
-		setAccelArmPower(pidPosCalc);
+		setAccelArmPower(pidPowCalc);
 	}
 	
 	/**
@@ -211,7 +229,7 @@ public class Arm {
 		if ((lastVelocityTarget > 0 && velocity < 0) || (lastVelocityTarget < 0 && velocity > 0)) {
 			pid.resetVelocityPID();
 		}
-		if (getPosition() < minAngle && velocity > 0) {
+		if (getPosition() < minAngle && velocity < 0) { // was >
 			pid.setTargetVelocity(0.0);
 		}
 		else {
@@ -263,18 +281,26 @@ public class Arm {
 	}
 	
 	public double getMinAngle() {
-		if (elevator.intakeSafe()) {  //Is elevator
+        return MIN_ANGLE;
+		/*if (elevator.intakeSafe()) {  //Is elevator
 			Common.dashBool("MIN_ANGLE", true);
 			return MIN_ANGLE;
 		} 
 		else {
 			Common.dashBool("MIN_ANGLE", false);
 			return MIN_ELEVATOR_SAFE;
-		}
+		}*/
     }
     
+    /**
+     * The amount of power to stay at the current point
+     * 
+     * @return The amount of power to stay at the current position
+     */
     public double gTerm() {
         double gTerm = G*Math.cos(Math.toRadians(getPosition()));
+       //Common.dashNum("Cosine of arm", Math.cos(Math.toRadians(getPosition())));
+        Common.dashNum("G term", gTerm);
         return gTerm;
     }
 
@@ -303,8 +329,16 @@ public class Arm {
 	}
 	
 	public void update() {
-		pid.update();
-		G = Common.getNum("G");
+        pid.update();
+        //Upate position
+        previousPosition = position;
+        position = (getRawPosition() - HORIZONTAL_POSITION) / COUNTS_PER_DEGREE;
+		// Update Velocity
+		previousVelocity = velocity;
+		velocity = velocity*.9+(position - previousPosition)/(1.0/Constants.REFRESH_RATE)*.1;
+		//
+        //G = Common.getNum("G:", 0);
+        Common.dashNum("G", G);
 		switch(state) {
 			case STOPPED:
 				setAccelArmPower(0.0);
@@ -314,9 +348,8 @@ public class Arm {
 					pid.resetVelocityPID();
 				}
 				previousIntakeSafe = elevator.intakeSafe();
-				pidPosMove();
 				
-				//moveVelocity(0.0);
+				pidPosMove();
 				break;
 			case MOVING:
 				if (isComplete()) {
@@ -340,8 +373,9 @@ public class Arm {
 		Common.dashNum("Arm degrees", getPosition());
 		Common.dashNum("Arm raw position", getRawPosition());
 		Common.dashNum("Arm velocity", getVelocity());
-		Common.dashNum("Arm Position Target", getPositionTarget());
-		Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());
+		//Common.dashNum("Arm Position Target", getPositionTarget());
+        //Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());
+        Common.dashStr("Arm state", state.toString());
 	}
 
     /* From last year, if needed.

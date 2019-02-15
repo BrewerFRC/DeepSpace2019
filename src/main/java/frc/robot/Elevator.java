@@ -35,23 +35,35 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.15,
-		MAX_DOWN_POWER = -0.12,
+		MAX_UP_POWER = 0.3,
+		MAX_DOWN_POWER = -0.14,
 		//The minimum power that the elevator can be run at upward
-		MIN_UP_POWER = 0.12,
-		MIN_DOWN_POWER = -0.02,
+		MIN_UP_POWER = 0.11,
+		MIN_DOWN_POWER = -0.08,
 		//The maximum power change; for power curving of PID and Xbox
 		MAX_DELTA_POWER = 0.1, 
 		//In inches per second, for velocity ramping
-		MIN_VELOCITY = 0.5,
+		MIN_VELOCITY = 1,
 		//In inches per second, for position PID
-		MAX_POS_VELOCITY = 3, // Was: 45in/s
+		MAX_POS_VELOCITY = 5, // Was: 45in/s
 		//Maximum velocity while using the joystick
-		MAX_J_VELOCITY = 3, // Was: 10 in/s
+		MAX_J_VELOCITY = 5, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
 		//For Velocity ramping
-		DANGER_VEL_ZONE = 20;
+		DANGER_VEL_ZONE = 20,
+		//The distance from the floor to the arm pivot on the elevator in inches.
+		ARM_PIVOT_TO_FLOOR = 10.5,
+		//How much safe space (in inches) to remove taking into account the bumpers
+		BUMPER_INCHES_TO_FLOOR = -7.5,
+		//Minimum Y distance above bumper or floor to hand 
+		Y_HAND_SAFETY = 2,
+		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
+		Y_HAND_EXT = 11.07,
+		//The minimum angle at which the bumper can be cleared.
+		MIN_BUMPER_CLEAR_ANGLE = -1,
+		//The length of the arm in inches pivot to pivot.
+		ARM_LEN = 19.887;
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
@@ -66,7 +78,7 @@ public class Elevator {
 	long startTime;
 	
 	PositionByVelocityPID pid = new PositionByVelocityPID(0, SAFE_HEIGHT, -MAX_POS_VELOCITY, MAX_POS_VELOCITY, MAX_DOWN_POWER, MAX_UP_POWER, 0, "Elevator PID");
-	double velP = 0.002, velI = 0.0, velD = 0.0;
+	double velP = 0.005, velI = 0.0, velD = 0.0;
 	double posP = 5, posI = 0.0, posD = 0.0;
 	
 	public enum States {
@@ -103,7 +115,7 @@ public class Elevator {
 	 */
 	public void setPower(double power) {
 		// Check safeties and stop power if necessary
-		Common.dashNum("setPower passed power", power);
+		//Common.dashNum("setPower passed power", power);
 		//TODO: Recode/re-enable when arm safety is necessary.
 		/*if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
 			power = MIN_UP_POWER;
@@ -229,7 +241,33 @@ public class Elevator {
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
-	
+
+	/**
+	 * Checks for a safe angle that the arm can be moved to a height.
+	 * @param height the height to check safe angle of.
+	 * @return the safe angle.
+	 */
+	public double minArmSafeAngle(double height){
+		double yElevation = height + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR;
+		double yAvailable = yElevation - (Y_HAND_EXT + Y_HAND_SAFETY);
+
+		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
+		{
+			return -Math.asin(yAvailable/ARM_LEN);
+		}
+		else
+		{
+			return -90;
+		}
+	}
+	/**
+	 * Checks for a safe height that the arm can be moved to a given angle.
+	 * @param angle the angle to check safe height of.
+	 * @return the safe height.
+	 */
+	public double minArmSafeHeight(double angle){
+		return -Math.sin(angle) * ARM_LEN + BUMPER_INCHES_TO_FLOOR + Y_HAND_SAFETY - (Y_HAND_EXT + ARM_PIVOT_TO_FLOOR);
+	}
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
 	 * 
@@ -407,6 +445,7 @@ public class Elevator {
 		Common.dashNum("Elevator Velocity", getVelocity());
 		Common.dashNum("Position PID Target", pid.getTargetPosition());
 		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
+		Common.dashNum("Get Rate", encoder.getRate());
 	}
 	
 	/**
@@ -420,6 +459,8 @@ public class Elevator {
 			setPower(0.0);
 			break;
 		case HOMING:
+			double safeAngle = minArmSafeAngle(0);
+			//TODO: set this target angle 
 			if (atBottom()) { 
 				resetEncoder();
 				setPower(0.0);
