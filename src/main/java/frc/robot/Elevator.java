@@ -63,8 +63,8 @@ public class Elevator {
 		//The minimum angle at which the bumper can be cleared.
 		MIN_BUMPER_CLEAR_ANGLE = -1,
 		//The length of the arm in inches pivot to pivot.
-        ARM_LEN = 19.887,
-        PIVOT_TO_BOTTOM = 5.875;s
+        ARM_LEN = 19.887;
+        //PIVOT_TO_BOTTOM = 5.875;
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
