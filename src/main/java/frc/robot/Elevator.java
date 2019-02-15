@@ -242,31 +242,44 @@ public class Elevator {
 		accelPower(pidDisCalc);
 	}
 
-	/**
+	 /**
 	 * Checks for a safe angle that the arm can be moved to a height.
 	 * @param height the height to check safe angle of.
 	 * @return the safe angle.
 	 */
-	public double minArmSafeAngle(double height){
-		double yElevation = height + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR;
+	public  double minArmSafeAngle(double height){
+		double yElevation = height + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR;
 		double yAvailable = yElevation - (Y_HAND_EXT + Y_HAND_SAFETY);
 
 		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
 		{
-			return -Math.asin(yAvailable/ARM_LEN);
+            System.out.println("Doing math");
+            double radians = Math.asin(yAvailable/ARM_LEN);
+            System.out.println(radians);
+			return -Math.toDegrees(radians);
 		}
 		else
 		{
+            System.out.println("Not doing math");
 			return -90;
 		}
 	}
 	/**
 	 * Checks for a safe height that the arm can be moved to a given angle.
-	 * @param angle the angle to check safe height of.
+	 * @param angle the angle to check safe height of in degrees.
 	 * @return the safe height.
 	 */
 	public double minArmSafeHeight(double angle){
-		return -Math.sin(angle) * ARM_LEN + BUMPER_INCHES_TO_FLOOR + Y_HAND_SAFETY - (Y_HAND_EXT + ARM_PIVOT_TO_FLOOR);
+        //double constant = (-BUMPER_INCHES_TO_FLOOR + ARM_PIVOT_TO_FLOOR) + Y_HAND_SAFETY + (Y_HAND_EXT)- PIVOT_TO_BOTTOM;
+        double constant = Y_HAND_EXT - ARM_PIVOT_TO_FLOOR;
+        double angleReach = (-Math.sin(Math.toRadians(angle)) * ARM_LEN);
+       if (angle < MIN_BUMPER_CLEAR_ANGLE) {
+            System.out.println("angle Reach "+angleReach);
+            System.out.println("Constant "+constant);
+            return angleReach + constant+ BUMPER_INCHES_TO_FLOOR;
+        } else {
+            return angleReach + constant;
+        }
 	}
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
