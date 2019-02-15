@@ -17,6 +17,7 @@ public class Elevator {
 	//Intake intake;
 	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.CAN_LIFT_L);
 	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.CAN_LIFT_R);
+	public Arm arm;
 	private Encoder encoder; 
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
@@ -254,15 +255,15 @@ public class Elevator {
 
 		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
 		{
-            System.out.println("Doing math");
+            //System.out.println("Doing math");
             double radians = Math.asin(yAvailable/ARM_LEN);
             System.out.println(radians);
 			return -Math.toDegrees(radians);
 		}
 		else
 		{
-            System.out.println("Not doing math");
-			return -90;
+            //System.out.println("Not doing math");
+			return arm.MIN_ANGLE;
 		}
 	}
 	/**
@@ -275,8 +276,8 @@ public class Elevator {
         double constant = Y_HAND_EXT - ARM_PIVOT_TO_FLOOR;
         double angleReach = (-Math.sin(Math.toRadians(angle)) * ARM_LEN);
        if (angle < MIN_BUMPER_CLEAR_ANGLE) {
-            System.out.println("angle Reach "+angleReach);
-            System.out.println("Constant "+constant);
+           /* System.out.println("angle Reach "+angleReach);
+            System.out.println("Constant "+constant);*/
             return angleReach + constant+ BUMPER_INCHES_TO_FLOOR;
         } else {
             return angleReach + constant;
@@ -450,6 +451,8 @@ public class Elevator {
 	 * Prints standard debug information about elevator components.
 	 */
 	public void debug() {
+		Common.dashNum("Min arm safe angle", minArmSafeAngle(getInches()));
+		Common.dashNum("Min elevator safe height", minArmSafeHeight(arm.getPosition()));
 		Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
