@@ -21,6 +21,8 @@ public class Intake {
     private final float softEjectPower = -0.2f;
     private final float ballLoadedInches = 0f;
     private final float loadedHoldPower = 0.1f;
+    private final int loadCycles = 5;
+    private final int ejectCycles = 8;
 
     private enum CargoStates {
         EMPTY,
@@ -32,6 +34,7 @@ public class Intake {
     private CargoStates cargoState = CargoStates.EMPTY;
     
     private double infaredPreviousReading = 0;
+    private double cycles = 0;
 
     Spark ballIntakeMotor;
     
@@ -52,8 +55,17 @@ public class Intake {
 
                 if(getInfaredCheck()) //Waits for a load and then powers off motors.
                 {
-                    cargoState = CargoStates.LOADED;
-                    setMotor(loadedHoldPower);
+                    if(cycles < loadCycles)
+                    {
+                        cycles++;
+                    }
+                    else
+                    {
+                        cycles = 0;
+                        cargoState = CargoStates.LOADED;
+                        setMotor(loadedHoldPower);
+                    }
+                    
                 }
             break;
             case LOADED:
@@ -73,7 +85,13 @@ public class Intake {
 
                 if(!getInfaredCheck())
                 {
-                    cargoState = CargoStates.EMPTY;
+                    if(cycles < ejectCycles){
+                        cycles++;
+                    }
+                    else {
+                        cargoState = CargoStates.EMPTY;
+                        cycles = 0;
+                    }
                 }
             break;
             case SOFT_EJECT:
@@ -81,7 +99,14 @@ public class Intake {
 
                 if(!getInfaredCheck())
                 {
-                    cargoState = CargoStates.EMPTY;
+                    if(cycles < ejectCycles){
+                        cycles++;
+                    }
+                    else {
+                        cargoState = CargoStates.EMPTY;
+                        cycles = 0;
+                    }
+                    
                 }
             break;
         }
