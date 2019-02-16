@@ -20,7 +20,7 @@ public class Robot extends TimedRobot {
 	private Heading heading;
 	private DriveTrain dt;
 	private DigitalInput headingbutton;
-	//private Slider slider;
+	private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
 
@@ -71,7 +71,12 @@ public class Robot extends TimedRobot {
 		heading = new Heading();
 		heading.reset();
 		//dt = new DriveTrain();
+<<<<<<< HEAD
 		
+=======
+		elevator = new Elevator();
+		slider = elevator.arm.getSlider();
+>>>>>>> fce70a64637ef70e8fa3758812a515ed3cfc84ca
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -95,8 +100,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		elevator.home();
-		arm.init();
+		elevator.init();
+		
+		
 		//heading.reset();
 		//heading.setHeadingHold(true);
 	}
@@ -107,6 +113,7 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
+<<<<<<< HEAD
 		/* Driver:
 		 * Left bumper is hard intake run
 		 * Right bumper is hatch pickup
@@ -141,6 +148,42 @@ public class Robot extends TimedRobot {
 		if (driver.when("b")) {
 			arm.runIntake(); //out
 		}
+=======
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+		elevator.update();
+		elevator.debug();
+		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
+			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
+		}
+		if (driver.when("a")) {
+			arm.movePosition(20);
+		}
+		if (driver.when("b")) {
+			arm.movePosition(10);
+		}
+		if (driver.when("x")) {
+			arm.movePosition(50);
+		}
+		if (driver.when("dPadUp")) {
+			slider.fingerUp();
+		}
+		if (driver.when("dPadDown")) {
+			slider.fingerDown();
+		}
+		if (driver.getPressed("leftBumper")) {
+			slider.setTarget(-2);
+		}
+		else if (driver.getPressed("rightBumper")) {
+			slider.setTarget(2);
+		}
+		else {
+				slider.setTarget(0);
+		}
+		
+		arm.dashboard();
+>>>>>>> fce70a64637ef70e8fa3758812a515ed3cfc84ca
 
 		if (isTeleopAllowed()) {
 			//Driver
