@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
 
 
 		double forward = joystickX(GenericHID.Hand.kLeft); 
-		double turn = joystickY(GenericHID.Hand.kRight);
+		double turn = joystickY(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
 		if (driver.getPressed("leftBumper")) {
@@ -178,16 +178,26 @@ public class Robot extends TimedRobot {
 				state = States.HATCH_PLACE;
 			}
 
+			double driverRight = driver.getY(GenericHID.Hand.kRight);
+			if (Math.abs(driverRight) > .2) {
+				userMove = true;
+				arm.moveVelocity(driverRight);
+			}
+
+			double operatorRight = driver.getY(GenericHID.Hand.kRight);
+			if (Math.abs(operatorRight) > .2) {
+				userMove = true;
+				elevator.joystickControl(driverRight);
+			}
 			
-			
-			/*
-			*  Need to change userMove when elevator or arm is being used by human
-			*/
 		}
 		
 
 		debug();
 		slider.update();
+		elevator.update();
+
+		//Still neccasary?
 		if (elevator.state == elevator.States.HOMING) {
 			arm.doStowUp();
 			state = States.HOMING;
@@ -210,6 +220,7 @@ public class Robot extends TimedRobot {
 
 		elevator.debug();
 		//SmartDashboard.putNumber("PID", heading.turnRate());
+		*/
 	}
 
 	/**
@@ -236,7 +247,7 @@ public class Robot extends TimedRobot {
 		switch(state) {
 		case HOMING:
 			if (elevator.getState() != elevator.States.HOMING) {
-				safe = true;
+				teleopAllowed = true;
 				state = States.TO_STOW;
 			}
 			break;
@@ -348,9 +359,6 @@ public class Robot extends TimedRobot {
 	 */
 	public States getState() {
 		return this.state;
-	}
-	public static boolean isTeleopAllowed(){
-		return teleopAllowed;
 	}
 	
 	/**

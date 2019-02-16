@@ -46,6 +46,7 @@ public class Xbox extends XboxController {
 	
 	/**
 	 * The universal deadzone for the controller.
+	 * Uses a deadzone of .2.
 	 * 
 	 * @param input the value of the interface in use.
 	 * @return the input value with deadzone applied.
