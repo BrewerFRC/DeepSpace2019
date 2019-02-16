@@ -108,17 +108,17 @@ public class Arm {
 	 */
 	public void setArmPower(double power) {
 		Common.dashNum("Arm Power input", power);
-		if (power > 0.0) {
+		if (power > 0.0) { // Moving up
             power = Math.min(power, MAX_POWER);
 			if (getPosition() >= MAX_ANGLE) {
 				power = 0.0;
 				pid.reset();
 				Common.debug("setArmPower: arm above MAX_ANGLE forced PID reset");
 			}
-		} else {
+		} else { // Moving down
             power = Math.max(power, -MAX_POWER);
 			if (getPosition() <= getMinAngle()) { 
-				power = 0.0;
+				power = gTerm();
 				pid.reset();
 				Common.debug("setArmPower: arm below getMinAngle() forced PID reset");
 			}
@@ -293,17 +293,14 @@ public class Arm {
 			state = States.JOYSTICK;
 		}
 	}
-	
-	public double getMinAngle() {
-        return MIN_ANGLE;
-		/*if (elevator.intakeSafe()) {  //Is elevator
-			Common.dashBool("MIN_ANGLE", true);
-			return MIN_ANGLE;
-		} 
-		else {
-			Common.dashBool("MIN_ANGLE", false);
-			return MIN_ELEVATOR_SAFE;
-		}*/
+	/**
+	 * Returns the lowest angle that is safe for current elevator height.
+	 * @return angle
+	 */
+	public double getMinAngle() { 
+        double minSafe = elevator.minArmSafeAngle(elevator.getInches());
+		
+		return Math.max(MIN_ANGLE, minSafe);
     }
     
     /**

@@ -21,7 +21,6 @@ public class Intake {
     private final float softEjectPower = -0.2f;
     private final float ballLoadedInches = 0f;
     private final float loadedHoldPower = 0.1f;
-    private final boolean isDebugging = true;
 
     private enum CargoStates {
         EMPTY,
@@ -46,52 +45,47 @@ public class Intake {
      */
     public void update ()
     {
-        if(!isDebugging)
+        switch(cargoState)
         {
-            switch(cargoState)
-            {
-                case LOADING:
-                    setMotor(loadingPower);
+            case LOADING:
+                setMotor(loadingPower);
 
-                    if(getInfaredCheck()) //Waits for a load and then powers off motors.
-                    {
-                        cargoState = CargoStates.LOADED;
-                        setMotor(loadedHoldPower);
-                    }
-                break;
-                case LOADED:
+                if(getInfaredCheck()) //Waits for a load and then powers off motors.
+                {
+                    cargoState = CargoStates.LOADED;
                     setMotor(loadedHoldPower);
+                }
+            break;
+            case LOADED:
+                setMotor(loadedHoldPower);
 
-                    if(!getInfaredCheck()) //Waits for a load and then powers off motors.
-                    {
-                        cargoState = CargoStates.EMPTY;
-                        setMotor(0.0f);
-                    }
-                break;
-                case EMPTY:
+                if(!getInfaredCheck()) //Waits for a load and then powers off motors.
+                {
+                    cargoState = CargoStates.EMPTY;
                     setMotor(0.0f);
-                break;
-                case EJECT:
-                    setMotor(ejectPower);
+                }
+            break;
+            case EMPTY:
+                setMotor(0.0f);
+            break;
+            case EJECT:
+                setMotor(ejectPower);
 
-                    if(!getInfaredCheck())
-                    {
-                        cargoState = CargoStates.EMPTY;
-                    }
-                break;
-                case SOFT_EJECT:
-                    setMotor(softEjectPower);
+                if(!getInfaredCheck())
+                {
+                    cargoState = CargoStates.EMPTY;
+                }
+            break;
+            case SOFT_EJECT:
+                setMotor(softEjectPower);
 
-                    if(!getInfaredCheck())
-                    {
-                        cargoState = CargoStates.EMPTY;
-                    }
-                break;
-            }
+                if(!getInfaredCheck())
+                {
+                    cargoState = CargoStates.EMPTY;
+                }
+            break;
         }
-        else {
-
-        }                         
+                            
     }
 
     public void debug(){
@@ -101,7 +95,7 @@ public class Intake {
      * Sets the motor power.
      * @param power the power you want to set the motor to.
      */
-    public void setMotor(float power)
+    private void setMotor(float power)
     {
         power = Math.max(Math.min(power, maxPower), -maxPower);
 
@@ -133,7 +127,10 @@ public class Intake {
         infaredPreviousReading = reading;
         return inches;
     }
-
+    /**
+     * Checks if the infared sensor is within the range to be loaded with a ball.
+     * @return boolean for whether or not the intake is loaded.
+     */
     public boolean getInfaredCheck()
     {
         if(getInfaredInches() <= ballLoadedInches)
@@ -156,7 +153,7 @@ public class Intake {
     }
     
     /**
-     * Moves the ball intake into loading mode
+     * Moves the ball intake into loading mode.
      */
     public void toggleLoading (){
         if (cargoState == CargoStates.EMPTY){
@@ -164,6 +161,22 @@ public class Intake {
         }
         if(cargoState == CargoStates.LOADING){
             cargoState = CargoStates.EMPTY;
+        }
+    }
+    /**
+     * Soft ejects the ball if within the loaded state.
+     */
+    public void doSoftEject(){
+        if(cargoState == CargoStates.LOADED){
+            cargoState = CargoStates.SOFT_EJECT;
+        }
+    }
+    /**
+     * Ejects the ball if within the loaded state.
+     */
+    public void doEject (){
+        if(cargoState == CargoStates.LOADED){
+            cargoState = CargoStates.EJECT;
         }
     }
 }
