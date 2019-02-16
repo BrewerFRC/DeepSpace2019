@@ -22,6 +22,7 @@ public class Elevator {
 	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
 	//false = pressed
 	private DigitalInput magSwitch = new DigitalInput(Constants.DIO_MAG_SWITCH);
+	public Arm arm;
 	//Elevator height in inches(random value
 	public final double COUNTS_PER_INCH = 7120/62.75, 
 		//Absolute elevator travel is 62.75 inches
@@ -58,10 +59,21 @@ public class Elevator {
 		ARM_ARC_BUFFER = 2,
 		//How far, in inches, the bottom of the forbar is from its respective pivot point.
 		FORBAR_YEXT = 2,
-		//The length of the arm in inches.
-		ARM_LEN = 100,
 		//For Velocity ramping
-		DANGER_VEL_ZONE = 20;
+		DANGER_VEL_ZONE = 20,
+		//The distance from the floor to the arm pivot on the elevator in inches.
+		ARM_PIVOT_TO_FLOOR = 10.5,
+		//How much safe space (in inches) to remove taking into account the bumpers
+		BUMPER_INCHES_TO_FLOOR = 7.5,
+		//Minimum Y distance above bumper or floor to hand 
+		Y_HAND_SAFETY = 0.5,
+		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
+		Y_HAND_EXT = 10.87,
+		//The minimum angle at which the bumper can be cleared.
+		MIN_BUMPER_CLEAR_ANGLE = -1,
+		//The length of the arm in inches pivot to pivot.
+		ARM_LEN = 19.887;
+		//PIVOT_TO_BOTTOM = 5.875;
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
@@ -101,11 +113,23 @@ public class Elevator {
 		pid.setVelocityInverted(true);
 		pid.setPositionScalars(posP, posI, posD);
 		pid.setPositionInverted(true);
+		arm = new Arm(this);
 		
 		Thread t = new Thread(new MagSwitchTask()); // This starts the new thread for the magnetic sensor.
 		t.start();
 	}
 	
+
+	/**
+	 *  Initialize elevator variables whenever enabling robot
+	 * 
+	 * @param power
+	 */
+	public void init() {
+		arm.init();
+		home();
+	}
+
 	/**
 	 * A safe function to set the power of the elevator, cannot exceed MAX_POWER
 	 * 
@@ -145,7 +169,7 @@ public class Elevator {
 			}
 		}
 		power = encoderTest(power); 
-		
+
 		lastPower = power;
 		elevatorRight.set(power); 
 		elevatorLeft.set(power);
@@ -241,6 +265,47 @@ public class Elevator {
 		accelPower(pidDisCalc);
 	}
 
+	 /**
+	 * Checks for a safe angle that the arm can be moved to a height.
+	 * @param height the height to check safe angle of.
+	 * @return the safe angle.
+	 */
+	public  double minArmSafeAngle(double height){
+		double yElevation = height + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR;
+		double yAvailable = yElevation - (Y_HAND_EXT + Y_HAND_SAFETY);
+
+		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
+		{
+            //System.out.println("Doing math");
+            double radians = Math.asin(yAvailable/ARM_LEN);
+            System.out.println(radians);
+			return -Math.toDegrees(radians);
+		}
+		else
+		{
+            //System.out.println("Not doing math");
+			return arm.MIN_ANGLE;
+		}
+	}
+
+	/**
+	 * Checks for a safe height that the arm can be moved to a given angle.
+	 * @param angle the angle to check safe height of in degrees.
+	 * @return the safe height.
+	 */
+	public double minArmSafeHeight(double angle){
+        //double constant = (-BUMPER_INCHES_TO_FLOOR + ARM_PIVOT_TO_FLOOR) + Y_HAND_SAFETY + (Y_HAND_EXT)- PIVOT_TO_BOTTOM;
+        double constant = Y_HAND_EXT - ARM_PIVOT_TO_FLOOR;
+        double angleReach = (-Math.sin(Math.toRadians(angle)) * ARM_LEN);
+       if (angle < MIN_BUMPER_CLEAR_ANGLE) {
+           /* System.out.println("angle Reach "+angleReach);
+            System.out.println("Constant "+constant);*/
+            return angleReach + constant+ BUMPER_INCHES_TO_FLOOR;
+        } else {
+            return angleReach + constant;
+        }
+	}
+	
 	/**
 	 * 
 	 * @return
@@ -258,6 +323,7 @@ public class Elevator {
 			return -90;
 		}
 	}
+
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
 	 * 
@@ -482,6 +548,7 @@ public class Elevator {
 			}
 			break;
 		}
+		arm.update();
 	}
 	
 	public class MagSwitchTask implements Runnable {

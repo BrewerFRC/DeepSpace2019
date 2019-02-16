@@ -59,15 +59,16 @@ public class Slider {
     }
 
     public void fingerUp() {
-        lServo.set(0.39);
+        lServo.set(0.34);
         rServo.set(0.0);
     }
 
     public void fingerDown() {
-        //lServo.set(0.0);
-        //rServo.set(0.39)
+        // was 
         lServo.set(0.03);
-        rServo.set(0.35);
+        //rServo.set(0.39)
+        lServo.set(0.05);
+        rServo.set(0.3);
     }
 
     public void forcePower(double power) {

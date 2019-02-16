@@ -19,7 +19,7 @@ public class Robot extends TimedRobot {
 	private Heading heading;
 	private DriveTrain dt;
 	private DigitalInput headingbutton;
-	//private Slider slider;
+	private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
 
@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		//dt = new DriveTrain();
 		elevator = new Elevator();
-		arm = new Arm(elevator);
+		slider = elevator.arm.getSlider();
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -90,8 +90,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		elevator.home();
-		arm.init();
+		elevator.init();
+		
+		
 		//heading.reset();
 		//heading.setHeadingHold(true);
 	}
@@ -120,23 +121,21 @@ public class Robot extends TimedRobot {
 			arm.movePosition(50);
 		}
 		if (driver.when("dPadUp")) {
-			arm.slider.fingerUp();
+			slider.fingerUp();
 		}
 		if (driver.when("dPadDown")) {
-			arm.slider.fingerDown();
+			slider.fingerDown();
 		}
 		if (driver.getPressed("leftBumper")) {
-			arm.slider.setTarget(-2);
+			slider.setTarget(-2);
 		}
 		else if (driver.getPressed("rightBumper")) {
-			arm.slider.setTarget(2);
+			slider.setTarget(2);
 		}
 		else {
-				arm.slider.setTarget(0);
+				slider.setTarget(0);
 		}
 		
-
-		arm.update();
 		arm.dashboard();
 
 		/*if (safeToMove()) {
