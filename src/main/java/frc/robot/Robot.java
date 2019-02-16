@@ -336,13 +336,7 @@ public class Robot extends TimedRobot {
 				}
 			}
 			break;
-<<<<<<< HEAD
 		}
-=======
-		}*/
-
-		//SmartDashboard.putNumber("PID", heading.turnRate());
->>>>>>> 656994a877073bbd041975bb6b1300050a04da2d
 	}
 
 	/**
@@ -352,8 +346,6 @@ public class Robot extends TimedRobot {
 	 */
 	public States getState() {
 		return this.state;
-<<<<<<< HEAD
-=======
 	}
 	public static boolean isTeleopAllowed(){
 		return teleopAllowed;
@@ -370,7 +362,6 @@ public class Robot extends TimedRobot {
 			safe =  false;
 		}
 		return safe;
->>>>>>> 656994a877073bbd041975bb6b1300050a04da2d
 	}
 
 	/**
