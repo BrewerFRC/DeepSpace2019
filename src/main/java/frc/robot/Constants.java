@@ -17,7 +17,7 @@ public class Constants{
         DIO_SLIDER_RIGHT_LIMIT = 3,
         DIO_LOWER_LIMIT = 4,
         DIO_MAG_SWITCH = 5,
-        //whatever the sensor te finger uses = 6
+        DIO_FINGER_SWITCH = 6,
         //CAN
         CAN_DRIVE_BL = 2,
         CAN_DRIVE_FL = 0,

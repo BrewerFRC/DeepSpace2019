@@ -2,33 +2,45 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.Servo;
 
-
+/**
+ * A class to control a finger, the slider that finger is mounted on and associated sensors.
+ * 
+ * @author Brewer FIRST Robotics Team 4564
+ * @author Sam Woodward
+ * @author Brent Roberts
+ */
 public class Slider {
 
     private Servo lServo = new Servo(Constants.PWM_SERVO_LEFT);
     private Servo rServo = new Servo(Constants.PWM_SERVO_RIGHT);
-
-    public static final int
-    POT_LEFT_LIMIT = 235,
-    POT_RIGHT_LIMIT = 1237,
-    POT_CENTER = 741;
-    public static final double
-    INCH_LEFT_LIMIT = -3.2,
-    INCH_RIGHT_LIMIT = 3.2,
-    INCH_CENTER = 0,
-    FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
-    MOTOR_POWER = 1d,
-    ALLOWANCE = 0.1d;
-    public static final boolean
-    INVERT_MOTOR = true,
-    INVERT_TARGET = false;
-
-    private double targetInches = 0.0d;
     private AnalogInput pot = new AnalogInput(Constants.ANA_POT_SLIDER);
     private Spark motor = new Spark(Constants.PWM_SLIDER_MOTOR);
+    private DigitalInput fingerSwitch = new DigitalInput(Constants.DIO_FINGER_SWITCH);
+    private DigitalInput leftSwitch = new DigitalInput(Constants.DIO_SLIDER_LEFT_LIMIT);
+    private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
+
+    public static final int
+        POT_LEFT_LIMIT = 235,
+        POT_RIGHT_LIMIT = 1237,
+        POT_CENTER = 741;
+    public static final double
+        INCH_LEFT_LIMIT = -3.2,
+        INCH_RIGHT_LIMIT = 3.2,
+        INCH_CENTER = 0,
+        FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
+        MOTOR_POWER = 1d,
+        ALLOWANCE = 0.1d;
+    public static final boolean
+        INVERT_MOTOR = true,
+        INVERT_TARGET = false;
+
+    private double targetInches = 0.0d;
+
+    
 
     /**
 	 * Returns the raw potentiometer reading for the slider potentiometer.
@@ -57,6 +69,26 @@ public class Slider {
             targetInches = inches;
         }
     }
+
+    /**
+     * Returns if the finger limit Switch is pressed.
+     * 
+     * @return If the finger limit switch is pressed.
+     */
+    public boolean fingerPressed() {
+        return fingerSwitch.get();
+    }
+
+    /**
+     * Returns true if either of the intake limit switches are pressed.
+     * 
+     * @return Whether either of the front finger limit switches are pressed.
+     */
+    public boolean pressed() {
+        return (leftSwitch.get() || rightSwitch.get());
+    }
+
+
 
     public void fingerUp() {
         lServo.set(0.34);
