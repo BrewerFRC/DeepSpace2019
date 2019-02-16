@@ -135,7 +135,7 @@ public class Robot extends TimedRobot {
 		 * A is low position(for placing[defaults to cargo])
 		 * B is middle position
 		 * Y is top position
-		**/
+		 */
 		userMove = false;
 
 
@@ -144,29 +144,29 @@ public class Robot extends TimedRobot {
 		dt.accelDrive(forward, turn);
 
 		if (driver.getPressed("leftBumper")) {
-			intake.(); //in
+			intake.toggleLoading(); //in
 		}
 
 		if (driver.when("b")) {
-			arm.runIntake(); //out
+			intake.doEject(); //out
 		}
 
 		if (isTeleopAllowed()) {
 			//Driver
-			if (driver.when("rightBumper")) {
+			if (driver.when("rightBumper")) { //Hatch pickup
 				arm.doStowDown();
 				elevator.moveToHeight(this.ELE_LOW_HATCH);
-				arm.startAlign();//unknown function to start slider movement
+				//arm.startAlign();//unknown function to start slider movement
 				state = States.HATCH_PICKUP;
 			}
 
-			if (driver.when("a")) {
+			if (driver.when("a")) { //Cargo pickup
 				arm.doHorizontal();
 				elevator.doStowUp(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
 			}
 
-			//Joystick
+			//Joystick Arm
 			double armMove = driver.deadzone(driver.getX(GenericHID.Hand.kRight));
 			if (Math.abs(armMove) > 0) {
 				userMove = true;
@@ -174,38 +174,33 @@ public class Robot extends TimedRobot {
 			}
 
 			//Operator
-			if (operator.when("rightBumper")) {
-				if (arm.getPosition() < arm.horizental) {
+			if (operator.when("rightBumper")) { //Place hatch
+				if (arm.getPosition() < 0) {
 					arm.movePosition(ARM_LOW_PLACE);
-					elevator.doPlace(-1);
+					//elevator.doPlace(-1);
 				} else {
 					arm.movePosition(ARM_HIGH_PLACE);
-					elevator.doPlace(1);
+					//elevator.doPlace(1);
 				}
 				state = States.HATCH_PLACE;
 			}
 
-			double driverRight = driver.getY(GenericHID.Hand.kRight);
-			if (Math.abs(driverRight) > .2) {
-				userMove = true;
-				arm.moveVelocity(driverRight);
-			}
-
+			//Joystick elevator
 			double operatorRight = driver.getY(GenericHID.Hand.kRight);
 			if (Math.abs(operatorRight) > .2) {
 				userMove = true;
-				elevator.joystickControl(driverRight);
+				elevator.joystickControl(operatorRight);
 			}
 
 		}
 		
 
 		debug();
-		slider.update();
+		arm.update();
 		elevator.update();
 
 		//Still neccasary?
-		if (elevator.state == elevator.States.HOMING) {
+		if (elevator.getState() == Elevator.States.HOMING) {
 			arm.doStowUp();
 			state = States.HOMING;
 		}
@@ -246,33 +241,32 @@ public class Robot extends TimedRobot {
 			TODO: TO_STOW
 			TODO: think about more safeties
 		*/
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
+		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state == States.HATCH_PLACE) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
 		}
 		switch(state) {
 		case HOMING:
-			if (elevator.getState() != elevator.States.HOMING) {
+			if (elevator.getState() != Elevator.States.HOMING) {
 				teleopAllowed = true;
 				state = States.TO_STOW;
 			}
 			break;
 		case EMPTY:
-			if (arm.hasCargo()) {
+			if (intake.getInfaredCheck()) {
 				state = States.HAS_CARGO;
-			} else if (arm.hasHatch()) {
+			} else if (hasHatch) {
 				state = States.HAS_HATCH;
 			}
 			break;
 		case HATCH_PICKUP:
-			if (HatchVision.getDistance() <= this.GRAB_DIST) {
+			if (HatchVision.getDistance() <= this.GRAB_DIST) {//Replace with pressure?
 				state = States.HATCH_GRAB;
-				//Assumes arm will stop
-				arm.positionLowPlace();
-				elevator.doPlace(-1); //Down
-				arm.fingerSearch();//Starts fingerSearch
 			}
+			arm.positionLowPlace();
+			elevator.doPlace(-1); //Down
+			//arm.fingerSearch();//Starts fingerSearch
 			if (userMove) {
 				state = States.EMPTY;
 			}
@@ -281,10 +275,11 @@ public class Robot extends TimedRobot {
 			if (hasHatch) {
 				state = States.TO_STOW;
 			}
-			if (arm.isPressure()) { //Arm is pressed
-				if (!arm.fingerPressd()) {//Finger unpressed
+			if (slider.isPressure()) { //Arm is pressed
+				if (!slider.fingerPressd()) {//Finger unpressed
 					arm.raiseFinger();
 					hasHatch = true;
+			//Needs to be changed to work with auto pickup
 					state = States.HAS_HATCH;
 				} else {
 					state = States.HATCH_SEARCH;
@@ -292,13 +287,13 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_SEARCH:
-			if (arm.isPressure && !arm.pressed) {
-				arm.raiseFinger();
+			if (slider.isPressure && !slider.pressed) {
+				slider.raiseFinger();
 				hasHatch = true;
 				state = States.TO_STOW;
 			}
 			//TODO: Needs safety?
-			if (!arm.slider.fingerSearching || arm.isPressure) {
+			if (!slider.fingerSearching || slider.isPressure) {
 				state = States.HATCH_PICKUP;
 				arm.doStowDown();
 				elevator.moveToHeight(this.ELE_LOW_HATCH);
@@ -312,8 +307,8 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_PLACE:
 			int t = 0;
-			if (arm.isPressure) {
-				arm.slider.dropFinger();
+			if (slider.isPressure) {
+				slider.fingerDown();
 				t++;
 			}
 			if (t >= 2) {
@@ -321,33 +316,33 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case CARGO_PICKUP:
-			arm.runIntake();
+			intake.toggleLoading();;
 			if (userMove) {
 				state = States.EMPTY;
 			}
-			if (arm.hasCargo()) {
+			if (intake.getInfaredCheck()) {
 				state = States.TO_STOW;
 			}
 			break;
 		case HAS_CARGO:
-			if (!arm.hasCargo) {
+			if (!intake.getInfaredCheck()) {
 				state = States.EMPTY;
 			}
 			break;
 		case  TO_STOW:
-			if (stowUp && pi.getDistance > STOW_SAFE) {
-				elevator.doStowUp(); //TODO: make sure this is the correct function.
+			if (stowUp/* && pi.getDistance > STOW_SAFE*/) {
+				elevator.doStowUp();
 				arm.doStowUp();
-			} else if (pi.getDistance >STOW_SAFE) {
+			} else /*if (pi.getDistance >STOW_SAFE)*/ {
 				elevator.doStowDown();
 				arm.doStowUp();
 			}
 			if (arm.isComplete() && elevator.isComplete()) {
-				if (elevator.Target == elevator.stowDown || elevator.Target == elevator.stowDown) {
-					if (arm.Target == arm.stowUp || arm.target == arm.stowDown) {
+				if (elevator.getInches() == elevator.stowDown || elevator.getInches() == elevator.stowDown) {
+					if (arm.getPosition() == arm.stowUp || arm.getPosition() == arm.stowDown) {
 						if (hasHatch) {
 							state = States.HAS_HATCH;
-						} else if (arm.hasCargo) {
+						} else if (intake.getInfaredCheck()) {
 							state = States.HAS_CARGO;
 						} else {
 							state = States.EMPTY;

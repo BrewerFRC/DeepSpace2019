@@ -349,6 +349,10 @@ public class Arm {
 		return Math.abs(pid.getTargetPosition() - getPosition()) < ACCEPTABLE_ERROR;
 	}
 	
+	/**
+	 * Runs arm update stuff.
+	 * Also runs intake.update and slider.update.
+	 */
 	public void update() {
         pid.update();
         //Upate position
@@ -395,6 +399,7 @@ public class Arm {
 				break;
 		}
 		slider.update();
+		intake.update();
 	}
 
 	public void dashboard() {
