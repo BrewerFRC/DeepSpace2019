@@ -239,7 +239,8 @@ public class Slider {
                 }
                 break;
         }
-	    // debug necessary?
+        // debug necessary?
+        Common.dashStr("Slider state", sliderState.toString());
         Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
