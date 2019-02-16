@@ -15,13 +15,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
  */
 public class Elevator {
 	//Intake intake;
-	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.ELEVATOR_LEFT);
-	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.ELEVATOR_RIGHT);
+	WPI_VictorSPX elevatorLeft = new WPI_VictorSPX(Constants.CAN_LIFT_L);
+	WPI_VictorSPX elevatorRight = new WPI_VictorSPX(Constants.CAN_LIFT_R);
 	private Encoder encoder; 
 	//true = pressed
 	private DigitalInput lowerLimit = new DigitalInput(Constants.DIO_LOWER_LIMIT);
 	//false = pressed
-	private DigitalInput magSwitch = new DigitalInput(Constants.MAG_SWITCH);
+	private DigitalInput magSwitch = new DigitalInput(Constants.DIO_MAG_SWITCH);
 	//Elevator height in inches(random value
 	public final double COUNTS_PER_INCH = 7120/62.75, 
 		//Absolute elevator travel is 62.75 inches
@@ -35,21 +35,31 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.25,
-		MAX_DOWN_POWER = -0.12,
+		MAX_UP_POWER = 0.5,
+		MAX_DOWN_POWER = -0.24,  
 		//The minimum power that the elevator can be run at upward
-		MIN_UP_POWER = 0.12,
-		MIN_DOWN_POWER = -0.02,
+		MIN_UP_POWER = 0.11,
+		MIN_DOWN_POWER = -0.08,
 		//The maximum power change; for power curving of PID and Xbox
 		MAX_DELTA_POWER = 0.1, 
 		//In inches per second, for velocity ramping
-		MIN_VELOCITY = 0.5,
+		MIN_VELOCITY = 1,
 		//In inches per second, for position PID
-		MAX_POS_VELOCITY = 3, // Was: 45in/s
+		MAX_POS_VELOCITY = 5, // Was: 45in/s
 		//Maximum velocity while using the joystick
-		MAX_J_VELOCITY = 3, // Was: 10 in/s
+		MAX_J_VELOCITY = 20, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
 		ENCODER_MIN_UP = 0.15, ENCODER_MIN_DOWN = -0.12,
+		//The distance from the floor that the arm pivots in inches
+		INCHES_FROM_FLOOR = 10.5,
+		//How much safe space (in inches) to remove taking into account the bumpers
+		BUMPER_OFFSET = -7.5,
+		//How much space (in inches) to be used as a buffer in order to prevent collisions
+		ARM_ARC_BUFFER = 2,
+		//How far, in inches, the bottom of the forbar is from its respective pivot point.
+		FORBAR_YEXT = 2,
+		//The length of the arm in inches.
+		ARM_LEN = 100,
 		//For Velocity ramping
 		DANGER_VEL_ZONE = 20;
 	
@@ -66,7 +76,7 @@ public class Elevator {
 	long startTime;
 	
 	PositionByVelocityPID pid = new PositionByVelocityPID(0, SAFE_HEIGHT, -MAX_POS_VELOCITY, MAX_POS_VELOCITY, MAX_DOWN_POWER, MAX_UP_POWER, 0, "Elevator PID");
-	double velP = 0.002, velI = 0.0, velD = 0.0;
+	double velP = 0.005, velI = 0.0, velD = 0.0;
 	double posP = 5, posI = 0.0, posD = 0.0;
 	
 	public enum States {
@@ -85,7 +95,7 @@ public class Elevator {
 		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
 		//defaults to 100 Ms, the time of the sample that the current sample is compare to, changes the units
 		elevatorRight.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, 0);*/
-		encoder = new Encoder(Constants.ELEVATOR_ENCODER_A, Constants.ELEVATOR_ENCODER_B, true, EncodingType.k4X);
+		encoder = new Encoder(Constants.DIO_LIFT_ENCODER_A, Constants.DIO_LIFT_ENCODER_B, true, EncodingType.k4X);
 		elevatorLeft.setInverted(true);
 		pid.setVelocityScalars(velP, velI, velD);
 		pid.setVelocityInverted(true);
@@ -103,7 +113,7 @@ public class Elevator {
 	 */
 	public void setPower(double power) {
 		// Check safeties and stop power if necessary
-		Common.dashNum("setPower passed power", power);
+		//Common.dashNum("setPower passed power", power);
 		//TODO: Recode/re-enable when arm safety is necessary.
 		/*if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
 			power = MIN_UP_POWER;
@@ -134,11 +144,11 @@ public class Elevator {
 				}
 			}
 		}
-		//power = encoderTest(power); //TODO: Re-enable this, however, it will always fail when motors are disabled.
+		power = encoderTest(power); 
+		
 		lastPower = power;
-		//TODO: Re-enable elevator motor power here
-		/*elevatorRight.set(power); 
-		elevatorLeft.set(power);*/
+		elevatorRight.set(power); 
+		elevatorLeft.set(power);
 		Common.dashNum("Elevator power", power);
 	}
 	/**
@@ -230,7 +240,24 @@ public class Elevator {
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
-	
+
+	/**
+	 * 
+	 * @return
+	 */
+	public double maxArmSafeAngle(){
+		double yElevation = getInches() + INCHES_FROM_FLOOR + BUMPER_OFFSET;
+		double yAvailable = yElevation - (FORBAR_YEXT + ARM_ARC_BUFFER);
+
+		if(yAvailable < ARM_LEN) 
+		{
+			return -Math.asin(yAvailable/ARM_LEN);
+		}
+		else
+		{
+			return -90;
+		}
+	}
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
 	 * 
@@ -337,13 +364,6 @@ public class Elevator {
 		return !magSwitch.get();
 	}
 	/**
-	 * Checks if the lower elevator momentary switch is triggered.
-	 * @return Boolean for whether the switch is triggered.
-	 */
-	public boolean isLowerLimitTriggered(){
-		return lowerLimit.get();
-	}
-	/**
 	 * Gets the current height of the elevator in inches
 	 * 
 	 * @return -The current height of the elevator in counts 
@@ -370,7 +390,7 @@ public class Elevator {
 	public void joystickControl(double jInput) {
 		//overrules moveToHeight()
 		Common.dashNum("Elevator Joystick", jInput);
-		if (state != States.STOPPED && state != States.HOMING){
+		if (state != States.STOPPED && state != States.HOMING && Robot.isTeleopAllowed()){
 			if (jInput != 0) {
 				double jMap = Common.map(-jInput, -1, 1, -MAX_J_VELOCITY, MAX_J_VELOCITY);
 				Common.dashNum("jMap", jMap);
@@ -413,6 +433,9 @@ public class Elevator {
 		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
+		Common.dashNum("Position PID Target", pid.getTargetPosition());
+		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
+		Common.dashNum("Get Rate", encoder.getRate());
 	}
 	
 	/**
@@ -426,7 +449,7 @@ public class Elevator {
 			setPower(0.0);
 			break;
 		case HOMING:
-			if (lowerLimit.get()) { 
+			if (atBottom()) { 
 				resetEncoder();
 				setPower(0.0);
 				pid.setTargetPosition(0);

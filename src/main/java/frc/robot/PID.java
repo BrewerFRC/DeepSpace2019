@@ -66,7 +66,7 @@ public class PID {
 		//this.i = SmartDashboard.getNumber(this.name + "I", this.i);
 		//this.d = SmartDashboard.getNumber(this.name + "D", this.d);
 		//SmartDashboard.putNumber(this.name + "DShow", this.d);
-		SmartDashboard.putNumber(this.name + "Target", getTarget());
+		SmartDashboard.putNumber(this.name + " Target", getTarget());
 	}
 	
 	/**
@@ -214,10 +214,13 @@ public class PID {
 	 */
 	public double calc(double input) {
 		
-		//Integral calculation
+
 		double error = input - target;
+		if (inverted) 
+			error = -error;
+		Common.dashNum(this.name+" Error", error);
+		//Integral calculation
 		sumError += error * deltaTime;
-		int sign = -1;
 		
 		//Derivative calculation
 		double derivative = (error - previousError) / deltaTime;
@@ -225,6 +228,7 @@ public class PID {
 		
 		//Calculate output
 		double output = p*error + i*sumError + d*derivative;
+		int sign = -1;
 		if(output > 0) 
 			sign = 1;
 		output = Math.abs(output)+ min;
@@ -261,14 +265,15 @@ public class PID {
 		}
 		r = Math.min(Math.max(r, Outmin), Outmax);
 		return r;*/
-		if (inverted) {
+		/*if (inverted) {
 			this.output = Math.min(Math.max(this.output, -Outmax), -Outmin);
 		}
 		else {
 			this.output = Math.min(Math.max(this.output, Outmin), Outmax);
 		}
-		double r = (inverted) ? -this.output : this.output;
-		SmartDashboard.putNumber(this.name + "Calc", r);
+		double r = (inverted) ? -this.output : this.output;*/
+		double r = this.output = Math.min(Math.max(this.output, Outmin), Outmax);
+		SmartDashboard.putNumber(this.name + " Calc", r);
 
 		return r;
 	}

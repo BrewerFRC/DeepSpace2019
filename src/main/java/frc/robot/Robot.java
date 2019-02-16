@@ -19,7 +19,8 @@ public class Robot extends TimedRobot {
 	private Xbox operator;
 	private Heading heading;
 	private DriveTrain dt;
-	private Slider slider;
+	private DigitalInput headingbutton;
+	//private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
 
@@ -57,7 +58,7 @@ public class Robot extends TimedRobot {
 	//True is up, false is down.
 	public boolean stowUp = true;
 
-	static boolean teleopAllowed = false;
+	static boolean teleopAllowed = true;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -69,7 +70,12 @@ public class Robot extends TimedRobot {
 		operator =  new Xbox(1);
 		heading = new Heading();
 		heading.reset();
-		slider = new Slider();
+		//dt = new DriveTrain();
+		
+		/*heading = new Heading();
+		heading.reset();
+		headingbutton = new DigitalInput(5);*/
+
 
 	}
 
@@ -90,7 +96,8 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		elevator.home();
-		heading.reset();
+		arm.init();
+		//heading.reset();
 		//heading.setHeadingHold(true);
 	}
 
@@ -190,7 +197,7 @@ public class Robot extends TimedRobot {
 	 * Debugs data to smart dashboard
 	 **/
 	public void debug() {
-		SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
+		/*SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
 		SmartDashboard.putNumber("PID", heading.turnRate());
 		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
@@ -329,7 +336,13 @@ public class Robot extends TimedRobot {
 				}
 			}
 			break;
+<<<<<<< HEAD
 		}
+=======
+		}*/
+
+		//SmartDashboard.putNumber("PID", heading.turnRate());
+>>>>>>> 656994a877073bbd041975bb6b1300050a04da2d
 	}
 
 	/**
@@ -339,6 +352,25 @@ public class Robot extends TimedRobot {
 	 */
 	public States getState() {
 		return this.state;
+<<<<<<< HEAD
+=======
+	}
+	public static boolean isTeleopAllowed(){
+		return teleopAllowed;
+	}
+	
+	/**
+	 * Returns if it is safe to move the elevator/arm.
+	 * 
+	 * @return if it is safe to move the armevator.
+	 */
+	public boolean safeToMove() {
+		boolean safe = true;
+		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
+			safe =  false;
+		}
+		return safe;
+>>>>>>> 656994a877073bbd041975bb6b1300050a04da2d
 	}
 
 	/**
