@@ -36,7 +36,7 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.5,
+		MAX_UP_POWER = 0.2, // was 0.5
 		MAX_DOWN_POWER = -0.24,  
 		//The minimum power that the elevator can be run at upward
 		MIN_UP_POWER = 0.11,
@@ -54,7 +54,7 @@ public class Elevator {
 		//The distance from the floor that the arm pivots in inches
 		INCHES_FROM_FLOOR = 10.5,
 		//How much safe space (in inches) to remove taking into account the bumpers
-		BUMPER_OFFSET = -7.5,
+		BUMPER_OFFSET = 7.5,
 		//How much space (in inches) to be used as a buffer in order to prevent collisions
 		ARM_ARC_BUFFER = 2,
 		//How far, in inches, the bottom of the forbar is from its respective pivot point.
@@ -264,7 +264,13 @@ public class Elevator {
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
-
+	/**
+	 * Gets the arm object
+	 * @return arm
+	 */
+	public Arm getArm (){
+		return arm;
+	}
 	 /**
 	 * Checks for a safe angle that the arm can be moved to a height.
 	 * @param height the height to check safe angle of.

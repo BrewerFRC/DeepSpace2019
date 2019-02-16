@@ -22,6 +22,7 @@ public class Robot extends TimedRobot {
 	private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
+	private Intake intake;
 
 	private enum States {
 		EMPTY,
@@ -66,13 +67,13 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		//dt = new DriveTrain();
 		elevator = new Elevator();
-		slider = elevator.arm.getSlider();
+		arm = elevator.arm;
+		slider = arm.getSlider();
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
 
 		driver = new Xbox(0);
-
 	}
 
 	@Override
@@ -106,19 +107,22 @@ public class Robot extends TimedRobot {
 		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
 			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
 		}
+		else {
+			elevator.joystickControl(0.0f);
+		}
 		elevator.update();
 		elevator.debug();
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
-		if (driver.when("a")) {
-			arm.movePosition(20);
+		if (driver.when("a")) { 
+			elevator.moveToHeight(10);
 		}
 		if (driver.when("b")) {
-			arm.movePosition(10);
+			elevator.moveToHeight(30);
 		}
-		if (driver.when("x")) {
-			arm.movePosition(50);
+		if (driver.when("y")) {
+			elevator.moveToHeight(50);
 		}
 		if (driver.when("dPadUp")) {
 			slider.fingerUp();

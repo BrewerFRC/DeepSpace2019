@@ -14,8 +14,7 @@ import edu.wpi.first.wpilibj.Talon;
 public class Arm {
 	public Slider slider;
 	private Elevator elevator;
-	private static final Spark intake =  new Spark(Constants.PWM_INTAKE_MOTOR);
-	private static final Talon intakeArm =  new Talon(Constants.PWM_ARM_MOTOR);
+	private static final Talon armMotor =  new Talon(Constants.PWM_ARM_MOTOR);
 	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
 	//private DigitalInput leftSwitch;
 	//private DigitalInput rightSwitch;
@@ -23,7 +22,7 @@ public class Arm {
 
     public final double MIN_ELEVATOR_SAFE = 0,//Safe angles when elevator is not at top
     //The angle at which the intake is horizontal out the front.
-	HORIZONTAL_POSITION = 2491,//The arm's position at 0 degrees/parallel to floor.
+	HORIZONTAL_POSITION = 2485, //The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
     MIN_ANGLE = -80, MAX_ANGLE = 80, 
     //MIN_ABS_ANGLE = -45, //To be determined
@@ -34,7 +33,7 @@ public class Arm {
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
     MAX_VELOCITY = 50,
-    COUNTS_PER_DEGREE = (3692 - HORIZONTAL_POSITION) / 90, // was 13.6,
+    COUNTS_PER_DEGREE = 15.757, // was 13.6,
     //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
     //FULLY_LOADED_DISTANCE = 3,
@@ -75,7 +74,7 @@ public class Arm {
     public Arm(Elevator elevator) {
 		this.elevator = elevator;
 		slider =  new Slider();
-		intakeArm.setInverted(true);
+		armMotor.setInverted(true);
 		pid = new PositionByVelocityPID(MIN_ANGLE, MAX_ANGLE, -MAX_VELOCITY, MAX_VELOCITY, -MAX_POWER, MAX_POWER, 0.0, "Arm ");
 		pid.setPositionScalars(P_POS, I_POS, D_POS);
 		pid.setVelocityScalars(P_VEL, I_VEL, D_VEL);
@@ -129,7 +128,7 @@ public class Arm {
 		//lastPower = power;
 		//Can exceed max
         power += gTerm();		
-		intakeArm.set(power);
+		armMotor.set(power);
 		Common.dashNum("Arm Power", power);
 		Common.dashNum("Arm Last Power", lastPower);
 	}
@@ -350,8 +349,7 @@ public class Arm {
 		return Math.abs(pid.getTargetPosition() - getPosition()) < ACCEPTABLE_ERROR;
 	}
 	
-	public void 
-	update() {
+	public void update() {
         pid.update();
         //Upate position
         previousPosition = position;
