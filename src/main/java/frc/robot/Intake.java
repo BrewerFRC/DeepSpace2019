@@ -15,12 +15,14 @@ public class Intake {
     private AnalogInput irInput = new AnalogInput(Constants.ANA_IR_SENSOR);
     private Slider slider;
 
-    private final float maxPower = 0.2f;
-    private final float loadingPower = 0.4f;
-    private final float ejectPower = -0.5f;
-    private final float softEjectPower = -0.2f;
-    private final float ballLoadedInches = 0f;
-    private final float loadedHoldPower = 0.1f;
+    private final float maxPower = 1f;
+    private final float loadingPower = 0.7f;
+    private final float ejectPower = -1.0f;
+    private final float softEjectPower = -0.45f;
+    private final float ballLoadedInches = 5f;
+    private final float loadedHoldPower = 0.25f;
+    private final int loadCycles = 5;
+    private final int ejectCycles = 8;
 
     private enum CargoStates {
         EMPTY,
@@ -32,12 +34,14 @@ public class Intake {
     private CargoStates cargoState = CargoStates.EMPTY;
     
     private double infaredPreviousReading = 0;
+    private double cycles = 0;
 
     Spark ballIntakeMotor;
     
     public Intake (/*Slider slider*/)
     {
         this.ballIntakeMotor = new Spark(Constants.PWM_INTAKE_MOTOR); // Positive motor power is out, negative is in.
+        this.ballIntakeMotor.setInverted(true);
         //this.slider = slider;
     }
     /**
@@ -52,8 +56,17 @@ public class Intake {
 
                 if(getInfaredCheck()) //Waits for a load and then powers off motors.
                 {
-                    cargoState = CargoStates.LOADED;
-                    setMotor(loadedHoldPower);
+                    if(cycles < loadCycles)
+                    {
+                        cycles++;
+                    }
+                    else
+                    {
+                        cycles = 0;
+                        cargoState = CargoStates.LOADED;
+                        setMotor(loadedHoldPower);
+                    }
+                    
                 }
             break;
             case LOADED:
@@ -73,7 +86,13 @@ public class Intake {
 
                 if(!getInfaredCheck())
                 {
-                    cargoState = CargoStates.EMPTY;
+                    if(cycles < ejectCycles){
+                        cycles++;
+                    }
+                    else {
+                        cargoState = CargoStates.EMPTY;
+                        cycles = 0;
+                    }
                 }
             break;
             case SOFT_EJECT:
@@ -81,15 +100,23 @@ public class Intake {
 
                 if(!getInfaredCheck())
                 {
-                    cargoState = CargoStates.EMPTY;
+                    if(cycles < ejectCycles){
+                        cycles++;
+                    }
+                    else {
+                        cargoState = CargoStates.EMPTY;
+                        cycles = 0;
+                    }
+                    
                 }
             break;
         }
-                            
+        debug();                    
     }
 
     public void debug(){
-        SmartDashboard.putString("Current state", cargoState.toString());
+        SmartDashboard.putString("Current state", getState().toString());
+        SmartDashboard.putNumber("Current inches", getInfaredInches());
     }
     /**
      * Sets the motor power.
@@ -158,8 +185,8 @@ public class Intake {
     public void toggleLoading (){
         if (cargoState == CargoStates.EMPTY){
             cargoState = CargoStates.LOADING;
-        }
-        if(cargoState == CargoStates.LOADING){
+        } 
+        else if(cargoState == CargoStates.LOADING){
             cargoState = CargoStates.EMPTY;
         }
     }
