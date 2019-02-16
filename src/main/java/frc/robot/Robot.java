@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.cscore.UsbCamera;
 
 
 public class Robot extends TimedRobot {
@@ -65,6 +67,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+		camera.setResolution(640, 480);
 		//dt = new DriveTrain();
 		elevator = new Elevator();
 		arm = elevator.arm;
