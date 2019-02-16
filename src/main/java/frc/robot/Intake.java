@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.AnalogInput;
 
 public class Intake {
     private AnalogInput irInput = new AnalogInput(Constants.ANA_IR_SENSOR);
-    private Slider slider;
 
     private final float maxPower = 0.2f;
     private final float loadingPower = 0.4f;

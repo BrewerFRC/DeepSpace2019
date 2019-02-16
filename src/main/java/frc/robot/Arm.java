@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Talon;
  */
 public class Arm {
 	public Slider slider;
+	public Intake intake;
 	private Elevator elevator;
 	private static final Talon armMotor =  new Talon(Constants.PWM_ARM_MOTOR);
 	private AnalogInput pot =  new AnalogInput(Constants.ANA_ARM_POT);
@@ -74,6 +75,7 @@ public class Arm {
     public Arm(Elevator elevator) {
 		this.elevator = elevator;
 		slider =  new Slider();
+		intake = new Intake();
 		armMotor.setInverted(true);
 		pid = new PositionByVelocityPID(MIN_ANGLE, MAX_ANGLE, -MAX_VELOCITY, MAX_VELOCITY, -MAX_POWER, MAX_POWER, 0.0, "Arm ");
 		pid.setPositionScalars(P_POS, I_POS, D_POS);

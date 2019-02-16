@@ -77,9 +77,9 @@ public class Robot extends TimedRobot {
 		camera.setResolution(640, 480);
 		//dt = new DriveTrain();
 		elevator = new Elevator();
-		intake = new Intake();
 		arm = elevator.arm;
 		slider = arm.getSlider();
+		intake = arm.intake;
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
