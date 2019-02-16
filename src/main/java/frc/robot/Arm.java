@@ -24,7 +24,7 @@ public class Arm {
     //The angle at which the intake is horizontal out the front.
 	HORIZONTAL_POSITION = 2485, //The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-	MIN_ANGLE = -80, MAX_ANGLE = 70, 
+	MIN_ANGLE = -80, MAX_ANGLE = 60, 
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 10,

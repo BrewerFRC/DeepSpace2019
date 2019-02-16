@@ -80,6 +80,10 @@ public class Elevator {
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
+
+	//Height constants
+	public final double LOW_STOW = 27,
+	HIGH_STOW = 0;
 	
 	double velocity = 0.0,
 			//The last power that was set
