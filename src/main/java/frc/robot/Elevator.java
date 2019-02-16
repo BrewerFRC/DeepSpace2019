@@ -36,11 +36,12 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.5,
+		MAX_UP_POWER = 0.2, // was 0.5
 		MAX_DOWN_POWER = -0.24,  
-		//The minimum power that the elevator can be run at upward
+		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
+		GRAVITY_HOLD_POWER = 0.1,
 		//The maximum power change; for power curving of PID and Xbox
 		MAX_DELTA_POWER = 0.1, 
 		//In inches per second, for velocity ramping
@@ -54,7 +55,7 @@ public class Elevator {
 		//The distance from the floor that the arm pivots in inches
 		INCHES_FROM_FLOOR = 10.5,
 		//How much safe space (in inches) to remove taking into account the bumpers
-		BUMPER_OFFSET = -7.5,
+		BUMPER_OFFSET = 7.5,
 		//How much space (in inches) to be used as a buffer in order to prevent collisions
 		ARM_ARC_BUFFER = 2,
 		//How far, in inches, the bottom of the forbar is from its respective pivot point.
@@ -66,14 +67,16 @@ public class Elevator {
 		//How much safe space (in inches) to remove taking into account the bumpers
 		BUMPER_INCHES_TO_FLOOR = 7.5,
 		//Minimum Y distance above bumper or floor to hand 
-		Y_HAND_SAFETY = 0.5,
+		Y_HAND_SAFETY = 1,
+		//Minimum Y distance above floor.
+        Y_HAND_FLOOR_SAFETY = 1.5,
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
 		Y_HAND_EXT = 10.87,
 		//The minimum angle at which the bumper can be cleared.
-		MIN_BUMPER_CLEAR_ANGLE = -1,
+		MIN_BUMPER_CLEAR_ANGLE = -4.5,
 		//The length of the arm in inches pivot to pivot.
-		ARM_LEN = 19.887;
-		//PIVOT_TO_BOTTOM = 5.875;
+		ARM_LEN = 19.887,
+		PIVOT_TO_BOTTOM = 5.875;
 	
 	//Reduced speed zone at upper and lower limits in inches.
 	final int DANGER_ZONE = 18;
@@ -156,12 +159,13 @@ public class Elevator {
 				power = Math.min(power, MAX_UP_POWER);
 			}
 		} else {  //Moving Down
-			if (atBottom()) { //lower limit true when pressed
-				power = 0.0;
+			double safeHeight = minArmSafeHeight(arm.getPosition());
+			if (atBottom() || getInches() < safeHeight) { //lower limit true when pressed
+				power = GRAVITY_HOLD_POWER;
 			} else {
 				if(state != States.HOMING) {
-					if (getInches() <= DANGER_ZONE) { // This is for the lower danger zone.
-						power = Math.max(power, Common.map(getInches(), 0.0, DANGER_ZONE, MIN_DOWN_POWER, MAX_DOWN_POWER));
+					if (getInches() - safeHeight <= DANGER_ZONE) { // This is for the lower danger zone.
+						power = Math.max(power, Common.map(getInches() - safeHeight, 0.0, DANGER_ZONE, MIN_DOWN_POWER, MAX_DOWN_POWER));
 					} else {
 						power = Math.max(power, MAX_DOWN_POWER);
 					}
@@ -264,27 +268,38 @@ public class Elevator {
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
+	/**
+	 * Gets the arm object
+	 * @return arm
+	 */
+	public Arm getArm (){
+		return arm;
+	}
 
-	 /**
+	/**
 	 * Checks for a safe angle that the arm can be moved to a height.
 	 * @param height the height to check safe angle of.
 	 * @return the safe angle.
 	 */
-	public  double minArmSafeAngle(double height){
-		double yElevation = height + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR;
-		double yAvailable = yElevation - (Y_HAND_EXT + Y_HAND_SAFETY);
-
-		if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR + BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
-		{
-            //System.out.println("Doing math");
+	public double minArmSafeAngle(double height){
+        double yElevation, yAvailable;
+        if (height < 3.8) { //Allows hand in front of bumpers.
+            yElevation = height + ARM_PIVOT_TO_FLOOR -Y_HAND_FLOOR_SAFETY;
+        } else {
+            yElevation = height + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR - Y_HAND_SAFETY;
+        }
+        yAvailable = yElevation - (Y_HAND_EXT);
+        
+        //Checks if the arm should be unconstrained
+		//if(yAvailable < ARM_LEN + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR + Y_HAND_EXT) 
+        if (Math.abs(yAvailable/ARM_LEN) < 1)
+        {
             double radians = Math.asin(yAvailable/ARM_LEN);
-            System.out.println(radians);
 			return -Math.toDegrees(radians);
 		}
 		else
 		{
-            //System.out.println("Not doing math");
-			return arm.MIN_ANGLE;
+			return -90;
 		}
 	}
 
@@ -295,15 +310,17 @@ public class Elevator {
 	 */
 	public double minArmSafeHeight(double angle){
         //double constant = (-BUMPER_INCHES_TO_FLOOR + ARM_PIVOT_TO_FLOOR) + Y_HAND_SAFETY + (Y_HAND_EXT)- PIVOT_TO_BOTTOM;
+        double minHeight;
         double constant = Y_HAND_EXT - ARM_PIVOT_TO_FLOOR;
         double angleReach = (-Math.sin(Math.toRadians(angle)) * ARM_LEN);
        if (angle < MIN_BUMPER_CLEAR_ANGLE) {
-           /* System.out.println("angle Reach "+angleReach);
-            System.out.println("Constant "+constant);*/
-            return angleReach + constant+ BUMPER_INCHES_TO_FLOOR;
+            //Over the bumper
+            minHeight = angleReach + constant+ BUMPER_INCHES_TO_FLOOR + Y_HAND_SAFETY;
         } else {
-            return angleReach + constant;
+            //Outside the bumper
+            minHeight = angleReach + constant +  Y_HAND_FLOOR_SAFETY;
         }
+        return Math.max(0, minHeight);
 	}
 	
 	/**

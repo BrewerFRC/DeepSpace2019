@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.cscore.UsbCamera;
 
 
 public class Robot extends TimedRobot {
@@ -23,6 +25,7 @@ public class Robot extends TimedRobot {
 	private Slider slider;
 	private Arm arm;
 	private Elevator elevator;
+	private Intake intake;
 
 	private enum States {
 		EMPTY,
@@ -66,18 +69,29 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
+<<<<<<< HEAD
 		driver = new Xbox(0);
 		operator =  new Xbox(1);
 		heading = new Heading();
 		heading.reset();
+=======
+		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+		camera.setResolution(640, 480);
+>>>>>>> 2e3b06c293e8dccf5be8734cb18330920f4e40ed
 		//dt = new DriveTrain();
 		elevator = new Elevator();
-		slider = elevator.arm.getSlider();
+		intake = new Intake();
+		arm = elevator.arm;
+		slider = arm.getSlider();
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
 
+<<<<<<< HEAD
 
+=======
+		driver = new Xbox(0);
+>>>>>>> 2e3b06c293e8dccf5be8734cb18330920f4e40ed
 	}
 
 	@Override
@@ -105,10 +119,12 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		activePeriodic();
+		//activePeriodic();
+		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
 	}
 
 	public void activePeriodic() {
+<<<<<<< HEAD
 		/* Driver:
 		 * Left bumper is hard intake run
 		 * Right bumper is hatch pickup
@@ -136,6 +152,34 @@ public class Robot extends TimedRobot {
 		double turn = joystickY(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
+=======
+		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
+		}
+		else {
+			elevator.joystickControl(0.0f);
+		}
+		elevator.update();
+		elevator.debug();
+		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
+			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
+		}
+		if (driver.when("a")) { 
+			elevator.moveToHeight(10);
+		}
+		if (driver.when("b")) {
+			elevator.moveToHeight(30);
+		}
+		if (driver.when("y")) {
+			elevator.moveToHeight(50);
+		}
+		if (driver.when("dPadUp")) {
+			slider.fingerUp();
+		}
+		if (driver.when("dPadDown")) {
+			slider.fingerDown();
+		}
+>>>>>>> 2e3b06c293e8dccf5be8734cb18330920f4e40ed
 		if (driver.getPressed("leftBumper")) {
 			arm.runIntake(); //in
 		}
