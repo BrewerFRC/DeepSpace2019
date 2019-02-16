@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
 		dt.accelDrive(forward, turn);
 
 		if (driver.getPressed("leftBumper")) {
-			arm.runIntake(); //in
+			intake.(); //in
 		}
 
 		if (driver.when("b")) {
