@@ -74,7 +74,7 @@ public class Robot extends TimedRobot {
 		heading = new Heading();
 		heading.reset();
 		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-		camera.setResolution(640, 480);
+		camera.setResolution(320, 240);
 		//dt = new DriveTrain();
 		elevator = new Elevator();
 		arm = elevator.arm;
@@ -97,7 +97,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		activePeriodic();
+		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
+		//activePeriodic();
 	}
 
 	@Override
@@ -111,8 +112,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		//activePeriodic();
-		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
+		activePeriodic();
 	}
 
 	public void activePeriodic() {
