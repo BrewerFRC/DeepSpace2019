@@ -28,7 +28,7 @@ public class Elevator {
 		//Absolute elevator travel is 62.75 inches
 		ELEVATOR_HEIGHT = 62.75,
 		// The distance from absolute height that the elevator is considered safe to.
-		SAFETY_MARGIN = 12,
+		SAFETY_MARGIN = 4,
 		// The maximum height that the robot is allowed
 		SAFE_HEIGHT = ELEVATOR_HEIGHT - SAFETY_MARGIN,
 		//How close to the targetHeight that elevator can be to complete
