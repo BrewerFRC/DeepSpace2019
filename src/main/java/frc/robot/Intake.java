@@ -16,11 +16,11 @@ public class Intake {
     private Slider slider;
 
     private final float maxPower = 0.2f;
-    private final float loadingPower = 0.2f;
-    private final float ejectPower = -0.2f;
-    private final float softEjectPower = -0.1f;
+    private final float loadingPower = 0.4f;
+    private final float ejectPower = -0.5f;
+    private final float softEjectPower = -0.2f;
     private final float ballLoadedInches = 0f;
-    private final float loadedHoldPower = 0f;
+    private final float loadedHoldPower = 0.1f;
     private final boolean isDebugging = true;
 
     private enum CargoStates {
@@ -33,7 +33,6 @@ public class Intake {
     private CargoStates cargoState = CargoStates.EMPTY;
     
     private double infaredPreviousReading = 0;
-    private boolean loadInterrupt = false;
 
     Spark ballIntakeMotor;
     
@@ -54,34 +53,23 @@ public class Intake {
                 case LOADING:
                     setMotor(loadingPower);
 
-                    if(loadInterrupt)
-                    {
-                        loadInterrupt = false;
-                        cargoState = CargoStates.EMPTY;
-                    }
-
                     if(getInfaredCheck()) //Waits for a load and then powers off motors.
                     {
                         cargoState = CargoStates.LOADED;
+                        setMotor(loadedHoldPower);
                     }
                 break;
                 case LOADED:
                     setMotor(loadedHoldPower);
 
-                    if(loadInterrupt)
+                    if(!getInfaredCheck()) //Waits for a load and then powers off motors.
                     {
-                        loadInterrupt = false;
-                        cargoState = CargoStates.SOFT_EJECT;
+                        cargoState = CargoStates.EMPTY;
+                        setMotor(0.0f);
                     }
                 break;
                 case EMPTY:
                     setMotor(0.0f);
-
-                    if(loadInterrupt)
-                    {
-                        loadInterrupt = false;
-                        cargoState = CargoStates.LOADING;
-                    }
                 break;
                 case EJECT:
                     setMotor(ejectPower);
@@ -94,7 +82,7 @@ public class Intake {
                 case SOFT_EJECT:
                     setMotor(softEjectPower);
 
-                    if(getInfaredCheck())
+                    if(!getInfaredCheck())
                     {
                         cargoState = CargoStates.EMPTY;
                     }
@@ -167,4 +155,15 @@ public class Intake {
         return irInput.getValue();
     }
     
+    /**
+     * Moves the ball intake into loading mode
+     */
+    public void toggleLoading (){
+        if (cargoState == CargoStates.EMPTY){
+            cargoState = CargoStates.LOADING;
+        }
+        if(cargoState == CargoStates.LOADING){
+            cargoState = CargoStates.EMPTY;
+        }
+    }
 }

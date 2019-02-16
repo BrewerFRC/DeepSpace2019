@@ -71,6 +71,7 @@ public class Robot extends TimedRobot {
 		camera.setResolution(640, 480);
 		//dt = new DriveTrain();
 		elevator = new Elevator();
+		intake = new Intake();
 		arm = elevator.arm;
 		slider = arm.getSlider();
 		/*heading = new Heading();
@@ -104,7 +105,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		activePeriodic();
+		//activePeriodic();
+		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
 	}
 
 	public void activePeriodic() {
