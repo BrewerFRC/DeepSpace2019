@@ -28,7 +28,7 @@ public class Elevator {
 		//Absolute elevator travel is 62.75 inches
 		ELEVATOR_HEIGHT = 62.75,
 		// The distance from absolute height that the elevator is considered safe to.
-		SAFETY_MARGIN = 12,
+		SAFETY_MARGIN = 4,
 		// The maximum height that the robot is allowed
 		SAFE_HEIGHT = ELEVATOR_HEIGHT - SAFETY_MARGIN,
 		//How close to the targetHeight that elevator can be to complete
@@ -36,7 +36,7 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.7, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.2, // was 0.5
+		MAX_UP_POWER = 0.4, // was 0.5
 		MAX_DOWN_POWER = -0.24,  
 		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
