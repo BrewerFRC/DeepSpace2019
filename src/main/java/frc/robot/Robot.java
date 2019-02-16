@@ -137,13 +137,13 @@ public class Robot extends TimedRobot {
 			slider.fingerDown();
 		}
 		if (driver.getPressed("leftBumper")) {
-			slider.setTarget(-2);
+			slider.moveTo(-2);
 		}
 		else if (driver.getPressed("rightBumper")) {
-			slider.setTarget(2);
+			slider.moveTo(2);
 		}
 		else {
-				slider.setTarget(0);
+			slider.moveTo(0);
 		}
 		
 		arm.dashboard();
