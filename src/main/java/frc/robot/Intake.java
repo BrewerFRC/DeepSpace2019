@@ -15,12 +15,12 @@ public class Intake {
     private AnalogInput irInput = new AnalogInput(Constants.ANA_IR_SENSOR);
     private Slider slider;
 
-    private final float maxPower = 0.2f;
-    private final float loadingPower = 0.4f;
-    private final float ejectPower = -0.5f;
-    private final float softEjectPower = -0.2f;
-    private final float ballLoadedInches = 0f;
-    private final float loadedHoldPower = 0.1f;
+    private final float maxPower = 1f;
+    private final float loadingPower = 0.7f;
+    private final float ejectPower = -1.0f;
+    private final float softEjectPower = -0.45f;
+    private final float ballLoadedInches = 5f;
+    private final float loadedHoldPower = 0.25f;
     private final int loadCycles = 5;
     private final int ejectCycles = 8;
 
@@ -41,6 +41,7 @@ public class Intake {
     public Intake (/*Slider slider*/)
     {
         this.ballIntakeMotor = new Spark(Constants.PWM_INTAKE_MOTOR); // Positive motor power is out, negative is in.
+        this.ballIntakeMotor.setInverted(true);
         //this.slider = slider;
     }
     /**
@@ -110,11 +111,12 @@ public class Intake {
                 }
             break;
         }
-                            
+        debug();                    
     }
 
     public void debug(){
-        SmartDashboard.putString("Current state", cargoState.toString());
+        SmartDashboard.putString("Current state", getState().toString());
+        SmartDashboard.putNumber("Current inches", getInfaredInches());
     }
     /**
      * Sets the motor power.
@@ -183,8 +185,8 @@ public class Intake {
     public void toggleLoading (){
         if (cargoState == CargoStates.EMPTY){
             cargoState = CargoStates.LOADING;
-        }
-        if(cargoState == CargoStates.LOADING){
+        } 
+        else if(cargoState == CargoStates.LOADING){
             cargoState = CargoStates.EMPTY;
         }
     }

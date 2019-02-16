@@ -27,7 +27,7 @@ public class Arm {
     MIN_ANGLE = -80, MAX_ANGLE = 80, 
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
-    DANGER_ZONE = 20,
+    DANGER_ZONE = 10,
     //up powers
     MIN_POWER = 0, MAX_POWER = 0.75, 
     //Max power change in accel limit
@@ -60,6 +60,7 @@ public class Arm {
 	public double position = 0;
 	private long previousMillis = Common.time();
 	private boolean previousIntakeSafe = false;
+	private double targetPosition = 0;
 	private double previousPosition = 0;
 	private double previousVelocity = 0;
 
@@ -112,21 +113,19 @@ public class Arm {
             power = Math.min(power, MAX_POWER);
 			if (getPosition() >= MAX_ANGLE) {
 				power = 0.0;
-				pid.reset();
-				Common.debug("setArmPower: arm above MAX_ANGLE forced PID reset");
+				//pid.reset();
+				//Common.debug("setArmPower: arm above MAX_ANGLE forced PID reset");
 			}
 		} else { // Moving down
             power = Math.max(power, -MAX_POWER);
 			if (getPosition() <= getMinAngle()) { 
-				power = gTerm();
-				pid.reset();
-				Common.debug("setArmPower: arm below getMinAngle() forced PID reset");
+				power = 0.0;
+				//pid.reset();
+				//Common.debug("setArmPower: arm below getMinAngle() forced power to 0");
 			}
         }
         //Common.dashNum("Arm power before ramp", power);
-//		power = rampPower(power);
-		//lastPower = power;
-		//Can exceed max
+		power = rampPower(power);
         power += gTerm();		
 		armMotor.set(power);
 		Common.dashNum("Arm Power", power);
@@ -151,21 +150,21 @@ public class Arm {
 		
 		double maxPower = 0.0;
 		double minPower = 0.0;
-        if (power > 0) {
+        if (power > 0) {  //Moving up
 			if(getPosition() >= MAX_ANGLE - DANGER_ZONE) {
             	maxPower  = Common.map(getPosition(), MAX_ANGLE-DANGER_ZONE, MAX_ANGLE, MAX_POWER, MIN_POWER);
 				//Common.dashNum("Arm top curve", maxPower);
 				power = Math.min(power, maxPower);
 			}
-        } else {
-			if (getPosition() <= getMinAngle()+DANGER_ZONE) {
-				minPower = Common.map(getPosition(), getMinAngle(), getMinAngle()+DANGER_ZONE, -MAX_POWER, -MIN_POWER);
-				//Common.debug("ramping bottom");
-				//Common.dashNum("Arm bottom curve", minPower);
+		} else {   // Moving down
+			double safeAngle = getMinAngle();
+			if (getPosition() <= safeAngle + DANGER_ZONE) {
+				minPower = Common.map(getPosition(), safeAngle, safeAngle + DANGER_ZONE, -MAX_POWER, -MIN_POWER);
 				power = Math.max(power, minPower);
+				//Common.debug("Arm: rampPower - power ramped to " + power);
 			}
         }
-		Common.dashNum("Post ramp power", power);
+//		Common.dashNum("Post ramp power", power);
 		return power;
     }
     /**
@@ -208,7 +207,8 @@ public class Arm {
 	 * @param position - the position in degrees
 	 */
 	public void movePosition(double position) {
-		pid.setTargetPosition(position);
+		targetPosition = position;
+		//pid.setTargetPosition(position);
 		state = States.MOVING;
 	}
 	
@@ -216,9 +216,10 @@ public class Arm {
 	 * Uses a PID to move the robot at the PID target positon.
 	 */
 	public void pidPosMove() {
-		if (getPosition() == getPositionTarget()) {
-			Common.debug("Arm target reached "+getPositionTarget());
-		}
+		//if (getPosition() == getPositionTarget()) {
+		//	Common.debug("Arm target reached "+getPositionTarget());
+		//}
+		pid.setTargetPosition(Math.max(targetPosition, getMinAngle()));
        /* double pidVelCalc = pid.calcPosition(getPosition());
         pid.setTargetVelocity(pidVelCalc);
 		double pidPowCalc = pid.calcVelocity(getVelocity());*/
@@ -241,7 +242,7 @@ public class Arm {
 		//If velocity changes direction, reset pid to speed up response.
 		if ((lastVelocityTarget > 0 && velocity < 0) || (lastVelocityTarget < 0 && velocity > 0)) {
 			pid.resetVelocityPID();
-			Common.debug("Arm.moveVelocity resetVelocityPID due to velocity direction change");
+			//Common.debug("Arm.moveVelocity resetVelocityPID due to velocity direction change");
 		}
 		if (getPosition() < minAngle && velocity < 0) { // was >
 			pid.setTargetVelocity(0.0);
@@ -385,8 +386,9 @@ public class Arm {
 				//accleMove(speed);
 				//Common.debug("new State Idle");
 				if (state == States.JOYSTICK){
-					state = States.HOLDING;
-					pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*.5, MAX_ANGLE-1)));
+					//state = States.HOLDING;
+					//pid.setTargetPosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*.5, MAX_ANGLE-1)));
+					movePosition(Math.max(MIN_ANGLE + 1, Math.min(getPosition() + velocity*.5, MAX_ANGLE-1)));
 				}
 				break;
 		}

@@ -91,7 +91,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		activePeriodic();
+		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
+		//activePeriodic();
 	}
 
 	@Override
@@ -106,7 +107,6 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		activePeriodic();
-		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
 	}
 
 	public void activePeriodic() {
@@ -118,18 +118,31 @@ public class Robot extends TimedRobot {
 		}
 		elevator.update();
 		elevator.debug();
+		intake.update();
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
-		if (driver.when("a")) { 
+		/*if (driver.when("a")) { 
 			elevator.moveToHeight(10);
 		}
 		if (driver.when("b")) {
 			elevator.moveToHeight(30);
+		}*/
+		if (driver.when("a"))
+		{
+			intake.toggleLoading();
 		}
-		if (driver.when("y")) {
+		if (driver.when("b"))
+		{
+			intake.doSoftEject();
+		}
+		if(driver.when("rightTrigger"))
+		{
+			intake.doEject();
+		}
+		/*if (driver.when("y")) {
 			elevator.moveToHeight(50);
-		}
+		}*/
 		if (driver.when("dPadUp")) {
 			slider.fingerUp();
 		}
