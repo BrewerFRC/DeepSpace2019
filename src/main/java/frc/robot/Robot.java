@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
-		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
+		/*if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
 			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
 		}
 		else {
@@ -127,7 +127,7 @@ public class Robot extends TimedRobot {
 		}
 		if (driver.when("b")) {
 			elevator.moveToHeight(30);
-		}*/
+		}
 		if (driver.when("a"))
 		{
 			intake.toggleLoading();

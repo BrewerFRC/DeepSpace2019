@@ -136,6 +136,7 @@ public class Slider {
     private void startFingerSearch(boolean right) {
         halfComplete = false;
         fingerSearchright = right;
+        fingerDown();
         if (right) {
             setTarget(INCH_RIGHT_LIMIT);
         } else {
@@ -212,7 +213,7 @@ public class Slider {
 			    power = - (P*error);
             } 
         }
-        motor.set(power);
+        //motor.set(power);
     }
 
     public void update() {
@@ -241,6 +242,8 @@ public class Slider {
         }
         // debug necessary?
         Common.dashStr("Slider state", sliderState.toString());
+        Common.dashBool("Arm Pressed", pressed());
+        Common.dashBool("Finger Pressed", fingerPressed());
         Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
