@@ -68,12 +68,12 @@ public class Robot extends TimedRobot {
 	@Override
 	public void robotInit() {
 		UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-		camera.setResolution(320, 240);
-		//dt = new DriveTrain();
+		camera.setResolution(240, 180);
 		elevator = new Elevator();
 		intake = new Intake();
 		arm = elevator.arm;
 		slider = arm.getSlider();
+		dt = new DriveTrain(elevator);
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -121,7 +121,8 @@ public class Robot extends TimedRobot {
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
-		/*
+		
+/*
 		if (driver.when("a")) { 
 			elevator.moveToHeight(10);
 		}
@@ -131,10 +132,11 @@ public class Robot extends TimedRobot {
 		if (driver.when("y")) {
 			elevator.moveToHeight(60);
 		}
-		*/
-
+		
+*/
 	
 		// Intake
+		
 		if (driver.when("a"))
 		{
 			intake.toggleLoading();
@@ -147,7 +149,7 @@ public class Robot extends TimedRobot {
 		{
 			intake.doEject();
 		}
-	
+		
 
 		// Slider
 		if (driver.when("dPadUp")) {
@@ -361,9 +363,5 @@ public class Robot extends TimedRobot {
 		}
 		return safe;
 	}
-
-	/*public static Elevator getElevator() {
-		return Elevator;
-	}*/
 
 }

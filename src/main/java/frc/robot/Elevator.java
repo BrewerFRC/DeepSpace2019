@@ -36,8 +36,8 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.65, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 1.0, // was 0.5
-		MAX_DOWN_POWER = -0.8,  
+		MAX_UP_POWER = 1, // was 1
+		MAX_DOWN_POWER = -0.8, // was -0.8 
 		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
@@ -392,14 +392,14 @@ public class Elevator {
 		}
 	}
 	
-	/** Gets the elevator height as a percentage
+	/** Gets the elevator height as a percentage of total height
 	 * 
 	 * @return -Elevator height as a percentage
 	 */
-	/* public double getElevatorPercent() {
+	public double percentHeight() {
 		return Common.map(getInches(), 0, SAFE_HEIGHT, 0, 1);
 	}
-	*/
+	
 	
 	/**
 	 * Starts homing the elevator and ensure Arm moves up to accomodate
