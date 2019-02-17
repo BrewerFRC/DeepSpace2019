@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
 	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
 	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 25, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3,
-	ARM_CARGO_PICKUP = , ELE_CARGO_PICKUP = ;
+	ARM_CARGO_PICKUP = 0, ELE_CARGO_PICKUP = 0;
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -174,13 +174,13 @@ public class Robot extends TimedRobot {
 			}
 
 			if (driver.when("a")) { //Cargo pickup
-				arm.movePosition();
-				elevator.moveToHeight(); //Is this the same position?
+				arm.movePosition(ARM_CARGO_PICKUP);
+				elevator.moveToHeight(ELE_CARGO_PICKUP); //Is this the same position?
 				state =  States.CARGO_PICKUP;
 			}
 
 			//Joystick Arm
-			double armMove = driver.deadzone(driver.getX(GenericHID.Hand.kRight));
+			double armMove = driver.deadzone(driver.getY(GenericHID.Hand.kRight));
 			if (Math.abs(armMove) > 0) {
 				userMove = true;
 				arm.joystickControl(armMove);
@@ -237,7 +237,7 @@ public class Robot extends TimedRobot {
 		// Updates
 		elevator.update();
 		elevator.debug();
-		intake.update();
+		//intake.update();
 		arm.dashboard();
 		debug();
 
@@ -286,14 +286,17 @@ public class Robot extends TimedRobot {
 		case HOMING:
 			if (elevator.getState() != Elevator.States.HOMING) {
 				teleopAllowed = true;
+				Common.debug("Robot State going from HOMING to TO_STOW");
 				state = States.TO_STOW;
 			}
 			break;
 		case EMPTY:
 			slider.moveTo(0);
 			if (intake.getInfaredCheck()) {
+				Common.debug("Robot State going from EMPTY to HAS_CARGO");
 				state = States.HAS_CARGO;
 			} else if (slider.hasHatch()) {
+				Common.debug("Robot State going from EMPTY to HAS_HATCH");
 				state = States.HAS_HATCH;
 			}
 			break;
@@ -336,6 +339,7 @@ public class Robot extends TimedRobot {
 			break;
 		case HAS_HATCH: 
 			if (!slider.hasHatch()) {
+				Common.debug("Robot State going from HAS_HATCH to EMPTY");
 				state = States.EMPTY;
 			}
 			break;
@@ -373,23 +377,23 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case  TO_STOW:
+			Common.dashBool("Stow Up", stowUp);
 			if (stowUp || intake.getInfaredCheck()/* && pi.getDistance > STOW_SAFE*/) {
 				stowUp();
 			} else /*if (pi.getDistance >STOW_SAFE)*/ {
 				stowDown();
 			}
 			if (arm.isComplete() && elevator.isComplete()) {
-				if (elevator.getInches() == ELE_LOW_STOW || elevator.getInches() == 0) {
-					if (arm.getPosition() == ARM_HIGH_STOW || arm.getPosition() == ARM_LOW_STOW) {
-						slider.fingerUp();
-						if (slider.hasHatch()) {
-							state = States.HAS_HATCH;
-						} else if (intake.getInfaredCheck()) {
-							state = States.HAS_CARGO;
-						} else {
-							state = States.EMPTY;
-						}
-					}
+				slider.fingerUp();
+				if (slider.hasHatch()) {
+					Common.debug("Robot State going from TO_STOW to HAS_HATCH");
+					state = States.HAS_HATCH;
+				} else if (intake.getInfaredCheck()) {
+					Common.debug("Robot State going from TO_STOW to HAS_CARGO");
+					state = States.HAS_CARGO;
+				} else {
+					Common.debug("Robot State going from TO_STOW to EMPTY");
+					state = States.EMPTY;
 				}
 			}
 			break;
@@ -449,7 +453,7 @@ public class Robot extends TimedRobot {
 	 */
 	public void stowUp() {
 		elevator.moveToHeight(ELE_HIGH_STOW);
-		arm.movePosition(ARM_LOW_STOW);
+		arm.movePosition(ARM_HIGH_STOW);
 	}
 
 	/**

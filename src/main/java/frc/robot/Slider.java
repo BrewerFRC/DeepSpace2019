@@ -33,7 +33,7 @@ public class Slider {
         INCH_CENTER = 0,
         FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
         MOTOR_POWER = 1,
-        ALLOWANCE = 0.2,
+        ALLOWANCE = 0.3,
         P = 0.5;
     public static final boolean
         INVERT_MOTOR = true,
@@ -279,18 +279,11 @@ public class Slider {
         Common.dashBool("Finger Pressed", fingerPressed());
         //Common.dashBool("Slider complete", isComplete());
         //Common.dashNum("Slider power", power);
-<<<<<<< HEAD
         //Common.dashNum("Slider Target Inches", targetInches);
         //Common.dashNum("Slider Inches", potInches());
         //Common.dashNum("Slider Previous Position", previousPosition);
         //Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
-=======
-        Common.dashNum("Slider Target Inches", targetInches);
-        Common.dashNum("Slider Inches", potInches());
-        Common.dashNum("Slider Pot", currentPotReading());
-		motor.set(power);
->>>>>>> 8ede97272bc2850037a14f758f9eefc8237244c2
     }
 }
 
