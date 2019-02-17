@@ -73,7 +73,8 @@ public class Elevator {
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
 		Y_HAND_EXT = 10.87,
 		//The minimum angle at which the bumper can be cleared.
-		MIN_BUMPER_CLEAR_ANGLE = -5, //was -4.5
+		MIN_BUMPER_CLEAR_ANGLE = -5.5, //was -5, -4.5
+		MIN_BUMPER_CLEAR_HEIGHT = 3.8,
 		//The length of the arm in inches pivot to pivot.
 		ARM_LEN = 19.887,
 		PIVOT_TO_BOTTOM = 5.875;
@@ -286,7 +287,7 @@ public class Elevator {
 	 */
 	public double minArmSafeAngle(double height){
         double yElevation, yAvailable;
-        if (height < 3.8) { //Allows hand in front of bumpers.
+        if (height < MIN_BUMPER_CLEAR_HEIGHT) { //Allows hand in front of bumpers.
             yElevation = height + ARM_PIVOT_TO_FLOOR -Y_HAND_FLOOR_SAFETY;
         } else {
             yElevation = height + ARM_PIVOT_TO_FLOOR - BUMPER_INCHES_TO_FLOOR - Y_HAND_SAFETY;
