@@ -313,7 +313,11 @@ public class Robot extends TimedRobot {
 				t++;
 			}
 			if (t >= 2) {
-				state = States.TO_STOW;
+				//state = States.TO_STOW;
+				if (stowUp) {
+					
+				}
+				state = States.EMPTY;
 			}
 			break;
 		case CARGO_PICKUP:
