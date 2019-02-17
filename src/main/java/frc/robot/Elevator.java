@@ -28,16 +28,16 @@ public class Elevator {
 		//Absolute elevator travel is 62.75 inches
 		ELEVATOR_HEIGHT = 62.75,
 		// The distance from absolute height that the elevator is considered safe to.
-		SAFETY_MARGIN = 4,
+		SAFETY_MARGIN = 2.0,
 		// The maximum height that the robot is allowed
 		SAFE_HEIGHT = ELEVATOR_HEIGHT - SAFETY_MARGIN,
 		//How close to the targetHeight that elevator can be to complete
-		ACCEPTABLE_ERROR = 1.0, 
+		ACCEPTABLE_ERROR = 0.5, 
 		//The location of the magnetic switch in inches, just below trigger point
-		MAG_SWITCH_POINT = 23.7, //was 23.75 
+		MAG_SWITCH_POINT = 23.65, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = 0.4, // was 0.5
-		MAX_DOWN_POWER = -0.24,  
+		MAX_UP_POWER = 1.0, // was 0.5
+		MAX_DOWN_POWER = -0.8,  
 		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
@@ -45,9 +45,9 @@ public class Elevator {
 		//The maximum power change; for power curving of PID and Xbox
 		MAX_DELTA_POWER = 0.1, 
 		//In inches per second, for velocity ramping
-		MIN_VELOCITY = 1,
+		MIN_VELOCITY = 2,
 		//In inches per second, for position PID
-		MAX_POS_VELOCITY = 5, // Was: 45in/s
+		MAX_POS_VELOCITY = 45, // Was: 45in/s
 		//Maximum velocity while using the joystick
 		MAX_J_VELOCITY = 20, // Was: 10 in/s
 		//For encoder test function, test is only performed if power is above the minimum. 
@@ -61,7 +61,7 @@ public class Elevator {
 		//How far, in inches, the bottom of the forbar is from its respective pivot point.
 		FORBAR_YEXT = 2,
 		//For Velocity ramping
-		DANGER_VEL_ZONE = 20,
+		DANGER_VEL_ZONE = 10,
 		//The distance from the floor to the arm pivot on the elevator in inches.
 		ARM_PIVOT_TO_FLOOR = 10.5,
 		//How much safe space (in inches) to remove taking into account the bumpers
@@ -79,15 +79,17 @@ public class Elevator {
 		PIVOT_TO_BOTTOM = 5.875;
 	
 	//Reduced speed zone at upper and lower limits in inches.
-	final int DANGER_ZONE = 18;
+	final int DANGER_ZONE = 10;
 
 	//Height constants
 	public final double LOW_STOW = 27,
 	HIGH_STOW = 0;
 	
 	double velocity = 0.0,
+			// Target Height which is feed to Position PID via pidDisMove()
+			targetHeight = 0.0,
 			//The last power that was set
-			lastPower = 0,
+			lastPower = 0.0,
 			//-1 is not moving, 0 or greater is moving
 			moveCheck = -1,
 			//The previous counts of the encoder 
@@ -108,12 +110,7 @@ public class Elevator {
 	}
 	States state = States.STOPPED;
 	
-	public Elevator(/*Intake intake*/) {
-		//this.intake = intake;
-		/*elevatorRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
-		elevatorRight.configVelocityMeasurementWindow(8, 0);//defaults to 64, rolling average sample size
-		//defaults to 100 Ms, the time of the sample that the current sample is compare to, changes the units
-		elevatorRight.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, 0);*/
+	public Elevator() {
 		encoder = new Encoder(Constants.DIO_LIFT_ENCODER_A, Constants.DIO_LIFT_ENCODER_B, true, EncodingType.k4X);
 		elevatorLeft.setInverted(true);
 		pid.setVelocityScalars(velP, velI, velD);
@@ -133,6 +130,7 @@ public class Elevator {
 	 * @param power
 	 */
 	public void init() {
+		targetHeight = 0;
 		arm.init();
 		home();
 	}
@@ -143,20 +141,15 @@ public class Elevator {
 	 * @param power - power to run the elevator at, + = up and - = down
 	 */
 	public void setPower(double power) {
-		// Check safeties and stop power if necessary
 		//Common.dashNum("setPower passed power", power);
-		//TODO: Recode/re-enable when arm safety is necessary.
-		/*if (!intake.elevatorSafe() && power < MIN_UP_POWER) {//Don't let elevator drop if intake arm is in a unsafe position
-			power = MIN_UP_POWER;
-			pid.reset(); 
-		}*/
 		if (power > 0.0) {  //Move up
 			if(getInches() >= SAFE_HEIGHT) { //hard limit on expected height
 				power = 0.0;
-			} else if(!magSwitchSafe()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
+			/*} //NOTE: encoderTest is doing this safety check. Not needed here.
+				else if(!magSwitchSafe()) {  //Have we made it to the magnetic switch trigger point(limit switch false = reached)
 				power = 0.0;
 				Common.debug("Magnetic switch fail, HOMING");
-				state = States.HOMING;
+				state = States.HOMING; */
 			} else if(getInches()>= SAFE_HEIGHT-DANGER_ZONE) {
 				power = Math.min(power, Common.map(SAFE_HEIGHT-getInches(), 0.0, DANGER_ZONE, MIN_UP_POWER, MAX_UP_POWER));
 			} else {
@@ -166,6 +159,8 @@ public class Elevator {
 			double safeHeight = minArmSafeHeight(arm.getPosition());
 			if (atBottom() || getInches() < safeHeight) { //lower limit true when pressed
 				power = 0.0;
+				if (state == States.HOMING) 
+					Common.debug("setPower zeroed power while HOMING "+atBottom());
 			} else {
 				if(state != States.HOMING) {
 					if (getInches() - safeHeight <= DANGER_ZONE) { // This is for the lower danger zone.
@@ -217,9 +212,10 @@ public class Elevator {
 			if (power < ENCODER_MIN_UP && power > ENCODER_MIN_DOWN) {  //Is power not great enough to move elevator?
 				moveCheck = -1; //Stop checking
 			}
-			if (moveCheck >= 5) {  //Test encoder movement after 5 cylces
+			if (moveCheck >= 3) {  //Test encoder movement after 3 cylces
 				if (state != States.HOMING) {
 					if (getVelocity() == 0) {
+
 						Common.debug("ENCODER FAULT: Velocity is still zero, State = HOMING"+"power:"+power);
 						state = States.HOMING;
 						power = 0.0;
@@ -231,11 +227,11 @@ public class Elevator {
 					}
 				}
 				moveCheck = 1;  //Restart counter
+				previousCounts = getEncoder();
 			} else {
 				moveCheck += 1;
 			}
 		}
-		previousCounts = getEncoder();
 		return power;
 	}
 	
@@ -265,13 +261,16 @@ public class Elevator {
 	}
 	
 	/**
-	 * Uses a PID to move the robot at the PID target positon.
+	 * Uses a PID to move the robot to a targetHeight or minimum safe height for arm.
 	 */
 	public void pidDisMove() {
+		double safeTarget = Math.max(targetHeight, minArmSafeHeight(arm.getPosition()));
+		pid.setTargetPosition(safeTarget);
 		double pidDisCalc = pid.calc(getInches(), getVelocity());
 		Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
+
 	/**
 	 * Gets the arm object
 	 * @return arm
@@ -308,9 +307,9 @@ public class Elevator {
 	}
 
 	/**
-	 * Checks for a safe height that the arm can be moved to a given angle.
-	 * @param angle the angle to check safe height of in degrees.
-	 * @return the safe height.
+	 * Checks for a safe height that elevator can be moved to, for a given arm angle.
+	 * @param angle the angle in degrees.
+	 * @return the safe height in inches.
 	 */
 	public double minArmSafeHeight(double angle){
         //double constant = (-BUMPER_INCHES_TO_FLOOR + ARM_PIVOT_TO_FLOOR) + Y_HAND_SAFETY + (Y_HAND_EXT)- PIVOT_TO_BOTTOM;
@@ -331,6 +330,7 @@ public class Elevator {
 	 * 
 	 * @return
 	 */
+	/*
 	public double maxArmSafeAngle(){
 		double yElevation = getInches() + INCHES_FROM_FLOOR + BUMPER_OFFSET;
 		double yAvailable = yElevation - (FORBAR_YEXT + ARM_ARC_BUFFER);
@@ -344,12 +344,14 @@ public class Elevator {
 			return -90;
 		}
 	}
+	*/
 
 	/**
 	 * Whether or not the intake is safe to move at the current elevator height.
 	 * 
 	 * @return - True when it is safe to move the intake over the back
 	 */
+	/*
 	public boolean intakeSafe() {
 		if (getInches() >= SAFE_HEIGHT-1.4) {
 			return true;
@@ -357,11 +359,12 @@ public class Elevator {
 			return false;
 		}
 	}
-	
+	*/
+
 	/**
-	 * Gets if the elevator is at the top
+	 * Tests to see if mag switch is triggered and if so, if elevator is at safe height.
 	 * 
-	 * @return - true = at top
+	 * @return - True if no issue detected, False if mag is trigged and height is not safe.
 	 */
 	public boolean magSwitchSafe() {
 		//greater or equal to total height
@@ -377,9 +380,9 @@ public class Elevator {
 	}
 	
 	/**
-	 * Gets if the elevator is at the top
+	 * Gets if the elevator is pressing limit switch at bottom
 	 * 
-	 * @return - true = at bottom
+	 * @return - true = elevator is at bottom
 	 */
 	public boolean atBottom() {
 		if (lowerLimit.get()) {
@@ -393,16 +396,19 @@ public class Elevator {
 	 * 
 	 * @return -Elevator height as a percentage
 	 */
-	public double getElevatorPercent() {
+	/* public double getElevatorPercent() {
 		return Common.map(getInches(), 0, SAFE_HEIGHT, 0, 1);
 	}
+	*/
 	
 	/**
-	 * Starts homing the elevator
+	 * Starts homing the elevator and ensure Arm moves up to accomodate
 	 */
 	public void home() {
-		Common.debug("New state Homing");
+		Common.debug("Elevator Homing and Arm moving to safe height for Home");
 		state = States.HOMING;
+		double safeAngle = Math.max(arm.MIN_HOMING_ANGLE, arm.getPosition());
+		arm.movePosition(safeAngle);
 	}
 	
 	/*public void start() {
@@ -453,7 +459,7 @@ public class Elevator {
 	/**
 	 * Gets the current height of the elevator in inches
 	 * 
-	 * @return -The current height of the elevator in counts 
+	 * @return - height in inches 
 	 */
 	public double getInches() {
 		return getEncoder()/COUNTS_PER_INCH;
@@ -489,13 +495,17 @@ public class Elevator {
 	}
 	
 	/**
-	 * Starts moving the elevator to a target height
+	 * Starts moving the elevator to a target height.  In turn it inititates
+	 * and Arm move to a safe angle for that height.
 	 * 
-	 * @param targetHeight - Height in inches that the elevator to move to
+	 * @param targetHeight - Height in inches
 	 */
-	public void moveToHeight(double targetHeight) {
+	public void moveToHeight(double inches) {
 		if (state != States.STOPPED && state != States.HOMING && state != States.JOYSTICK) {
-			pid.setTargetPosition(targetHeight);
+			targetHeight = inches;  // pidDISMove() will use this target control position PID
+			double safeAngle = Math.max(arm.getPosition(), minArmSafeAngle(inches));
+			arm.movePosition(safeAngle);
+			//pid.setTargetPosition(inches);
 			state = States.MOVING;
 		}
 	}
@@ -506,7 +516,8 @@ public class Elevator {
 	 * @return - complete
 	 */
 	public boolean isComplete() {
-		return Math.abs(pid.getTargetPosition() - getInches()) < ACCEPTABLE_ERROR;
+	//	return Math.abs(pid.getTargetPosition() - getInches()) < ACCEPTABLE_ERROR;
+		return Math.abs(targetHeight - getInches()) < ACCEPTABLE_ERROR;
 	}
 	
 	/**
@@ -515,14 +526,14 @@ public class Elevator {
 	public void debug() {
 		Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
-		Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
-		Common.dashBool("at Mag Switch", atMagSwitch());
+		//Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
+		//Common.dashBool("at Mag Switch", atMagSwitch());
 		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
 		Common.dashNum("Position PID Target", pid.getTargetPosition());
 		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
-		Common.dashNum("Get Rate", encoder.getRate());
+		//Common.dashNum("Get Rate", encoder.getRate());
 	}
 	
 	/**
@@ -543,7 +554,7 @@ public class Elevator {
 				Common.debug("New state Holding");
 				state = States.HOLDING;
 			} else {
-				setPower(-0.1);
+				setPower(-0.12);  //was -0.10
 			}
 			break;
 		/*case START:
@@ -564,8 +575,13 @@ public class Elevator {
 			//accleMove(speed);
 			//Common.debug("new State Idle");
 			if (state == States.JOYSTICK){
-				state = States.HOLDING;
-				pid.setTargetPosition(Math.max(0, Math.min(SAFE_HEIGHT, getInches() + 0.13*getVelocity())));
+				// Each cycle, JOYSTICK can set velocity, but we'll predict where elevator would coast to if joystick input stops.
+				// The JOYSTICK state only lasts one cycle, but if joystick is held, it updates every cycle via joystickControl().
+				state = States.MOVING;
+				// Set an predicted height for elevator based on current velocity
+				double predictedHeight = getInches() + 0.13*getVelocity();
+				// Contstrain to safe target height, based on safety for arm angle and elevator safe max height.
+				targetHeight = (Math.max(minArmSafeHeight(arm.getPosition()), Math.min(SAFE_HEIGHT, predictedHeight)));
 			}
 			break;
 		}

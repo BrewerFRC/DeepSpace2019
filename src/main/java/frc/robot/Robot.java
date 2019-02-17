@@ -110,24 +110,31 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
+
+		// Elevator 
 		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
 			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
 		}
 		else {
 			elevator.joystickControl(0.0f);
 		}
-		elevator.update();
-		elevator.debug();
-		intake.update();
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
-		/*if (driver.when("a")) { 
+		/*
+		if (driver.when("a")) { 
 			elevator.moveToHeight(10);
 		}
 		if (driver.when("b")) {
-			elevator.moveToHeight(30);
-		}*/
+			elevator.moveToHeight(50);
+		}
+		if (driver.when("y")) {
+			elevator.moveToHeight(60);
+		}
+		*/
+
+	
+		// Intake
 		if (driver.when("a"))
 		{
 			intake.toggleLoading();
@@ -140,9 +147,9 @@ public class Robot extends TimedRobot {
 		{
 			intake.doEject();
 		}
-		/*if (driver.when("y")) {
-			elevator.moveToHeight(50);
-		}*/
+	
+
+		// Slider
 		if (driver.when("dPadUp")) {
 			slider.fingerUp();
 		}
@@ -159,6 +166,10 @@ public class Robot extends TimedRobot {
 				slider.setTarget(0);
 		}
 		
+		// Updates
+		elevator.update();
+		elevator.debug();
+		intake.update();
 		arm.dashboard();
 
 		/*if (safeToMove()) {

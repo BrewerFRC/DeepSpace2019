@@ -25,6 +25,8 @@ public class Arm {
 	HORIZONTAL_POSITION = 2485, //The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
 	MIN_ANGLE = -80, MAX_ANGLE = 60, 
+	// Arm must be at least this high an angle for elevator to Home.
+	MIN_HOMING_ANGLE = 20,
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 10,
@@ -288,7 +290,7 @@ public class Arm {
 		//overrules movePosition()
 		if (jInput != 0) {
 			double jMap = Common.map(-jInput, -1, 1, -MAX_VELOCITY, MAX_VELOCITY);
-			Common.dashNum("jMap intake", jMap);
+			//Common.dashNum("jMap intake", jMap);
 			targetVelocity = jMap;
 			//Common.debug("New intake state Joystick");
 			state = States.JOYSTICK;
@@ -311,8 +313,7 @@ public class Arm {
      */
     public double gTerm() {
         double gTerm = G*Math.cos(Math.toRadians(getPosition()));
-       //Common.dashNum("Cosine of arm", Math.cos(Math.toRadians(getPosition())));
-        Common.dashNum("G term", gTerm);
+    //    Common.dashNum("G term", gTerm);
         return gTerm;
     }
 
@@ -361,18 +362,11 @@ public class Arm {
 		previousVelocity = velocity;
 		//velocity = velocity*.9+(position - previousPosition)/(1.0/Constants.REFRESH_RATE)*.1;
 		//
-        //G = Common.getNum("G:", 0);
-        Common.dashNum("G", G);
-		switch(state) {
+        switch(state) {
 			case STOPPED:
 				setAccelArmPower(0.0);
 				break;
 			case HOLDING:
-				if (!previousIntakeSafe && elevator.intakeSafe()) {
-					pid.resetVelocityPID();
-				}
-				previousIntakeSafe = elevator.intakeSafe();
-				
 				pidPosMove();
 				break;
 			case MOVING:

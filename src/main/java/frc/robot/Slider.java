@@ -21,7 +21,7 @@ public class Slider {
     INCH_CENTER = 0,
     FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
     MOTOR_POWER = 1d,
-    ALLOWANCE = 0.1d;
+    ALLOWANCE = 0.3d;
     public static final boolean
     INVERT_MOTOR = true,
     INVERT_TARGET = false;
@@ -64,8 +64,7 @@ public class Slider {
     }
 
     public void fingerDown() {
-        // was 
-        lServo.set(0.03);
+        //was lServo.set(0.03);
         //rServo.set(0.39)
         lServo.set(0.05);
         rServo.set(0.3);
@@ -90,10 +89,10 @@ public class Slider {
             }
         }
 	    // debug necessary?
-        Common.dashNum("Slider power", power);
+        //Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
-        Common.dashNum("Current Pot Reading", currentPotReading());
+        //Common.dashNum("Current Pot Reading", currentPotReading());
 		motor.set(power);
     }
 }
