@@ -149,6 +149,9 @@ public class Robot extends TimedRobot {
 		if (driver.when("dPadDown")) {
 			slider.fingerDown();
 		}
+		if (driver.when("a")) {
+			slider.startRightFingerSearch();
+		}
 		if (driver.getPressed("leftBumper")) {
 			slider.moveTo(-2);
 		}
@@ -160,6 +163,7 @@ public class Robot extends TimedRobot {
 		}
 		
 		arm.dashboard();
+		arm.update();
 
 		/*if (safeToMove()) {
 			if (/* Start hatch pickup ) {

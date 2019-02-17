@@ -31,7 +31,7 @@ public class Slider {
         INCH_RIGHT_LIMIT = 3.2,
         INCH_CENTER = 0,
         FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
-        MOTOR_POWER = 1d,
+        MOTOR_POWER = 1,
         ALLOWANCE = 0.1d,
         P = 0.5;
     public static final boolean
@@ -48,7 +48,11 @@ public class Slider {
     private double previousPosition = 0;
     private boolean fingerSearchright = true, isComplete = false, halfComplete = false;
     private states sliderState = states.MOVING;
+    private int same = 0;
     
+    public Slider() {
+        motor.setInverted(true);
+    }
 
     /**
 	 * Returns the raw potentiometer reading for the slider potentiometer.
@@ -101,7 +105,7 @@ public class Slider {
      * @return If the finger limit switch is pressed.
      */
     public boolean fingerPressed() {
-        return fingerSwitch.get();
+        return !fingerSwitch.get();
     }
 
     /**
@@ -110,7 +114,7 @@ public class Slider {
      * @return Whether either of the front finger limit switches are pressed.
      */
     public boolean pressed() {
-        return (leftSwitch.get() || rightSwitch.get());
+        return (!leftSwitch.get() || !rightSwitch.get());
     }
 
 
@@ -134,6 +138,7 @@ public class Slider {
 
     
     private void startFingerSearch(boolean right) {
+        same = 0;
         halfComplete = false;
         fingerSearchright = right;
         fingerDown();
@@ -191,7 +196,8 @@ public class Slider {
      */
     private void move() {
         double error = targetInches - potInches();
-        /*if (Common.between(potInches(), targetInches - ALLOWANCE, targetInches + ALLOWANCE)) {
+        if (Common.between(potInches(), targetInches - ALLOWANCE, targetInches + ALLOWANCE)) {
+            isComplete = true;
 		    power = 0;
         } else { 
             if (targetInches > potInches()) {
@@ -199,11 +205,8 @@ public class Slider {
             } else {
 			    power = - MOTOR_POWER;
             }
-            if (INVERT_MOTOR) {
-                power = - power;
-            }
-        }*/
-        if (Math.abs(error) < ALLOWANCE) {
+        }
+       /* if (Math.abs(error) < ALLOWANCE) {
             isComplete = true;
 		    power = 0;
         } else {
@@ -212,8 +215,8 @@ public class Slider {
             } else {
 			    power = - (P*error);
             } 
-        }
-        //motor.set(power);
+        }*/
+        motor.set(power);
     }
 
     public void update() {
@@ -224,8 +227,12 @@ public class Slider {
             case SEARCHING:
                 if (this.pressed() && !fingerPressed()) {
                     fingerUp();
+                    sliderState = states.MOVING;
                 }
-                if (isComplete() || previousPosition == potInches()) {
+                if (previousPosition == potInches()) {
+                    same++;
+                }
+                if (isComplete() || same >= 5) {
                     if (halfComplete) {
                         sliderState = states.MOVING;
                         Common.debug("Finger search completed empty");
@@ -238,15 +245,18 @@ public class Slider {
                         }
                     }
                 }
+                move();
                 break;
         }
         // debug necessary?
         Common.dashStr("Slider state", sliderState.toString());
         Common.dashBool("Arm Pressed", pressed());
         Common.dashBool("Finger Pressed", fingerPressed());
+        Common.dashBool("Slider complete", isComplete());
         Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
+        Common.dashNum("Slider Previous Position", previousPosition);
         Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
     }
