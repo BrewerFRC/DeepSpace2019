@@ -12,9 +12,10 @@ public class Slider {
     private Servo rServo = new Servo(Constants.PWM_SERVO_RIGHT);
 
     public static final int
-    POT_LEFT_LIMIT = 235,
-    POT_RIGHT_LIMIT = 1237,
-    POT_CENTER = 741;
+    POT_LEFT_LIMIT = 852,
+    POT_RIGHT_LIMIT = 1697,
+    POT_CENTER = 1271;
+
     public static final double
     INCH_LEFT_LIMIT = -3.2,
     INCH_RIGHT_LIMIT = 3.2,
@@ -93,7 +94,7 @@ public class Slider {
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
         Common.dashNum("Slider Pot", currentPotReading());
-		//motor.set(power);
+		motor.set(power);
     }
 }
 
