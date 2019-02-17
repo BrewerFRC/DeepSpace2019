@@ -46,7 +46,7 @@ public class Slider {
         SEARCHING
     }
     private double previousPosition = 0;
-    private boolean fingerSearchright = true, isComplete = false, halfComplete = false;
+    private boolean fingerSearchright = true, isComplete = false, halfComplete = false, hasHatch = false;
     private states sliderState = states.MOVING;
     private int same = 0;
     
@@ -191,6 +191,27 @@ public class Slider {
     }
 
     /**
+     * Returns if the slider thinks it has a hatch.
+     * 
+     * @return If the slider thinks it has a hatch.
+     */
+    public boolean hasHatch()  {
+        return hasHatch;
+    }
+
+    /**
+     * Switches whether the slider thinks it has a hatch.
+     * Sets it to the inverse.
+     */
+    public void toggleHasHatch() {
+        hasHatch = !hasHatch;
+    }
+
+    public State getSliderState() {
+        return sliderState;
+    }
+
+    /**
      * Moves the arm, should only be called in update
      */
     private void move() {
@@ -225,6 +246,7 @@ public class Slider {
                 break;
             case SEARCHING:
                 if (this.pressed() && !fingerPressed()) {
+                    hasHatch = true;
                     fingerUp();
                     sliderState = states.MOVING;
                 }

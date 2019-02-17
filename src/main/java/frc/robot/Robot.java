@@ -56,7 +56,6 @@ public class Robot extends TimedRobot {
 	//Distances for pi
 	private final double GRAB_DIST = -1, STOW_SAFE = -1;
 
-	public boolean hasHatch = false;
 
 	//Whether or not to stow up.
 	//True is up, false is down.
@@ -152,11 +151,6 @@ public class Robot extends TimedRobot {
 			intake.doEject(); //out
 		}
 		
-		// Updates
-		elevator.update();
-		elevator.debug();
-		intake.update();
-		arm.dashboard();
 
 		if (isTeleopAllowed()) {
 			//Driver
@@ -201,10 +195,12 @@ public class Robot extends TimedRobot {
 
 		}
 		
-
-		debug();
-		arm.update();
+		// Updates
 		elevator.update();
+		elevator.debug();
+		intake.update();
+		arm.dashboard();
+		debug();
 
 		//Still neccasary?
 		if (elevator.getState() == Elevator.States.HOMING) {
@@ -268,11 +264,12 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_PICKUP:
-			if (HatchVision.getDistance() <= this.GRAB_DIST) {//Replace with pressure?
+			if (slider.pressed()) {//Replace with pressure?
 				state = States.HATCH_GRAB;
 			}
 			arm.positionLowPlace();
 			elevator.doPlace(-1); //Down
+			slider.fingerDown();
 			//arm.fingerSearch();//Starts fingerSearch
 			if (userMove) {
 				state = States.EMPTY;
@@ -283,28 +280,19 @@ public class Robot extends TimedRobot {
 				state = States.TO_STOW;
 			}
 			if (slider.isPressure()) { //Arm is pressed
-				if (!slider.fingerPressd()) {//Finger unpressed
-					arm.raiseFinger();
-					hasHatch = true;
-			//Needs to be changed to work with auto pickup
-					state = States.HAS_HATCH;
-				} else {
-					state = States.HATCH_SEARCH;
-				}
+				slider.startRightFingerSearch();
+				state = States.HATCH_SEARCH;
 			}
 			break;
 		case HATCH_SEARCH:
-			if (slider.isPressure && !slider.pressed) {
-				slider.raiseFinger();
-				hasHatch = true;
+			if (slider.hasHatch()) {
 				state = States.TO_STOW;
 			}
-			//TODO: Needs safety?
-			if (!slider.fingerSearching || slider.isPressure) {
+			if (slider.getSliderState() == slider.States.MOVING) {
 				state = States.HATCH_PICKUP;
 				arm.doStowDown();
 				elevator.moveToHeight(this.ELE_LOW_HATCH);
-				arm.startAlign();//unknown function to start slider movement
+				//arm.startAlign();//unknown function to start slider movement
 			}
 			break;
 		case HAS_HATCH: 
