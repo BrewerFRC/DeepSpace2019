@@ -46,9 +46,9 @@ public class Robot extends TimedRobot {
 
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
-	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=-1, ELE_LOW_HATCH=-1,
-	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 47, ARM_LOW_PLACE=-1, ARM_HIGH_PLACE =-1,
-	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 0, ARM_LOW_STOW = 0;
+	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
+	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
+	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 25, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3;
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -89,10 +89,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void disabledPeriodic() {
-		/*
-		*  TODO: Added some way to mark a hatch to system
-		*
-		*/
+		if (operator.when("start") || driver.when("start")) {
+			slider.toggleHasHatch();
+		}
 		debug();
 	}
 
@@ -122,12 +121,12 @@ public class Robot extends TimedRobot {
 		 * Right bumper is hatch pickup
 		 * left joystick is drive
 		 * Right joystick is arm
-		 * start is hasHatch and back is hasCargo
+		 * start is hasHatch (and back is hasCargo not implemented)
 		 * B is spit cargo
 		 * A is cargo intake state
 		 * 
 		 * Operator:
-		 * Left bumper is Arm aim for bumper
+		 * Left bumper is Arm angle for cargo
 		 * Right bumper is place hatch
 		 * Left Joystick is drive
 		 * Right Joystick is elevator
@@ -160,7 +159,7 @@ public class Robot extends TimedRobot {
 			stowUp = false;
 		}
 
-		if (operator.when("start")) {
+		if (operator.when("start") || driver.when("start")) {
 			slider.toggleHasHatch();
 		}
 
@@ -196,6 +195,33 @@ public class Robot extends TimedRobot {
 					//elevator.doPlace(1);
 				}
 				state = States.HATCH_PLACE;
+			}
+
+			if (operator.when("leftBumper")) {
+				arm.movePosition(55);//For upper level?
+			}
+
+			//Set points
+			if (slider.hasHatch()) {
+				if (operator.when("a")) {
+					elevator.moveToHeight(ELE_LOW_HATCH);
+				}
+				if (operator.when("b")) {
+					elevator.moveToHeight(ELE_MID_HATCH);
+				}
+				if (operator.when("y")) {
+					elevator.moveToHeight(ELE_HIGH_HATCH);
+				}
+			} else {
+				if (operator.when("a")) {
+					elevator.moveToHeight(ELE_LOW_CARGO);
+				}
+				if (operator.when("b")) {
+					elevator.moveToHeight(ELE_MID_CARGO);
+				}
+				if (operator.when("y")) {
+					elevator.moveToHeight(ELE_HIGH_CARGO);
+				}
 			}
 
 			//Joystick elevator
@@ -284,7 +310,10 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_GRAB:
 			if (slider.hasHatch()) {
-				state = States.TO_STOW;
+				elevator.moveToHeight(elevator.getInches()+5);
+				if (elevator.isComplete()) {
+					state = States.TO_STOW;
+				}
 			}
 			if (slider.pressed()) { //Arm is pressed
 				slider.startRightFingerSearch();
@@ -293,7 +322,10 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_SEARCH:
 			if (slider.hasHatch()) {
-				state = States.TO_STOW;
+				elevator.moveToHeight(elevator.getInches()+5);
+				if (elevator.isComplete()) {
+					state = States.TO_STOW;
+				}
 			}
 			if (slider.getSliderState() == Slider.states.MOVING) {
 				state = States.HATCH_PICKUP;
@@ -314,10 +346,13 @@ public class Robot extends TimedRobot {
 			}
 			if (t >= 2) {
 				//state = States.TO_STOW;
-				if (stowUp) {
-
+				//TODO: better exit
+				if (arm.getPosition() > 0) {
+					stowUp = true;
+				} else {
+					stowUp = false;
 				}
-				state = States.EMPTY;
+				state = States.TO_STOW;
 			}
 			break;
 		case CARGO_PICKUP:
@@ -326,7 +361,7 @@ public class Robot extends TimedRobot {
 			if (userMove) {
 				state = States.EMPTY;
 			}
-			if (intake.getInfaredCheck()) {
+			if (intake.getInfaredCheck() || driver.when("a")) {
 				state = States.TO_STOW;
 			}
 			break;
@@ -337,7 +372,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case  TO_STOW:
-			if (stowUp/* && pi.getDistance > STOW_SAFE*/) {
+			if (stowUp || intake.getInfaredCheck()/* && pi.getDistance > STOW_SAFE*/) {
 				stowUp();
 			} else /*if (pi.getDistance >STOW_SAFE)*/ {
 				stowDown();
@@ -345,6 +380,7 @@ public class Robot extends TimedRobot {
 			if (arm.isComplete() && elevator.isComplete()) {
 				if (elevator.getInches() == ELE_LOW_STOW || elevator.getInches() == 0) {
 					if (arm.getPosition() == ARM_HIGH_STOW || arm.getPosition() == ARM_LOW_STOW) {
+						slider.fingerUp();
 						if (slider.hasHatch()) {
 							state = States.HAS_HATCH;
 						} else if (intake.getInfaredCheck()) {
@@ -411,8 +447,8 @@ public class Robot extends TimedRobot {
 	 * Stows the robot so the arm is up.
 	 */
 	public void stowUp() {
-		elevator.moveToHeight(0);
-		arm.movePosition(60);
+		elevator.moveToHeight(ELE_HIGH_STOW);
+		arm.movePosition(ARM_LOW_STOW);
 	}
 
 	/**

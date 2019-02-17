@@ -23,9 +23,9 @@ public class Slider {
     private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
 
     public static final int
-        POT_LEFT_LIMIT = 235,
-        POT_RIGHT_LIMIT = 1237,
-        POT_CENTER = 741;
+        POT_LEFT_LIMIT = 852,
+        POT_RIGHT_LIMIT = 1697,
+        POT_CENTER = 1271;
     public static final double
         INCH_LEFT_LIMIT = -3.2,
         INCH_RIGHT_LIMIT = 3.2,
