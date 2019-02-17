@@ -48,7 +48,8 @@ public class Robot extends TimedRobot {
 	//Ball is 13 inches abover elevator roughly
 	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
-	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 25, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3;
+	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 25, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3,
+	ARM_CARGO_PICKUP = , ELE_CARGO_PICKUP = ;
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -173,8 +174,8 @@ public class Robot extends TimedRobot {
 			}
 
 			if (driver.when("a")) { //Cargo pickup
-				arm.movePosition(0);
-				elevator.moveToHeight(ELE_LOW_STOW); //Is this the same position?
+				arm.movePosition();
+				elevator.moveToHeight(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
 			}
 
