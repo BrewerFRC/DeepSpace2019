@@ -26,8 +26,8 @@ public class DriveTrain extends DifferentialDrive {
 	public final double	
 		DRIVEACCELMIN = 0.05,
 		DRIVEACCELMAX = 0.1,
-		DRIVEMIN = 0.4,	 //Min power needed to move drive motors
-		TURNACCEL = 0.01,
+		DRIVEMIN = 0.35,	 //Min power needed to move drive motors
+		TURNACCEL = 0.04,
 		TURNMAX = 0.8;
 	
 	//private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;

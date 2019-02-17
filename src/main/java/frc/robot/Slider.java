@@ -23,9 +23,10 @@ public class Slider {
     private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
 
     public static final int
-        POT_LEFT_LIMIT = 852,
-        POT_RIGHT_LIMIT = 1697,
-        POT_CENTER = 1271;
+    POT_LEFT_LIMIT = 852,
+    POT_RIGHT_LIMIT = 1697,
+    POT_CENTER = 1271;
+
     public static final double
         INCH_LEFT_LIMIT = -3.2,
         INCH_RIGHT_LIMIT = 3.2,
@@ -278,11 +279,18 @@ public class Slider {
         Common.dashBool("Finger Pressed", fingerPressed());
         //Common.dashBool("Slider complete", isComplete());
         //Common.dashNum("Slider power", power);
+<<<<<<< HEAD
         //Common.dashNum("Slider Target Inches", targetInches);
         //Common.dashNum("Slider Inches", potInches());
         //Common.dashNum("Slider Previous Position", previousPosition);
         //Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
+=======
+        Common.dashNum("Slider Target Inches", targetInches);
+        Common.dashNum("Slider Inches", potInches());
+        Common.dashNum("Slider Pot", currentPotReading());
+		motor.set(power);
+>>>>>>> 8ede97272bc2850037a14f758f9eefc8237244c2
     }
 }
 
