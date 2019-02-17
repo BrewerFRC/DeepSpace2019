@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
 
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
-	private final double ELE_LOW_CARGO = -1[\], ELE_MID_CARGO=-1, ELE_HIGH_CARGO=-1, ELE_LOW_HATCH=-1,
+	private final double ELE_LOW_CARGO = -1, ELE_MID_CARGO=-1, ELE_HIGH_CARGO=-1, ELE_LOW_HATCH=-1,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 47, ARM_LOW_PLACE=-1, ARM_HIGH_PLACE =-1;
 	//Angle should be around 40 to place
 
@@ -150,7 +150,14 @@ public class Robot extends TimedRobot {
 		if (driver.when("b")) {
 			intake.doEject(); //out
 		}
+
+		if (operator.when("dPadUp")) {
+			stowUp = true;
+		}
 		
+		if (operator.when("dPadDown")) {
+			stowUp = false;
+		}
 
 		if (isTeleopAllowed()) {
 			//Driver
@@ -162,7 +169,7 @@ public class Robot extends TimedRobot {
 			}
 
 			if (driver.when("a")) { //Cargo pickup
-				arm.doHorizontal();
+				arm.movePosition(0);
 				elevator.doStowUp(); //Is this the same position?
 				state =  States.CARGO_PICKUP;
 			}
@@ -259,7 +266,7 @@ public class Robot extends TimedRobot {
 		case EMPTY:
 			if (intake.getInfaredCheck()) {
 				state = States.HAS_CARGO;
-			} else if (hasHatch) {
+			} else if (slider.hasHatch()) {
 				state = States.HAS_HATCH;
 			}
 			break;
@@ -276,10 +283,10 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_GRAB:
-			if (hasHatch) {
+			if (slider.hasHatch()) {
 				state = States.TO_STOW;
 			}
-			if (slider.isPressure()) { //Arm is pressed
+			if (slider.pressed()) { //Arm is pressed
 				slider.startRightFingerSearch();
 				state = States.HATCH_SEARCH;
 			}
@@ -296,13 +303,13 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HAS_HATCH: 
-			if (!hasHatch) {
+			if (!slider.hasHatch()) {
 				state = States.EMPTY;
 			}
 			break;
 		case HATCH_PLACE:
 			int t = 0;
-			if (slider.isPressure) {
+			if (slider.pressed()) {
 				slider.fingerDown();
 				t++;
 			}
