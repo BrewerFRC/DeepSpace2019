@@ -205,7 +205,6 @@ public class Slider {
 			    power = - MOTOR_POWER;
             }
         }
-<<<<<<< HEAD
        /* if (Math.abs(error) < ALLOWANCE) {
             isComplete = true;
 		    power = 0;
@@ -259,14 +258,6 @@ public class Slider {
         Common.dashNum("Slider Previous Position", previousPosition);
         Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
-=======
-	    // debug necessary?
-        //Common.dashNum("Slider power", power);
-        Common.dashNum("Slider Target Inches", targetInches);
-        Common.dashNum("Slider Inches", potInches());
-        //Common.dashNum("Current Pot Reading", currentPotReading());
-		motor.set(power);
->>>>>>> 57a3319c1ba273448a53773472f654f838e107e9
     }
 }
 

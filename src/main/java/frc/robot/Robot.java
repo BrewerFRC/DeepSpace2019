@@ -79,11 +79,8 @@ public class Robot extends TimedRobot {
 		elevator = new Elevator();
 		arm = elevator.arm;
 		slider = arm.getSlider();
-<<<<<<< HEAD
 		intake = arm.intake;
-=======
 		dt = new DriveTrain(elevator);
->>>>>>> 57a3319c1ba273448a53773472f654f838e107e9
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -120,7 +117,6 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
-<<<<<<< HEAD
 		/* Driver:
 		 * Left bumper is hard intake run
 		 * Right bumper is hatch pickup
@@ -148,56 +144,6 @@ public class Robot extends TimedRobot {
 		double turn = joystickY(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
-=======
-
-		// Elevator 
-		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
-			elevator.joystickControl(driver.getY(GenericHID.Hand.kLeft));
-		}
-		else {
-			elevator.joystickControl(0.0f);
-		}
-		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
-			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
-		}
-		
-/*
-		if (driver.when("a")) { 
-			elevator.moveToHeight(10);
-		}
-		if (driver.when("b")) {
-			elevator.moveToHeight(50);
-		}
-		if (driver.when("y")) {
-			elevator.moveToHeight(60);
-		}
-		
-*/
-	
-		// Intake
-		
-		if (driver.when("a"))
-		{
-			intake.toggleLoading();
-		}
-		if (driver.when("b"))
-		{
-			intake.doSoftEject();
-		}
-		if(driver.when("rightTrigger"))
-		{
-			intake.doEject();
-		}
-		
-
-		// Slider
-		if (driver.when("dPadUp")) {
-			slider.fingerUp();
-		}
-		if (driver.when("dPadDown")) {
-			slider.fingerDown();
-		}
->>>>>>> 57a3319c1ba273448a53773472f654f838e107e9
 		if (driver.getPressed("leftBumper")) {
 			intake.toggleLoading(); //in
 		}
@@ -205,15 +151,12 @@ public class Robot extends TimedRobot {
 		if (driver.when("b")) {
 			intake.doEject(); //out
 		}
-<<<<<<< HEAD
-=======
 		
 		// Updates
 		elevator.update();
 		elevator.debug();
 		intake.update();
 		arm.dashboard();
->>>>>>> 57a3319c1ba273448a53773472f654f838e107e9
 
 		if (isTeleopAllowed()) {
 			//Driver
@@ -440,7 +383,6 @@ public class Robot extends TimedRobot {
 		return safe;
 	}
 
-<<<<<<< HEAD
 	/**
      * Gets the highest joystick x value from the defined hand.
      * 
@@ -466,6 +408,4 @@ public class Robot extends TimedRobot {
     	}
     	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand);
     }
-=======
->>>>>>> 57a3319c1ba273448a53773472f654f838e107e9
 }
