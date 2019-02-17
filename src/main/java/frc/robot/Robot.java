@@ -140,8 +140,8 @@ public class Robot extends TimedRobot {
 		userMove = false;
 
 
-		double forward = joystickX(GenericHID.Hand.kLeft); 
-		double turn = joystickY(GenericHID.Hand.kLeft);
+		double forward = joystickY(GenericHID.Hand.kLeft); 
+		double turn = joystickX(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
 		if (driver.getPressed("leftBumper")) {
@@ -199,7 +199,7 @@ public class Robot extends TimedRobot {
 			}
 
 			//Joystick elevator
-			double operatorRight = driver.getY(GenericHID.Hand.kRight);
+			double operatorRight = operator.getY(GenericHID.Hand.kRight);
 			if (Math.abs(operatorRight) > .2) {
 				userMove = true;
 				elevator.joystickControl(operatorRight);
