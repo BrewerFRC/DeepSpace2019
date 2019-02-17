@@ -69,11 +69,11 @@ public class Slider {
         lServo.set(0.05);
         rServo.set(0.3);
     }
-
+/*
     public void forcePower(double power) {
         motor.set(power);
     }
-
+*/
     public void update() {
         double power;
         if (Common.between(potInches(), targetInches - ALLOWANCE, targetInches + ALLOWANCE)) {
@@ -92,8 +92,8 @@ public class Slider {
         //Common.dashNum("Slider power", power);
         Common.dashNum("Slider Target Inches", targetInches);
         Common.dashNum("Slider Inches", potInches());
-        //Common.dashNum("Current Pot Reading", currentPotReading());
-		motor.set(power);
+        Common.dashNum("Slider Pot", currentPotReading());
+		//motor.set(power);
     }
 }
 

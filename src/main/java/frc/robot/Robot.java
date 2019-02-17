@@ -18,6 +18,7 @@ import edu.wpi.cscore.UsbCamera;
 
 public class Robot extends TimedRobot {
 	private Xbox driver;
+	private Xbox operator;
 	private Heading heading;
 	private DriveTrain dt;
 	private DigitalInput headingbutton;
@@ -79,6 +80,7 @@ public class Robot extends TimedRobot {
 		headingbutton = new DigitalInput(5);*/
 
 		driver = new Xbox(0);
+		operator = new Xbox(1);
 	}
 
 	@Override
@@ -110,6 +112,12 @@ public class Robot extends TimedRobot {
 	}
 
 	public void activePeriodic() {
+
+		// Driving
+		double forward = -operator.getY(GenericHID.Hand.kLeft);
+		double turn  = -operator.getX(GenericHID.Hand.kLeft);	
+		dt.accelDrive(forward, turn);
+
 
 		// Elevator 
 		if(Math.abs(driver.getY(GenericHID.Hand.kLeft)) > 0.15){
