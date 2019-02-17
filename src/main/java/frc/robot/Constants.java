@@ -13,11 +13,11 @@ public class Constants{
         // DIOs
         DIO_LIFT_ENCODER_A = 0,
         DIO_LIFT_ENCODER_B = 1,
-        DIO_SLIDER_LEFT_LIMIT = 2,
-        DIO_SLIDER_RIGHT_LIMIT = 3,
+        DIO_SLIDER_LEFT_LIMIT = 8,
+        DIO_SLIDER_RIGHT_LIMIT = 7,
         DIO_LOWER_LIMIT = 4,
         DIO_MAG_SWITCH = 5,
-        //whatever the sensor te finger uses = 6
+        DIO_FINGER_SWITCH = 6,
         //CAN
         CAN_DRIVE_BL = 2,
         CAN_DRIVE_FL = 0,

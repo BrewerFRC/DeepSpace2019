@@ -101,7 +101,7 @@ public class Arm {
 		pid.resetVelocityPID();
 		state = States.HOLDING;
 		previousMillis=Common.time();
-		slider.setTarget(0);
+		slider.moveTo(0);
 	}
 
 /**
