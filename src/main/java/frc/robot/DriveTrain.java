@@ -23,18 +23,12 @@ public class DriveTrain extends DifferentialDrive {
 	private static DriveTrain instance;
 	private static Elevator elevator;
 
-	public static double DRIVEACCEL = 0,
-		ACCELCONST = 0.005,	//Base acceleration 
-		ACCELMIN = 0.25,
-		DRIVEMIN = 0.4;	
-
-	public static final double TURNACCEL = 0.01;
-
-	//public static final double TANKACCEL = 0.01;
-
-	//public static final double TANKMIN = 0.40;
-
-	public static final double TURNMAX = 0.8;
+	public final double	
+		DRIVEACCELMIN = 0.05,
+		DRIVEACCELMAX = 0.1,
+		DRIVEMIN = 0.4,	 //Min power needed to move drive motors
+		TURNACCEL = 0.01,
+		TURNMAX = 0.8;
 	
 	//private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
 	private static final WPI_TalonSRX 
@@ -61,8 +55,8 @@ public class DriveTrain extends DifferentialDrive {
 		super(left, right);
 
 		this.elevator = elevator;
-		left.setInverted(true);
-		right.setInverted(true);
+		left.setInverted(false);
+		right.setInverted(false);
 		
 		//pidL = new PID(0.005, 0, 0, false, true, "velL");
 		//pidR = new PID(0.005, 0, 0, false, true, "velR");
@@ -82,22 +76,12 @@ public class DriveTrain extends DifferentialDrive {
 	}
 	
 	/**
-	 * Gets the drive acceleration value based on the elevator height.
-	 * 
-	 * @return - the drive acceleration value
-	 */
-	public double getDriveAccel() {
-		return (1.0 - elevator.percentHeight()) * ACCELCONST + ACCELMIN;
-	}
-	
-	/**
 	 * Gradually accelerate to a specified drive value.
 	 * 
 	 * @param target - the target drive value from -1 to 1
 	 * @return double - the allowed drive value for this cycle.
 	 */
 	public double driveAccelCurve(double target) {
-		double DRIVEACCEL = getDriveAccel();
 		//If the magnitude of current is less than the minimum
 		if (Math.abs(driveSpeed) < DRIVEMIN) {
 			//Move to the lesser value of the minimum or the target, including desired direction.
@@ -108,14 +92,16 @@ public class DriveTrain extends DifferentialDrive {
 				driveSpeed = Math.max(-DRIVEMIN, target);
 			}
 		}
+
+		double accel = Common.map(elevator.percentHeight(), 0, 1, DRIVEACCELMAX, DRIVEACCELMIN);
 		//If the magnitude of current is greater than the minimum
 		//If the difference is greater than the allowed acceleration
-		if (Math.abs(driveSpeed - target) > DRIVEACCEL) {
+		if (Math.abs(driveSpeed - target) > accel) {
 			//Accelerate in the correct direction
             if (driveSpeed > target) {
-                driveSpeed = driveSpeed - DRIVEACCEL;
+                driveSpeed = driveSpeed - accel;
             } else {
-                driveSpeed = driveSpeed + DRIVEACCEL;
+                driveSpeed = driveSpeed + accel;
             }
         }
 		//If the difference is less than the allowed acceleration, reach target
@@ -133,19 +119,20 @@ public class DriveTrain extends DifferentialDrive {
 	  */
 	 public double turnAccelCurve(double target) {
 		 if (Math.abs(turnSpeed - target) > TURNACCEL) {
-	    		if (turnSpeed > target) {
-	    			turnSpeed = turnSpeed - TURNACCEL;
-	    		} else {
-	    			turnSpeed = turnSpeed + TURNACCEL;
-	    		}
-	    	} else {
-	    		turnSpeed = target;
-	    	}
-		 if (turnSpeed >= 0) {
-			 turnSpeed = Math.min(TURNMAX, turnSpeed);
-		 } else {
-			 turnSpeed = Math.max(-TURNMAX, turnSpeed);
-		 }
+			if (turnSpeed > target) {
+				turnSpeed = turnSpeed - TURNACCEL;
+			} else {
+				turnSpeed = turnSpeed + TURNACCEL;
+			}
+		} else {
+			turnSpeed = target;
+		}
+		// Constrain to TURNMAX speed
+		if (turnSpeed >= 0) {
+			turnSpeed = Math.min(TURNMAX, turnSpeed);
+		} else {
+			turnSpeed = Math.max(-TURNMAX, turnSpeed);
+		}
 	    return turnSpeed;
 	}
 	

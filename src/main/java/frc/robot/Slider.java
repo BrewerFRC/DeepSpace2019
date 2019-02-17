@@ -276,12 +276,12 @@ public class Slider {
         Common.dashStr("Slider state", sliderState.toString());
         Common.dashBool("Arm Pressed", pressed());
         Common.dashBool("Finger Pressed", fingerPressed());
-        Common.dashBool("Slider complete", isComplete());
-        Common.dashNum("Slider power", power);
-        Common.dashNum("Slider Target Inches", targetInches);
-        Common.dashNum("Slider Inches", potInches());
-        Common.dashNum("Slider Previous Position", previousPosition);
-        Common.dashNum("Current Pot Reading", currentPotReading());
+        //Common.dashBool("Slider complete", isComplete());
+        //Common.dashNum("Slider power", power);
+        //Common.dashNum("Slider Target Inches", targetInches);
+        //Common.dashNum("Slider Inches", potInches());
+        //Common.dashNum("Slider Previous Position", previousPosition);
+        //Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
     }
 }

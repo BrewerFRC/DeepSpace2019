@@ -73,7 +73,7 @@ public class Elevator {
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
 		Y_HAND_EXT = 10.87,
 		//The minimum angle at which the bumper can be cleared.
-		MIN_BUMPER_CLEAR_ANGLE = -4.5,
+		MIN_BUMPER_CLEAR_ANGLE = -5, //was -4.5
 		//The length of the arm in inches pivot to pivot.
 		ARM_LEN = 19.887,
 		PIVOT_TO_BOTTOM = 5.875;
