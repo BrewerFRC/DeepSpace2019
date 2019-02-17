@@ -207,7 +207,10 @@ public class Slider {
         hasHatch = !hasHatch;
     }
 
-    public State getSliderState() {
+    /**
+     * Returns the state of the slider.
+     */
+    public states getSliderState() {
         return sliderState;
     }
 
