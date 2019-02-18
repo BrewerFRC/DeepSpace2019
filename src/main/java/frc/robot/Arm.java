@@ -211,7 +211,7 @@ public class Arm {
 	 * @param position - the position in degrees
 	 */
 	public void movePosition(double position) {
-		Common.debug("Arm target changed to: "+position);
+		//Common.debug("Arm target changed to: "+position);
 		targetPosition = position;
 		//pid.setTargetPosition(position);
 		state = States.MOVING;
@@ -363,6 +363,9 @@ public class Arm {
 		// Update Velocity
 		long millis = Common.time();
 		double loopTime = (millis - previousMillis) / 1000.0;
+		//if (loopTime <= 0.18 || loopTime >= 0.22) {
+		//	Common.debug("Arm: loopTime is: " + loopTime);
+		//}
 		double delta = position - previousPosition;
 		velocity = velocity * 0.9 + delta / loopTime * 0.1;
 		previousMillis = millis;

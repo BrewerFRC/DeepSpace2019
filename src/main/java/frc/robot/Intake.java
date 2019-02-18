@@ -15,15 +15,15 @@ public class Intake {
     private AnalogInput irInput = new AnalogInput(Constants.ANA_IR_SENSOR);
 
     private final float maxPower = 1f;
-    private final float loadingPower = 0.7f;
-    private final float ejectPower = -.7f;
+    private final float loadingPower = 1f;
+    private final float ejectPower = -1f;
     private final float softEjectPower = -0.45f;
     private final float ballLoadedInches = 5f;
-    private final float loadedHoldPower = 0.25f;
-    private final int loadCycles = 5;
+    private final float loadedHoldPower = 0.2f;
+    private final int loadCycles = 15;
     private final int ejectCycles = 8;
 
-    private enum CargoStates {
+    public enum CargoStates {
         EMPTY,
         LOADING,
         LOADED,
@@ -78,6 +78,11 @@ public class Intake {
                 }
             break;
             case EMPTY:
+
+                if (getInfaredCheck()) {
+                    cargoState = CargoStates.LOADED;
+                }   
+
                 setMotor(0.0f);
             break;
             case EJECT:

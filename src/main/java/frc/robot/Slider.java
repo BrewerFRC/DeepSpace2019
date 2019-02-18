@@ -141,7 +141,7 @@ public class Slider {
         same = 0;
         halfComplete = false;
         fingerSearchright = right;
-        fingerDown();
+        //fingerDown();
         if (right) {
             setTarget(INCH_RIGHT_LIMIT);
         } else {
@@ -209,6 +209,14 @@ public class Slider {
     }
 
     /**
+     * Switches the hashatch boolean to the param
+     * @param t The desired Hatch mode 
+     */
+    public void setHasHatch(boolean t) {
+        hasHatch = t;
+    }
+
+    /**
      * Returns the state of the slider.
      */
     public states getSliderState() {
@@ -252,6 +260,7 @@ public class Slider {
                 if (this.pressed() && !fingerPressed()) {
                     hasHatch = true;
                     fingerUp();
+                    setTarget(potInches());
                     sliderState = states.MOVING;
                 }
                 if (previousPosition == potInches()) {

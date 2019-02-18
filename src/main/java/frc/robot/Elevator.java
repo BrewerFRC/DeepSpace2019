@@ -504,8 +504,10 @@ public class Elevator {
 	public void moveToHeight(double inches) {
 		if (state != States.STOPPED && state != States.HOMING && state != States.JOYSTICK) {
 			targetHeight = inches;  // pidDISMove() will use this target control position PID
-			double safeAngle = Math.max(arm.getPosition(), minArmSafeAngle(inches));
-			arm.movePosition(safeAngle);
+			double safeAngle = minArmSafeAngle(inches);
+			if (arm.getPosition() < safeAngle) {
+				arm.movePosition(safeAngle);
+			}
 			//pid.setTargetPosition(inches);
 			state = States.MOVING;
 		}
@@ -540,6 +542,8 @@ public class Elevator {
 	/**
 	 * Update function that should be the last run of all elevator functions.
 	 * Exports certain values to smart dashboard and runs the state process of the elevator
+	 * 
+	 * CALLS ARM.UPDATE!!!!!
 	 */
 	public void update() {
 		pid.update();
