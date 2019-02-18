@@ -55,6 +55,11 @@ public class Slider {
         motor.setInverted(true);
     }
 
+    public void init() {
+        moveTo(0);
+        fingerUp();
+    }
+
     /**
 	 * Returns the raw potentiometer reading for the slider potentiometer.
 	 * 
@@ -257,7 +262,9 @@ public class Slider {
                 move();
                 break;
             case SEARCHING:
-                if (this.pressed() && !fingerPressed()) {
+                if (/*this.pressed() &&*/
+                 !fingerPressed()) {
+                    Common.debug("Finger Search complete");
                     hasHatch = true;
                     fingerUp();
                     setTarget(potInches());
@@ -283,6 +290,7 @@ public class Slider {
                 break;
         }
         // debug necessary?
+        Common.dashBool("HasHatch", this.hasHatch());
         Common.dashStr("Slider state", sliderState.toString());
         Common.dashBool("Arm Pressed", pressed());
         Common.dashBool("Finger Pressed", fingerPressed());

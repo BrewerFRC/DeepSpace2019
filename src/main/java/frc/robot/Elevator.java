@@ -36,8 +36,8 @@ public class Elevator {
 		//The location of the magnetic switch in inches, just below trigger point
 		MAG_SWITCH_POINT = 23.65, //was 23.75 
 		//The maximum power that the elevator can be run at upward
-		MAX_UP_POWER = .2, // was 1
-		MAX_DOWN_POWER = -0.1, // was -0.8 
+		MAX_UP_POWER = .35, // was 1
+		MAX_DOWN_POWER = -0.2, // was -0.8 
 		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
@@ -67,7 +67,7 @@ public class Elevator {
 		//How much safe space (in inches) to remove taking into account the bumpers
 		BUMPER_INCHES_TO_FLOOR = 7.5,
 		//Minimum Y distance above bumper or floor to hand 
-		Y_HAND_SAFETY = 1,
+		Y_HAND_SAFETY = .5,
 		//Minimum Y distance above floor.
         Y_HAND_FLOOR_SAFETY = 1.0,  //was 1.5
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
@@ -503,9 +503,10 @@ public class Elevator {
 	 */
 	public void moveToHeight(double inches) {
 		if (state != States.STOPPED && state != States.HOMING && state != States.JOYSTICK) {
-			targetHeight = inches;  // pidDISMove() will use this target control position PID
+			this.targetHeight = inches;  // pidDISMove() will use this target control position PID
 			double safeAngle = minArmSafeAngle(inches);
 			if (arm.getPosition() < safeAngle) {
+				//swCommon.debug("Elevator forcing arm angle");
 				arm.movePosition(safeAngle);
 			}
 			//pid.setTargetPosition(inches);
@@ -527,6 +528,7 @@ public class Elevator {
 	 * Prints standard debug information about elevator components.
 	 */
 	public void debug() {
+		Common.dashNum("Elevator Target Height", this.targetHeight);
 		Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		//Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
