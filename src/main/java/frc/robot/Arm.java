@@ -211,6 +211,7 @@ public class Arm {
 	 * @param position - the position in degrees
 	 */
 	public void movePosition(double position) {
+		Common.debug("Arm target changed to: "+position);
 		targetPosition = position;
 		//pid.setTargetPosition(position);
 		state = States.MOVING;
@@ -294,7 +295,7 @@ public class Arm {
 			double jMap = Common.map(-jInput, -1, 1, -MAX_VELOCITY, MAX_VELOCITY);
 			//Common.dashNum("jMap intake", jMap);
 			targetVelocity = jMap;
-			//Common.debug("New intake state Joystick");
+			Common.debug("Arm: Set to state JOYSTICK");
 			state = States.JOYSTICK;
 		}
 	}
@@ -377,6 +378,7 @@ public class Arm {
 				break;
 			case MOVING:
 				if (isComplete()) {
+					Common.debug("Arm: State to HOLDING");
 					state = States.HOLDING;
 				}
 				pidPosMove();

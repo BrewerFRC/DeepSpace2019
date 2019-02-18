@@ -114,8 +114,8 @@ public class Intake {
     }
 
     public void debug(){
-        SmartDashboard.putString("Current state", getState().toString());
-        SmartDashboard.putNumber("Current inches", getInfaredInches());
+        SmartDashboard.putString("Intake state", getState().toString());
+        SmartDashboard.putNumber("IR inches", getInfaredInches());
     }
     /**
      * Sets the motor power.
