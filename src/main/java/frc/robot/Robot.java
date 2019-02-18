@@ -412,8 +412,8 @@ public class Robot extends TimedRobot {
 			}
 			if (t >= 5) {
 				arm.movePosition(55);
-				elevator.moveToHeight(this.placeHeight-3);
-				if (arm.isComplete())
+				elevator.moveToHeight(this.placeHeight-4);
+				if (arm.isComplete() && elevator.isComplete()) {
 					slider.setHasHatch(false);
 					slider.fingerUp();
 					//state = States.TO_STOW;
@@ -426,6 +426,7 @@ public class Robot extends TimedRobot {
 					
 					Common.debug("Robot State going from HATCH_PLACE_HIGH to STOW_UP");
 					state = States.STOW_UP;
+				}
 			}
 			break;
 		case HATCH_PLACE_LOW:
