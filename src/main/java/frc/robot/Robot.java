@@ -127,6 +127,7 @@ public class Robot extends TimedRobot {
 			elevator.joystickControl(0.0f);
 		}
 		if (Math.abs(driver.getY(GenericHID.Hand.kRight))> .15) {	
+
 			arm.joystickControl(driver.getY(GenericHID.Hand.kRight));
 		}
 		
@@ -147,11 +148,13 @@ public class Robot extends TimedRobot {
 		
 		if (driver.when("a"))
 		{
-			intake.toggleLoading();
+			//intake.toggleLoading();
+			arm.movePosition(20);
 		}
 		if (driver.when("b"))
 		{
-			intake.doSoftEject();
+			//intake.doSoftEject();
+			arm.movePosition(30);
 		}
 		if(driver.when("rightTrigger"))
 		{
