@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
 		STOW_DOWN,
 		HOMING,
 		HATCH_PICKUP,
-		HATCH_GRAB,
+		//HATCH_GRAB,
 		HATCH_SEARCH,
 		HAS_HATCH,
 		HATCH_PLACE,
@@ -316,7 +316,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	public void update() {
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state == States.HATCH_PLACE) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
@@ -512,7 +512,7 @@ public class Robot extends TimedRobot {
 	 */
 	public boolean safeToMove() {
 		boolean safe = true;
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
 			safe =  false;
 		}
 		return safe;
