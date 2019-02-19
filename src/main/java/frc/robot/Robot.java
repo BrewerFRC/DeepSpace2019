@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
 	private Arm arm;
 	private Elevator elevator;
 	private Intake intake;
+	private HatchIntake hatchIntake;
 
 	private enum States {
 		EMPTY,
@@ -90,6 +91,7 @@ public class Robot extends TimedRobot {
 		slider = arm.getSlider();
 		intake = arm.intake;
 		dt = new DriveTrain(elevator);
+		hatchIntake = new HatchIntake();
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -113,8 +115,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		elevator.init();
-		slider.init();
+		//elevator.init();
+		//slider.init();
 		
 		//heading.reset();
 		//heading.setHeadingHold(true);
@@ -122,15 +124,17 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		activePeriodic();
-		//testPeriodic();
+		//activePeriodic();
+		testPeriodic();
 	}
 
 
 	public void testPeriodic(){
-		arm.movePosition(20);
-		arm.dashboard();
-		elevator.update();
+		//hatchIntake.setMotor(0.2);
+
+		if(driver.when("a")){
+			
+		}
 	}
 
 	public void activePeriodic() {
