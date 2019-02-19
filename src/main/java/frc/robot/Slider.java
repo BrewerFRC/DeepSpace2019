@@ -148,9 +148,9 @@ public class Slider {
         fingerSearchright = right;
         //fingerDown();
         if (right) {
-            setTarget(INCH_RIGHT_LIMIT);
+            setTarget(1.5/*INCH_RIGHT_LIMIT*/);
         } else {
-            setTarget(INCH_LEFT_LIMIT);
+            setTarget(-1.5/*INCH_LEFT_LIMIT*/);
         }
         sliderState = states.SEARCHING;
     }
@@ -280,9 +280,9 @@ public class Slider {
                     } else {
                         halfComplete = true;
                         if (fingerSearchright) {
-                            setTarget(INCH_LEFT_LIMIT);
+                            setTarget(-1.5/*INCH_LEFT_LIMIT*/);
                         } else {
-                            setTarget(INCH_RIGHT_LIMIT);
+                            setTarget(1.5/*INCH_RIGHT_LIMIT*/);
                         }
                     }
                 }

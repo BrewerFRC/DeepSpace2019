@@ -16,7 +16,7 @@ public class Intake {
 
     private final float maxPower = 1f;
     private final float loadingPower = 1f;
-    private final float ejectPower = -1f;
+    private final float ejectPower = -.7f;
     private final float softEjectPower = -0.45f;
     private final float ballLoadedInches = 5f;
     private final float loadedHoldPower = 0.2f;
@@ -186,13 +186,22 @@ public class Intake {
     /**
      * Moves the ball intake into loading mode.
      */
-    public void toggleLoading (){
+    private void toggleLoading (){
         if (cargoState == CargoStates.EMPTY){
             cargoState = CargoStates.LOADING;
         } 
         else if(cargoState == CargoStates.LOADING){
             cargoState = CargoStates.EMPTY;
         }
+    }
+
+    /**
+     * Moves the state from empty to loading
+     */
+    public void startLoading() {
+        if (cargoState == CargoStates.EMPTY){
+            cargoState = CargoStates.LOADING;
+        } 
     }
     /**
      * Soft ejects the ball if within the loaded state.
