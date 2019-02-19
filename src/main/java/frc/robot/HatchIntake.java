@@ -33,6 +33,7 @@ public class HatchIntake {
     {
         hatchPickupPotentiometer = new AnalogInput(Constants.ANA_FLOOR_POT);
         hatchPickupMotor = new Spark(Constants.PWM_FLOOR_PICKUP);
+        hatchPickupMotor.setInverted(true);
         pid = new PID(P, I, D, false, false, "Hatch Pickup PID");
     }
 

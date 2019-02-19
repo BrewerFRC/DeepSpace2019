@@ -132,8 +132,12 @@ public class Robot extends TimedRobot {
 	public void testPeriodic(){
 		//hatchIntake.setMotor(0.2);
 
-		if(driver.when("a")){
-			
+		if(driver.getPressed("a")){
+			hatchIntake.setMotor(0.2);
+		}
+		else{
+			hatchIntake.setMotor(0.0);
+
 		}
 	}
 
