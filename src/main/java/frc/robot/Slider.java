@@ -148,9 +148,9 @@ public class Slider {
         fingerSearchright = right;
         //fingerDown();
         if (right) {
-            setTarget(1.5/*INCH_RIGHT_LIMIT*/);
+            setTarget(2/*INCH_RIGHT_LIMIT*/);
         } else {
-            setTarget(-1.5/*INCH_LEFT_LIMIT*/);
+            setTarget(-2/*INCH_LEFT_LIMIT*/);
         }
         Common.debug("Starting finger search");
         sliderState = states.SEARCHING;
@@ -263,8 +263,7 @@ public class Slider {
                 move();
                 break;
             case SEARCHING:
-                if (/*this.pressed() &&*/
-                 !fingerPressed()) {
+                if (/*this.pressed() &&*/ !fingerPressed()) {
                     Common.debug("Finger Search complete");
                     hasHatch = true;
                     fingerUp();
@@ -281,9 +280,9 @@ public class Slider {
                     } else {
                         halfComplete = true;
                         if (fingerSearchright) {
-                            setTarget(-1.5/*INCH_LEFT_LIMIT*/);
+                            setTarget(-2/*INCH_LEFT_LIMIT*/);
                         } else {
-                            setTarget(1.5/*INCH_RIGHT_LIMIT*/);
+                            setTarget(2/*INCH_RIGHT_LIMIT*/);
                         }
                     }
                 }
