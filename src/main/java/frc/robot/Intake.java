@@ -20,7 +20,7 @@ public class Intake {
     private final float softEjectPower = -0.45f;
     private final float ballLoadedInches = 5f;
     private final float loadedHoldPower = 0.2f;
-    private final int loadCycles = 15;
+    private final int loadCycles = 20;
     private final int ejectCycles = 8;
 
     public enum CargoStates {
@@ -202,6 +202,12 @@ public class Intake {
         if (cargoState == CargoStates.EMPTY){
             cargoState = CargoStates.LOADING;
         } 
+    }
+
+    public void returnEmpty() {
+        if(cargoState == CargoStates.LOADING){
+            cargoState = CargoStates.EMPTY;
+        }
     }
     /**
      * Soft ejects the ball if within the loaded state.

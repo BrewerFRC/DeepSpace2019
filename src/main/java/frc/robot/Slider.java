@@ -28,8 +28,8 @@ public class Slider {
     POT_CENTER = 1271;
 
     public static final double
-        INCH_LEFT_LIMIT = -3.2,
-        INCH_RIGHT_LIMIT = 3.2,
+        INCH_LEFT_LIMIT = -3, //Really -3.2
+        INCH_RIGHT_LIMIT = 3, //Really 3.2
         INCH_CENTER = 0,
         FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
         MOTOR_POWER = 1,
@@ -152,6 +152,7 @@ public class Slider {
         } else {
             setTarget(-1.5/*INCH_LEFT_LIMIT*/);
         }
+        Common.debug("Starting finger search");
         sliderState = states.SEARCHING;
     }
 
