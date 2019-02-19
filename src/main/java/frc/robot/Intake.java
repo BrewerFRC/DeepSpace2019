@@ -22,10 +22,13 @@ public class Intake {
     private final float loadedHoldPower = 0.2f;
     private final int loadCycles = 20;
     private final int ejectCycles = 8;
+    
+    private double moreloadtime;
 
     public enum CargoStates {
         EMPTY,
         LOADING,
+        MORE_LOAD,
         LOADED,
         EJECT,
         SOFT_EJECT
@@ -75,6 +78,16 @@ public class Intake {
                 {
                     cargoState = CargoStates.EMPTY;
                     setMotor(0.0f);
+                }
+            break;
+            case MORE_LOAD:
+                setMotor(loadingPower);
+                if (moreloadtime >  Common.time()) {
+                    if (getInfaredCheck()) {
+                        cargoState = CargoStates.LOADED;
+                    } else {
+                        cargoState =CargoStates.EMPTY;
+                    }
                 }
             break;
             case EMPTY:
@@ -205,7 +218,7 @@ public class Intake {
     }
 
     public void returnEmpty() {
-        if(cargoState == CargoStates.LOADING){
+        if(cargoState == CargoStates.LOADING || cargoState == CargoStates.MORE_LOAD){
             cargoState = CargoStates.EMPTY;
         }
     }
@@ -223,6 +236,13 @@ public class Intake {
     public void doEject (){
         if(cargoState == CargoStates.LOADED){
             cargoState = CargoStates.EJECT;
+        }
+    }
+
+    public void doMoreLoad() {
+        if (cargoState == CargoStates.EMPTY || cargoState == CargoStates.LOADED) {
+            this.moreloadtime = Common.time()+500;
+            cargoState = CargoStates.MORE_LOAD;
         }
     }
 }

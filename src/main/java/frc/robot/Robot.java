@@ -163,7 +163,11 @@ public class Robot extends TimedRobot {
 
 		if (driver.getPressed("leftBumper")) {
 			//Common.debug("driver loading");
-			intake.startLoading(); //in
+			if (intake.getState() == Intake.CargoStates.LOADED) {
+				intake.doMoreLoad(); //in
+			} else {
+				intake.startLoading();
+			}
 		}
 		if (driver.falling("leftBumper")) {
 			intake.returnEmpty();
