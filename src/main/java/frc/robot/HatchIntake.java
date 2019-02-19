@@ -22,12 +22,12 @@ public class HatchIntake {
     private final int ARM_STOW = 500;
     private final float P = 0.0f, I = 0.0f, D = 0.0f;
 
-    private enum HatchPickupStates {
+    public enum HatchPickupStates {
         EXTEND,
         RETRIEVE,
         STOW
     }
-    private HatchPickupStates HatchPickupState = HatchPickupStates.STOW;
+    private HatchPickupStates hatchPickupState = HatchPickupStates.EXTEND;
 
     public HatchIntake()
     {
@@ -38,9 +38,8 @@ public class HatchIntake {
 
     public void update ()
     {
-        pid.update();
         double target = 0;
-        switch (HatchPickupState){
+        switch (hatchPickupState){
             case EXTEND:
                 target = ARM_EXTEND;
             break;
@@ -54,6 +53,7 @@ public class HatchIntake {
         double error = target - getPotentiometerRaw();
         double power = pid.calc(error);
 
+        pid.update();
         SmartDashboard.putNumber("Floor pickup power", power);
     }
 
@@ -78,5 +78,8 @@ public class HatchIntake {
     public double getPotentiometerRaw()
     {
         return hatchPickupPotentiometer.getValue();
+    }
+    public HatchPickupStates getHatchState(){
+        return hatchPickupState;
     }
 }
