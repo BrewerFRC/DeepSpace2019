@@ -474,6 +474,7 @@ public class Robot extends TimedRobot {
 			}
 		break;
 		case HATCH_FLOOR_PICKUP: // Transferring disk from floor intake to finger
+			slider.moveTo(0);
 			slider.fingerDown();
 			elevator.moveToHeight(this.ELE_HATCH_PICKUP);
 
@@ -484,6 +485,7 @@ public class Robot extends TimedRobot {
 
 		break;
 		case HATCH_FLOOR_PULL: 
+			slider.moveTo(0);
 			slider.fingerUp();
 			elevator.moveToHeight(this.ELE_HATCH_PICKUP+ ELE_POST_RETRIEVE_OFFSET);
 			if(elevator.isComplete())
@@ -496,6 +498,8 @@ public class Robot extends TimedRobot {
 			}
 		break;
 		case HATCH_FLOOR_RETURN:
+			slider.moveTo(0);
+
 			hatchIntake.doStow();
 			if(hatchIntake.isComplete())
 			{
