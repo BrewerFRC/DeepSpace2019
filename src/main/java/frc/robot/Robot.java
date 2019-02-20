@@ -35,6 +35,9 @@ public class Robot extends TimedRobot {
 		STOW_DOWN,
 		HOMING,
 		HATCH_PICKUP,
+		HATCH_FLOOR_PICKUP,
+		HATCH_FLOOR_GRAB,
+		HATCH_FLOOR_RETURN,
 		//HATCH_GRAB,
 		HATCH_SEARCH,
 		HAS_HATCH,
@@ -51,9 +54,9 @@ public class Robot extends TimedRobot {
 
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
-	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
+	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
-	ARM_HIGH_STOW = 65, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3,
+	ARM_HIGH_STOW = 65, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
 	ARM_CARGO_PICKUP = -5, ELE_CARGO_PICKUP = 2, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
 	//Angle should be around 40 to place
 
@@ -91,7 +94,7 @@ public class Robot extends TimedRobot {
 		slider = arm.getSlider();
 		intake = arm.intake;
 		dt = new DriveTrain(elevator);
-		hatchIntake = new HatchIntake();
+		hatchIntake = new HatchIntake(elevator);
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -225,6 +228,27 @@ public class Robot extends TimedRobot {
 					}
 				}
 			}
+			if(driver.when("rightTrigger"))
+			{
+				if(!hasGamePiece())
+				{
+					if(state != States.HATCH_FLOOR_PICKUP)
+					{
+						state = States.HATCH_FLOOR_PICKUP;
+					}
+					else {
+						state = States.HATCH_FLOOR_RETURN;
+					}
+				}
+			}
+			if(driver.when("leftTrigger")) // Pickup state
+			{
+				if(!hasGamePiece())
+				{
+					state = States.HATCH_FLOOR_GRAB;
+					slider.fingerDown();
+				}
+			}
 
 			//Joystick Arm
 			double armMove = driver.deadzone(driver.getY(GenericHID.Hand.kRight));
@@ -353,7 +377,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	public void update() {
-		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
@@ -427,6 +451,37 @@ public class Robot extends TimedRobot {
 				}
 			}
 			break;
+		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
+			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
+			elevator.getArm().movePosition(this.ARM_LOW_STOW);
+
+			if(elevator.isComplete() && arm.isComplete()){
+				hatchIntake.doPickup();
+			}
+		break;
+		case HATCH_FLOOR_PICKUP: // Transferring disk from floor intake to finger
+			hatchIntake.doHatchTransfer();
+
+			if(hatchIntake.isComplete())
+			{
+				slider.fingerUp();
+				elevator.moveToHeight(this.ELE_LOW_STOW + 2 + ELE_POST_RETRIEVE_OFFSET);
+				if(elevator.isComplete())
+				{
+					slider.setHasHatch(true);
+					state = States.STOW_DOWN;
+					hatchIntake.doStow();
+				}
+			}
+
+		break;
+		case HATCH_FLOOR_RETURN:
+			hatchIntake.doStow();
+			if(hatchIntake.isComplete())
+			{
+				state = States.STOW_DOWN;
+			}
+		break;
 		case HAS_HATCH: 
 			if (!slider.hasHatch()) {
 				Common.debug("Robot State going from HAS_HATCH to EMPTY");
