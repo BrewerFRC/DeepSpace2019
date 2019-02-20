@@ -17,7 +17,7 @@ public class HatchIntake {
     private Elevator elevator;
 
     private final float MAX_POWER = 0.6f;
-    private final int ARM_EXTEND = 3206;
+    private final int ARM_EXTEND = 3226;
     private final int ARM_HATCH_RETRIEVE = 1638;
     private final int ARM_STOW = 628;//Was 500
     private final int ARM_SAFE_ERROR = 25;
@@ -64,6 +64,9 @@ public class HatchIntake {
         if(Math.abs(error) <= ARM_SAFE_ERROR){
             power = 0; // If our error is within an acceptable range, don't do anything.
             moveComplete = true;
+            if (hatchPickupState == HatchPickupStates.EXTEND) {
+
+            }
         }
         else if(!isSafe()){
             power = 0;

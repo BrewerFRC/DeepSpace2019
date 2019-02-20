@@ -212,7 +212,9 @@ public class Robot extends TimedRobot {
 						state = States.HATCH_FLOOR_GRAB;
 					}
 					else {
-						state = States.HATCH_FLOOR_RETURN;
+						slider.fingerDown();
+						hatchIntake.doHatchTransfer();
+						state = States.HATCH_FLOOR_PICKUP;
 					}
 				}
 			}
@@ -220,9 +222,7 @@ public class Robot extends TimedRobot {
 			{
 				if(!hasGamePiece() && state == States.HATCH_FLOOR_GRAB)
 				{
-					slider.fingerDown();
-					state = States.HATCH_FLOOR_PICKUP;
-					hatchIntake.doHatchTransfer();
+					state = States.HATCH_FLOOR_RETURN;
 				}
 			}
 		}
@@ -467,6 +467,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
+			slider.moveTo(0);
 			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
 			elevator.getArm().movePosition(this.ARM_LOW_STOW);
 			if(elevator.isComplete()){
@@ -478,7 +479,7 @@ public class Robot extends TimedRobot {
 			slider.fingerDown();
 			elevator.moveToHeight(this.ELE_HATCH_PICKUP);
 
-			if(hatchIntake.isComplete() )
+			if(hatchIntake.isComplete() && elevator.isComplete())
 			{
 				state =States.HATCH_FLOOR_PULL;
 			}

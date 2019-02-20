@@ -37,7 +37,7 @@ public class Elevator {
 		MAG_SWITCH_POINT = 23.65, //was 23.75 
 		//The maximum power that the elevator can be run at upward
 		MAX_UP_POWER = 1, // was 1
-		MAX_DOWN_POWER = -0.75, // was -0.8 
+		MAX_DOWN_POWER = -0.8, // was -0.8 
 		//The minimum power that the elevator can be run
 		MIN_UP_POWER = 0.11,
 		MIN_DOWN_POWER = -0.08,
