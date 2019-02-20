@@ -195,26 +195,28 @@ public class Robot extends TimedRobot {
 			slider.toggleHasHatch();
 		}
 
-		if(driver.when("rightTrigger"))
-		{
-			if(!hasGamePiece())
+		if (state == States.EMPTY || state == States.HATCH_FLOOR_GRAB) {
+			if(driver.when("rightTrigger"))
 			{
-				if(state != States.HATCH_FLOOR_GRAB)
+				if(!hasGamePiece())
 				{
-					state = States.HATCH_FLOOR_GRAB;
-				}
-				else {
-					state = States.HATCH_FLOOR_RETURN;
+					if(state != States.HATCH_FLOOR_GRAB)
+					{
+						state = States.HATCH_FLOOR_GRAB;
+					}
+					else {
+						state = States.HATCH_FLOOR_RETURN;
+					}
 				}
 			}
-		}
-		if(driver.when("leftTrigger")) // Pickup state
-		{
-			if(!hasGamePiece() && state == States.HATCH_FLOOR_GRAB)
+			if(driver.when("leftTrigger")) // Pickup state
 			{
-				slider.fingerDown();
-				state = States.HATCH_FLOOR_PICKUP;
-				hatchIntake.doHatchTransfer();
+				if(!hasGamePiece() && state == States.HATCH_FLOOR_GRAB)
+				{
+					slider.fingerDown();
+					state = States.HATCH_FLOOR_PICKUP;
+					hatchIntake.doHatchTransfer();
+				}
 			}
 		}
 
