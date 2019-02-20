@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
 	//Distances for pi
 	//private final double GRAB_DIST = -1, STOW_SAFE = -1;
 	private double placeHeight;
+	private double placeTime;
 
 	//Whether or not to stow up.
 	//True is up, false is down.
@@ -235,6 +236,7 @@ public class Robot extends TimedRobot {
 			if (operator.when("rightTrigger")) { //Place hatch
 				//Common.debug("Right bumper pressed");
 				if ( slider.hasHatch()) {
+					placeTime = Common.time()+ 1000;
 					if (arm.getPosition() < 0) {
 						arm.movePosition(ARM_LOW_PLACE);
 						placeHeight = elevator.getInches();
@@ -437,7 +439,7 @@ public class Robot extends TimedRobot {
 				slider.fingerDown();
 				t++;
 			}
-			if (t >= 5) {
+			if (t >= 5 ||Common.time() >= placeTime) {
 				arm.movePosition(55);
 				elevator.moveToHeight(this.placeHeight-4);
 				if (arm.isComplete() && elevator.isComplete()) {
@@ -462,7 +464,7 @@ public class Robot extends TimedRobot {
 				slider.fingerDown();
 				i++;
 			}
-			if (i >= 5) {
+			if (i >= 5 || Common.time() >= placeTime) {
 				arm.movePosition(ARM_LOW_STOW);
 				if (arm.isComplete()) {
 					elevator.moveToHeight(this.placeHeight+2);
