@@ -158,10 +158,10 @@ public class Elevator {
 			}
 		} else {  //Moving Down
 			double safeHeight = minArmSafeHeight(arm.getPosition());
-			if (atBottom() || getInches() < safeHeight) { //lower limit true when pressed
+			if (atBottom()) 
 				power = 0.0;
-				if (state == States.HOMING) 
-					Common.debug("setPower zeroed power while HOMING "+atBottom());
+			if (getInches() < safeHeight && state != States.HOMING) { 
+				power = 0.0;
 			} else {
 				if(state != States.HOMING) {
 					if (getInches() - safeHeight <= DANGER_ZONE) { // This is for the lower danger zone.

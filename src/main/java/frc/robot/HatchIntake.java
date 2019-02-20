@@ -16,14 +16,14 @@ public class HatchIntake {
     private Spark hatchPickupMotor;
     private Elevator elevator;
 
-    private final float MAX_POWER = 0.2f;
+    private final float MAX_POWER = 0.6f;
     private final int ARM_EXTEND = 3188;
     private final int ARM_HATCH_RETRIEVE = 1638;
-    private final int ARM_STOW = 500;
-    private final int ARM_SAFE_ERROR = 100;
+    private final int ARM_STOW = 628;//Was 500
+    private final int ARM_SAFE_ERROR = 25;
     private final float ELEVATOR_SAFE_HEIGHT = 15; // The number of inches necessary for the floor intake to be considered safe to clear the elevator arm. 
     private final float ARM_MIN_SAFE_DEGREE = -15;
-    private final float P = 0.0005f;
+    private final float P = 0.00275f;
 
     private boolean moveComplete = false;
     private float target = 0;
@@ -33,12 +33,13 @@ public class HatchIntake {
         RETRIEVE,
         STOW
     }
-    private HatchPickupStates hatchPickupState = HatchPickupStates.EXTEND;
+    private HatchPickupStates hatchPickupState = HatchPickupStates.STOW;
 
     public HatchIntake(Elevator elevator)
     {
         hatchPickupPotentiometer = new AnalogInput(Constants.ANA_FLOOR_POT);
         hatchPickupMotor = new Spark(Constants.PWM_FLOOR_PICKUP);
+        hatchPickupMotor.setInverted(true);
         this.elevator = elevator;
     }
 
@@ -70,18 +71,23 @@ public class HatchIntake {
         else {
             power = error * P;
         }
-
+        setMotor(power);
+        Common.dashBool("Hatch pickup iscomplete", isComplete());
+        Common.dashStr("Hatch Intake State", hatchPickupState.toString());
+        Common.dashNum("Hatch Intake Error", error);
+        Common.dashNum("Hatch Intake Target", target);
+        SmartDashboard.putNumber("Hatch Potentiometer raw", getPotentiometerRaw());
         SmartDashboard.putNumber("Floor pickup power", power);
     }
 
     public void debug()
     {
-        SmartDashboard.putNumber("Potentiometer raw", getPotentiometerRaw());
+        SmartDashboard.putNumber("Hatch Potentiometer raw", getPotentiometerRaw());
     }
 
     public boolean isSafe()
     {
-        if(this.elevator.getInches() > Robot.ELE_LOW_STOW){
+        if(this.elevator.getInches() > Robot.ELE_HATCH_PICKUP-1){
             return true;
         }
         return false;
@@ -118,6 +124,7 @@ public class HatchIntake {
     {
         if(isSafe())
         {
+            moveComplete = false;
             hatchPickupState = HatchPickupStates.RETRIEVE;
         }
     }

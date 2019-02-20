@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
 		HATCH_PICKUP,
 		HATCH_FLOOR_PICKUP,
 		HATCH_FLOOR_GRAB,
+		HATCH_FLOOR_PULL,
 		HATCH_FLOOR_RETURN,
 		//HATCH_GRAB,
 		HATCH_SEARCH,
@@ -118,8 +119,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		//elevator.init();
-		//slider.init();
+		elevator.init();
+		slider.init();
 		
 		//heading.reset();
 		//heading.setHeadingHold(true);
@@ -127,8 +128,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		//activePeriodic();
-		testPeriodic();
+		activePeriodic();
+		//testPeriodic();
 	}
 
 
@@ -194,6 +195,30 @@ public class Robot extends TimedRobot {
 			slider.toggleHasHatch();
 		}
 
+		if(driver.when("rightTrigger"))
+		{
+			if(!hasGamePiece())
+			{
+				if(state != States.HATCH_FLOOR_GRAB)
+				{
+					state = States.HATCH_FLOOR_GRAB;
+				}
+				else {
+					state = States.HATCH_FLOOR_RETURN;
+				}
+			}
+		}
+		if(driver.when("leftTrigger")) // Pickup state
+		{
+			if(!hasGamePiece() && state == States.HATCH_FLOOR_GRAB)
+			{
+				slider.fingerDown();
+				state = States.HATCH_FLOOR_PICKUP;
+				hatchIntake.doHatchTransfer();
+			}
+		}
+
+		
 		if (isTeleopAllowed()) {
 			//Driver
 			if (driver.when("rightBumper")) { //Hatch pickup
@@ -226,27 +251,6 @@ public class Robot extends TimedRobot {
 						//Common.debug("Robot State going from CARGO_PICKUP to STOW_UP");
 						state = States.STOW_UP;
 					}
-				}
-			}
-			if(driver.when("rightTrigger"))
-			{
-				if(!hasGamePiece())
-				{
-					if(state != States.HATCH_FLOOR_PICKUP)
-					{
-						state = States.HATCH_FLOOR_PICKUP;
-					}
-					else {
-						state = States.HATCH_FLOOR_RETURN;
-					}
-				}
-			}
-			if(driver.when("leftTrigger")) // Pickup state
-			{
-				if(!hasGamePiece())
-				{
-					state = States.HATCH_FLOOR_GRAB;
-					slider.fingerDown();
 				}
 			}
 
@@ -336,6 +340,7 @@ public class Robot extends TimedRobot {
 		// Updates
 		elevator.update();
 		elevator.debug();
+		hatchIntake.update();
 		//intake.update();
 		arm.dashboard();
 		debug();
@@ -377,7 +382,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	public void update() {
-		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP || state == States.HATCH_FLOOR_PULL) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
@@ -454,26 +459,31 @@ public class Robot extends TimedRobot {
 		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
 			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
 			elevator.getArm().movePosition(this.ARM_LOW_STOW);
-
-			if(elevator.isComplete() && arm.isComplete()){
+			if(elevator.isComplete()){
 				hatchIntake.doPickup();
 			}
 		break;
 		case HATCH_FLOOR_PICKUP: // Transferring disk from floor intake to finger
-			hatchIntake.doHatchTransfer();
+			slider.fingerDown();
+			elevator.moveToHeight(this.ELE_HATCH_PICKUP);
 
-			if(hatchIntake.isComplete())
+			if(hatchIntake.isComplete() )
 			{
-				slider.fingerUp();
-				elevator.moveToHeight(this.ELE_LOW_STOW + 2 + ELE_POST_RETRIEVE_OFFSET);
-				if(elevator.isComplete())
-				{
-					slider.setHasHatch(true);
-					state = States.STOW_DOWN;
-					hatchIntake.doStow();
-				}
+				state =States.HATCH_FLOOR_PULL;
 			}
 
+		break;
+		case HATCH_FLOOR_PULL: 
+			slider.fingerUp();
+			elevator.moveToHeight(this.ELE_HATCH_PICKUP+ ELE_POST_RETRIEVE_OFFSET);
+			if(elevator.isComplete())
+			{
+				slider.setHasHatch(true);
+				hatchIntake.doStow();
+				if (hatchIntake.isComplete()) {
+					state = States.STOW_DOWN;
+				}
+			}
 		break;
 		case HATCH_FLOOR_RETURN:
 			hatchIntake.doStow();
