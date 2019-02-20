@@ -434,7 +434,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_PLACE_HIGH:
-			if (slider.pressed()) {
+			if (slider.pressed() ||Common.time() >= placeTime -150) {
 				elevator.moveToHeight(placeHeight-3);
 				slider.fingerDown();
 				t++;
@@ -459,7 +459,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case HATCH_PLACE_LOW:
-			if (slider.pressed()) {
+			if (slider.pressed()||Common.time() >= placeTime -150) {
 				//elevator.moveToHeight(placeHeight-3);
 				slider.fingerDown();
 				i++;
