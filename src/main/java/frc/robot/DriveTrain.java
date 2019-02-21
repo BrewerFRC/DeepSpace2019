@@ -24,8 +24,8 @@ public class DriveTrain extends DifferentialDrive {
 	private static Elevator elevator;
 
 	public final double	
-		DRIVEACCELMIN = 0.05,
-		DRIVEACCELMAX = 0.1,
+		DRIVEACCELMIN = 0.002,
+		DRIVEACCELMAX = 0.04,
 		DRIVEMIN = 0.35,	 //Min power needed to move drive motors
 		TURNACCEL = 0.04,
 		TURNMAX = 0.8;

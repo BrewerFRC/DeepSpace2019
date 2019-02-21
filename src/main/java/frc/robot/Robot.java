@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
 	private Arm arm;
 	private Elevator elevator;
 	private Intake intake;
+	private HatchIntake hatchIntake;
 
 	private enum States {
 		EMPTY,
@@ -34,10 +35,15 @@ public class Robot extends TimedRobot {
 		STOW_DOWN,
 		HOMING,
 		HATCH_PICKUP,
-		HATCH_GRAB,
+		HATCH_FLOOR_PICKUP,
+		HATCH_FLOOR_GRAB,
+		HATCH_FLOOR_PULL,
+		HATCH_FLOOR_RETURN,
+		//HATCH_GRAB,
 		HATCH_SEARCH,
 		HAS_HATCH,
-		HATCH_PLACE,
+		HATCH_PLACE_HIGH,
+		HATCH_PLACE_LOW,
 		CARGO_PICKUP,
 		CARGO_DROPOFF,
 		HAS_CARGO
@@ -49,10 +55,10 @@ public class Robot extends TimedRobot {
 
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
-	private final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
+	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
-	ARM_HIGH_STOW = 60, ELE_LOW_STOW = 25, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3,
-	ARM_CARGO_PICKUP = -5, ELE_CARGO_PICKUP = 2, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
+	ARM_HIGH_STOW = 65, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
+	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -60,7 +66,8 @@ public class Robot extends TimedRobot {
 
 	//Distances for pi
 	//private final double GRAB_DIST = -1, STOW_SAFE = -1;
-
+	private double placeHeight;
+	private double placeTime;
 
 	//Whether or not to stow up.
 	//True is up, false is down.
@@ -69,6 +76,8 @@ public class Robot extends TimedRobot {
 	static boolean teleopAllowed = true;
 
 	private double moveTime;
+	int t = 0;
+	int i = 0;
 
 	public Robot() {
 		//m_robotDrive.setExpiration(0.1);
@@ -87,6 +96,7 @@ public class Robot extends TimedRobot {
 		slider = arm.getSlider();
 		intake = arm.intake;
 		dt = new DriveTrain(elevator);
+		hatchIntake = new HatchIntake(elevator);
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -103,15 +113,21 @@ public class Robot extends TimedRobot {
 	}
 
 	@Override
+	public void autonomousInit() {
+		elevator.init();
+		slider.init();
+	}
+
+	@Override
 	public void autonomousPeriodic() {
 		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
-		//activePeriodic();
+		activePeriodic();
 	}
 
 	@Override
 	public void teleopInit() {
 		elevator.init();
-		slider.moveTo(0);
+		slider.init();
 		
 		//heading.reset();
 		//heading.setHeadingHold(true);
@@ -125,9 +141,15 @@ public class Robot extends TimedRobot {
 
 
 	public void testPeriodic(){
-		arm.movePosition(20);
-		arm.dashboard();
-		elevator.update();
+		//hatchIntake.setMotor(0.2);
+
+		if(driver.getPressed("a")){
+			hatchIntake.setMotor(0.2);
+		}
+		else{
+			hatchIntake.setMotor(0.0);
+
+		}
 	}
 
 	public void activePeriodic() {
@@ -159,25 +181,53 @@ public class Robot extends TimedRobot {
 		dt.accelDrive(forward, turn);
 
 		if (driver.getPressed("leftBumper")) {
-			intake.toggleLoading(); //in
+			//Common.debug("driver loading");
+			if (intake.getState() == Intake.CargoStates.LOADED) {
+				intake.doMoreLoad(); //in
+			} else {
+				intake.startLoading();
+			}
+		}
+		if (driver.falling("leftBumper")) {
+			intake.returnEmpty();
 		}
 
 		if (driver.when("b")) {
 			intake.doEject(); //out
 		}
 
-		if (operator.when("dPadUp")) {
-			//stowUp = true;
-		}
 		
-		if (operator.when("dPadDown")) {
-			//stowUp = false;
-		}
 
 		if (operator.when("start") || driver.when("start")) {
 			slider.toggleHasHatch();
 		}
 
+		if (state == States.EMPTY || state == States.HATCH_FLOOR_GRAB) {
+			if(driver.when("rightTrigger"))
+			{
+				if(!hasGamePiece())
+				{
+					if(state != States.HATCH_FLOOR_GRAB)
+					{
+						state = States.HATCH_FLOOR_GRAB;
+					}
+					else {
+						slider.fingerDown();
+						hatchIntake.doHatchTransfer();
+						state = States.HATCH_FLOOR_PICKUP;
+					}
+				}
+			}
+			if(driver.when("leftTrigger")) // Pickup state
+			{
+				if(!hasGamePiece() && state == States.HATCH_FLOOR_GRAB)
+				{
+					state = States.HATCH_FLOOR_RETURN;
+				}
+			}
+		}
+
+		
 		if (isTeleopAllowed()) {
 			//Driver
 			if (driver.when("rightBumper")) { //Hatch pickup
@@ -190,6 +240,7 @@ public class Robot extends TimedRobot {
 						state = States.HATCH_PICKUP;
 					} else {
 						Common.debug("Exiting Hatch pickup");
+						slider.fingerUp();
 						state = States.STOW_DOWN;
 					}
 				}
@@ -199,13 +250,13 @@ public class Robot extends TimedRobot {
 				if (!hasGamePiece()) {
 					if (state != States.CARGO_PICKUP) { //Cargo pickup
 						Common.debug("Cargo pickup");
-						intake.toggleLoading();
+						intake.startLoading();
 						arm.movePosition(ARM_CARGO_PICKUP);
 						elevator.moveToHeight(ELE_CARGO_PICKUP);
 						state =  States.CARGO_PICKUP;
 					} else {
 						Common.debug("Cargo pickup canceled");
-						intake.toggleLoading();
+						intake.returnEmpty();
 						//Common.debug("Robot State going from CARGO_PICKUP to STOW_UP");
 						state = States.STOW_UP;
 					}
@@ -220,24 +271,46 @@ public class Robot extends TimedRobot {
 			}
 
 			//Operator
-			if (operator.when("rightBumper")) { //Place hatch
-				Common.debug("Right bumper pressed");
+			if (operator.when("rightTrigger")) { //Place hatch
+				//Common.debug("Right bumper pressed");
 				if ( slider.hasHatch()) {
+					placeTime = Common.time()+ 1000;
 					if (arm.getPosition() < 0) {
 						arm.movePosition(ARM_LOW_PLACE);
-						state = States.HATCH_PLACE;
+						placeHeight = elevator.getInches();
+						i = 0;
+						state = States.HATCH_PLACE_LOW;
 						//elevator.doPlace(-1);
 					} else {
 						arm.movePosition(ARM_HIGH_PLACE);
+						placeHeight = elevator.getInches();
 						//elevator.doPlace(1);
-						state = States.HATCH_PLACE;
+						t = 0;
+						state = States.HATCH_PLACE_HIGH;
 					}
-					state = States.HATCH_PLACE;
 				} else if (intake.getInfaredCheck()) {
-					moveTime = Common.time()+ 500;
+					moveTime = Common.time()+ 350;
 					arm.movePosition(58);
 					state = States.CARGO_DROPOFF;
 				}
+			}
+
+			if (operator.getPressed("leftBumper")) {
+				slider.moveTo(slider.potInches()-.4);
+			}
+
+			if (operator.getPressed("rightBumper")) {
+				slider.moveTo(slider.potInches()+.4);
+			}
+
+			if (operator.when("dPadUp")) {
+				//stowUp = true;
+				state = States.STOW_UP;
+			}
+			
+			if (operator.when("dPadDown")) {
+				//stowUp = false;
+				state = States.STOW_DOWN;
 			}
 
 			//Set points
@@ -261,7 +334,9 @@ public class Robot extends TimedRobot {
 				if (operator.when("y")) {
 					elevator.moveToHeight(ELE_HIGH_CARGO);
 				}
-			}
+				if (operator.when("x")) {
+					elevator.moveToHeight(ELE_SHIP_CARGO);
+				}			}
 
 			//Joystick elevator
 			double operatorRight = operator.getY(GenericHID.Hand.kRight);
@@ -275,6 +350,7 @@ public class Robot extends TimedRobot {
 		// Updates
 		elevator.update();
 		elevator.debug();
+		hatchIntake.update();
 		//intake.update();
 		arm.dashboard();
 		debug();
@@ -316,7 +392,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	public void update() {
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state == States.HATCH_PLACE) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP || state == States.HATCH_FLOOR_PULL) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
@@ -330,7 +406,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case EMPTY:
-			slider.moveTo(0);
+			//slider.moveTo(0);
 			if (intake.getInfaredCheck()) {
 				Common.debug("Robot State going from EMPTY to HAS_CARGO");
 				state = States.HAS_CARGO;
@@ -370,45 +446,121 @@ public class Robot extends TimedRobot {
 			break;*/
 		case HATCH_SEARCH:
 			if (slider.hasHatch()) {
-				elevator.moveToHeight(elevator.getInches()+5);
-				if (elevator.isComplete()) {
-					Common.debug("Robot State going from HATCH_SEARCH to STOW_DOWN");
+				Common.debug("Slider has hatch is true, moving up elevator");
+				elevator.moveToHeight(ELE_HATCH_PICKUP+5);
+				arm.movePosition(ARM_LOW_STOW);
+				if (elevator.isComplete() && arm.isComplete()) {
+					Common.debug("Robot State going from HATCH_SEARCH to STOW_DOWN with a hatch");
+					slider.moveTo(0);
+					state = States.STOW_DOWN;
+				}
+			}else if (slider.getSliderState() == Slider.states.MOVING) {
+				elevator.moveToHeight(ELE_HATCH_PICKUP+5);
+				arm.movePosition(ARM_LOW_STOW);
+				if (elevator.isComplete() && arm.isComplete()) {
+					Common.debug("Robot State going from HATCH_SEARCH to HATCH_DOWN w/o a hatch");
+					slider.moveTo(0);
+					slider.fingerUp();
+					state = States.STOW_DOWN;
+					//arm.startAlign();//unknown function to start slider movement
+				}
+			}
+			break;
+		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
+			slider.moveTo(0);
+			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
+			elevator.getArm().movePosition(this.ARM_LOW_STOW);
+			if(elevator.isComplete()){
+				hatchIntake.doPickup();
+			}
+		break;
+		case HATCH_FLOOR_PICKUP: // Transferring disk from floor intake to finger
+			slider.moveTo(0);
+			slider.fingerDown();
+			elevator.moveToHeight(this.ELE_HATCH_PICKUP);
+
+			if(hatchIntake.isComplete() && elevator.isComplete())
+			{
+				state =States.HATCH_FLOOR_PULL;
+			}
+
+		break;
+		case HATCH_FLOOR_PULL: 
+			slider.moveTo(0);
+			slider.fingerUp();
+			elevator.moveToHeight(this.ELE_HATCH_PICKUP+ ELE_POST_RETRIEVE_OFFSET);
+			if(elevator.isComplete())
+			{
+				slider.setHasHatch(true);
+				hatchIntake.doStow();
+				if (hatchIntake.isComplete()) {
 					state = States.STOW_DOWN;
 				}
 			}
-			if (slider.getSliderState() == Slider.states.MOVING) {
-				Common.debug("Robot State going from HATCH_SEARCH to HATCH_PICKUP");
-				state = States.HATCH_PICKUP;
-				stowDown();
-				//arm.startAlign();//unknown function to start slider movement
+		break;
+		case HATCH_FLOOR_RETURN:
+			slider.moveTo(0);
+
+			hatchIntake.doStow();
+			if(hatchIntake.isComplete())
+			{
+				state = States.STOW_DOWN;
 			}
-			break;
+		break;
 		case HAS_HATCH: 
 			if (!slider.hasHatch()) {
 				Common.debug("Robot State going from HAS_HATCH to EMPTY");
 				state = States.EMPTY;
 			}
 			break;
-		case HATCH_PLACE:
-			int t = 0;
-			if (slider.pressed()) {
+		case HATCH_PLACE_HIGH:
+			if (slider.pressed() ||Common.time() >= placeTime -150) {
+				elevator.moveToHeight(placeHeight-3);
 				slider.fingerDown();
 				t++;
 			}
-			if (t >= 2) {
-				//state = States.TO_STOW;
-				//TODO: better exit
-				/*if (arm.getPosition() > 0) {
-					stowUp = true;
-				} else {
-					stowUp = false;
-				}*/
-				if (arm.getPosition() > 0) {
-					Common.debug("Robot State going from HATCH_PLACE to STOW_UP");
+			if (t >= 5 ||Common.time() >= placeTime) {
+				arm.movePosition(55);
+				elevator.moveToHeight(this.placeHeight-4);
+				if (arm.isComplete() && elevator.isComplete()) {
+					slider.setHasHatch(false);
+					slider.fingerUp();
+					//state = States.TO_STOW;
+					//TODO: better exit
+					/*if (arm.getPosition() > 0) {
+						stowUp = true;
+					} else {
+						stowUp = false;
+					}*/
+					
+					Common.debug("Robot State going from HATCH_PLACE_HIGH to STOW_UP");
 					state = States.STOW_UP;
-				} else {
-					Common.debug("Robot State going from HATCH_PLACE to STOW_DOWN");
-					state = States.STOW_DOWN;
+				}
+			}
+			break;
+		case HATCH_PLACE_LOW:
+			if (slider.pressed()||Common.time() >= placeTime -150) {
+				//elevator.moveToHeight(placeHeight-3);
+				slider.fingerDown();
+				i++;
+			}
+			if (i >= 5 || Common.time() >= placeTime) {
+				arm.movePosition(ARM_LOW_STOW);
+				if (arm.isComplete()) {
+					elevator.moveToHeight(this.placeHeight+2);
+					if (elevator.isComplete()) {
+						slider.setHasHatch(false);
+						slider.fingerUp();
+						//state = States.TO_STOW;
+						//TODO: better exit
+						/*if (arm.getPosition() > 0) {
+							stowUp = true;
+						} else {
+							stowUp = false;
+						}*/
+						Common.debug("Robot State going from HATCH_PLACE_LOW to STOW_DOWN");
+						state = States.STOW_DOWN;
+					}
 				}
 			}
 			break;
@@ -416,6 +568,7 @@ public class Robot extends TimedRobot {
 			slider.moveTo(0);
 			if (userMove) {
 				Common.debug("Robot State going from CARGO_PICKUP to EMPTY");
+				intake.returnEmpty();
 				state = States.EMPTY;
 			}
 			if (intake.getState() == Intake.CargoStates.LOADED) {
@@ -464,7 +617,7 @@ public class Robot extends TimedRobot {
 			stowUp();
 			if (arm.isComplete() && elevator.isComplete()) {
 				Common.debug("Stow up complete");
-				slider.fingerUp();
+				//slider.fingerUp();
 				if (slider.hasHatch()) {
 					Common.debug("Robot State going from STOW_UP to HAS_HATCH");
 					state = States.HAS_HATCH;
@@ -480,7 +633,7 @@ public class Robot extends TimedRobot {
 		case STOW_DOWN:
 			stowDown();
 			if (arm.isComplete() && elevator.isComplete()) {
-				slider.fingerUp();
+				//slider.fingerUp();
 				if (slider.hasHatch()) {
 					Common.debug("Robot State going from STOW_DOWN to HAS_HATCH");
 					state = States.HAS_HATCH;
@@ -512,7 +665,7 @@ public class Robot extends TimedRobot {
 	 */
 	public boolean safeToMove() {
 		boolean safe = true;
-		if (state == States.HOMING || state == States.HATCH_GRAB || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW) {
 			safe =  false;
 		}
 		return safe;
@@ -525,23 +678,24 @@ public class Robot extends TimedRobot {
      * @return double the value.
      */
     public double joystickX(GenericHID.Hand hand) {
-    	if (hand == GenericHID.Hand.kLeft) {
+    	/*if (hand == GenericHID.Hand.kLeft) {
     		return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand);
-    	}
-    	return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand);
+    	}*/
+    	return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand)*.6;
     }
     
     /**
      * Gets the highest joystick y value from the defined hand.
+	 * Reduces 
      * 
      * @param hand the hand to get the value from.
      * @return double the value.
      */
     public double joystickY(GenericHID.Hand hand) {
-    	if (hand == GenericHID.Hand.kLeft) {
-    		return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand);
-    	}
-    	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand);
+    	/*if (hand == GenericHID.Hand.kLeft) {
+    		return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand)*.6;
+    	}*/
+    	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand)*.6;
 	}
 	
 	/**

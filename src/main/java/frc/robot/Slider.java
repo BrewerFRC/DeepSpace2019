@@ -28,8 +28,8 @@ public class Slider {
     POT_CENTER = 1271;
 
     public static final double
-        INCH_LEFT_LIMIT = -3.2,
-        INCH_RIGHT_LIMIT = 3.2,
+        INCH_LEFT_LIMIT = -3, //Really -3.2
+        INCH_RIGHT_LIMIT = 3, //Really 3.2
         INCH_CENTER = 0,
         FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
         MOTOR_POWER = 1,
@@ -53,6 +53,11 @@ public class Slider {
     
     public Slider() {
         motor.setInverted(true);
+    }
+
+    public void init() {
+        moveTo(0);
+        fingerUp();
     }
 
     /**
@@ -143,10 +148,11 @@ public class Slider {
         fingerSearchright = right;
         //fingerDown();
         if (right) {
-            setTarget(INCH_RIGHT_LIMIT);
+            setTarget(2/*INCH_RIGHT_LIMIT*/);
         } else {
-            setTarget(INCH_LEFT_LIMIT);
+            setTarget(-2/*INCH_LEFT_LIMIT*/);
         }
+        Common.debug("Starting finger search");
         sliderState = states.SEARCHING;
     }
 
@@ -257,7 +263,8 @@ public class Slider {
                 move();
                 break;
             case SEARCHING:
-                if (this.pressed() && !fingerPressed()) {
+                if (/*this.pressed() &&*/ !fingerPressed()) {
+                    Common.debug("Finger Search complete");
                     hasHatch = true;
                     fingerUp();
                     setTarget(potInches());
@@ -273,9 +280,9 @@ public class Slider {
                     } else {
                         halfComplete = true;
                         if (fingerSearchright) {
-                            setTarget(INCH_LEFT_LIMIT);
+                            setTarget(-2/*INCH_LEFT_LIMIT*/);
                         } else {
-                            setTarget(INCH_RIGHT_LIMIT);
+                            setTarget(2/*INCH_RIGHT_LIMIT*/);
                         }
                     }
                 }
@@ -283,6 +290,7 @@ public class Slider {
                 break;
         }
         // debug necessary?
+        Common.dashBool("HasHatch", this.hasHatch());
         Common.dashStr("Slider state", sliderState.toString());
         Common.dashBool("Arm Pressed", pressed());
         Common.dashBool("Finger Pressed", fingerPressed());

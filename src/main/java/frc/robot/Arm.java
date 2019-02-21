@@ -27,7 +27,7 @@ public class Arm {
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
 	MIN_ANGLE = -80, MAX_ANGLE = 60, 
 	// Arm must be at least this high an angle for elevator to Home.
-	MIN_HOMING_ANGLE = 20,
+	MIN_HOMING_ANGLE = 40,
     //MIN_ABS_ANGLE = -45, //To be determined
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 10,
@@ -295,7 +295,7 @@ public class Arm {
 			double jMap = Common.map(-jInput, -1, 1, -MAX_VELOCITY, MAX_VELOCITY);
 			//Common.dashNum("jMap intake", jMap);
 			targetVelocity = jMap;
-			Common.debug("Arm: Set to state JOYSTICK");
+			//Common.debug("Arm: Set to state JOYSTICK");
 			state = States.JOYSTICK;
 		}
 	}
@@ -381,7 +381,7 @@ public class Arm {
 				break;
 			case MOVING:
 				if (isComplete()) {
-					Common.debug("Arm: State to HOLDING");
+					//Common.debug("Arm: State to HOLDING");
 					state = States.HOLDING;
 				}
 				pidPosMove();
