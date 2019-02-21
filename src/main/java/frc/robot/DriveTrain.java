@@ -56,6 +56,7 @@ public class DriveTrain extends DifferentialDrive {
 
 		this.elevator = elevator;
 		left.setInverted(true);
+
 		right.setInverted(true);
 		
 		//pidL = new PID(0.005, 0, 0, false, true, "velL");
