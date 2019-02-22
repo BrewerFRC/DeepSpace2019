@@ -289,7 +289,7 @@ public class Slider {
                 break;
             case SEARCHING:
                 if (/*this.pressed() &&*/ !fingerPressed()) {
-                    Common.debug("Finger Search complete");
+                    Common.debug("Finger Search complete Success");
                     hasHatch = true;
                     fingerUp();
                     setTarget(potInches());

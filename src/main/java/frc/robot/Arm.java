@@ -88,7 +88,7 @@ public class Arm {
 		pid.setTargetPosition(10);
 		//Thread t = new Thread(new PotUpdate());
 		//t.start();
-		Common.dashNum("G", G);
+		//Common.dashNum("G", G);
 	}
 
 	/**
@@ -197,8 +197,8 @@ public class Arm {
 	 */
 	public double getVelocity() {
 		if (Double.isNaN(velocity)) {
-            Common.debug("Delta position "+ (position - previousPosition));
-            Common.debug("Delta time is "+ (1.0/Constants.REFRESH_RATE));
+        // Common.debug("Delta position "+ (position - previousPosition));
+        //Common.debug("Delta time is "+ (1.0/Constants.REFRESH_RATE));
 			Common.debug("Velocity NaN "+ velocity);
 			velocity = 0;
 		}
@@ -403,7 +403,7 @@ public class Arm {
 
 	public void dashboard() {
 		Common.dashNum("Arm degrees", getPosition());
-		Common.dashNum("Arm raw position", getRawPosition());
+		//Common.dashNum("Arm raw position", getRawPosition());
 		Common.dashNum("Arm velocity", getVelocity());
 		//Common.dashNum("Arm Position Target", getPositionTarget());
         //Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());

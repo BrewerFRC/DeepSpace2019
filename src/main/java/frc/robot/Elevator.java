@@ -483,11 +483,11 @@ public class Elevator {
 	 */
 	public void joystickControl(double jInput) {
 		//overrules moveToHeight()
-		Common.dashNum("Elevator Joystick", jInput);
+		//Common.dashNum("Elevator Joystick", jInput);
 		if (state != States.STOPPED && state != States.HOMING && Robot.isTeleopAllowed()){
 			if (jInput != 0) {
 				double jMap = Common.map(-jInput, -1, 1, -MAX_J_VELOCITY, MAX_J_VELOCITY);
-				Common.dashNum("jMap", jMap);
+				//Common.dashNum("jMap", jMap);
 				velocity = jMap;
 				//Common.debug("New state Joystick");
 				state = States.JOYSTICK;
@@ -529,7 +529,7 @@ public class Elevator {
 	 */
 	public void debug() {
 		Common.dashNum("Elevator Target Height", this.targetHeight);
-		Common.dashNum("Elevator Encoder", getEncoder());
+		//Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		//Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
 		//Common.dashBool("at Mag Switch", atMagSwitch());
