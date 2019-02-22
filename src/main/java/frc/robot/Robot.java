@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
 	//Ball is 13 inches abover elevator roughly
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
-	ARM_HIGH_STOW = 65, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
+	ARM_HIGH_STOW = 70 /*was 65*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
 	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
 	//Angle should be around 40 to place
 
@@ -180,6 +180,18 @@ public class Robot extends TimedRobot {
 		double turn = joystickX(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
+		if (operator.when("back") || driver.when("back")) { //System reset.
+			if (arm.getPosition() > ARM_CARGO_PICKUP -1) {
+				state = States.STOW_UP;
+			} else {
+				state = States.STOW_DOWN;
+			}
+			slider.reCenter();
+			intake.returnToEmpty();
+			slider.fingerUp();
+			slider.setHasHatch(false);
+		}
+
 		if (driver.getPressed("leftBumper")) {
 			//Common.debug("driver loading");
 			if (intake.getState() == Intake.CargoStates.LOADED) {
@@ -189,7 +201,7 @@ public class Robot extends TimedRobot {
 			}
 		}
 		if (driver.falling("leftBumper")) {
-			intake.returnEmpty();
+			intake.returnToEmpty(); //Not sure if this should work but it does, will replace if it becomes an issue
 		}
 
 		if (driver.when("b")) {
@@ -256,7 +268,7 @@ public class Robot extends TimedRobot {
 						state =  States.CARGO_PICKUP;
 					} else {
 						Common.debug("Cargo pickup canceled");
-						intake.returnEmpty();
+						intake.returnToEmpty();
 						//Common.debug("Robot State going from CARGO_PICKUP to STOW_UP");
 						state = States.STOW_UP;
 					}
@@ -301,6 +313,10 @@ public class Robot extends TimedRobot {
 
 			if (operator.getPressed("rightBumper")) {
 				slider.moveTo(slider.potInches()+.4);
+			}
+
+			if (operator.when("lefTrigger")) {
+				slider.reCenter();
 			}
 
 			if (operator.when("dPadUp")) {
@@ -568,7 +584,7 @@ public class Robot extends TimedRobot {
 			slider.moveTo(0);
 			if (userMove) {
 				Common.debug("Robot State going from CARGO_PICKUP to EMPTY");
-				intake.returnEmpty();
+				intake.returnToEmpty();
 				state = States.EMPTY;
 			}
 			if (intake.getState() == Intake.CargoStates.LOADED) {
