@@ -180,6 +180,18 @@ public class Robot extends TimedRobot {
 		double turn = joystickX(GenericHID.Hand.kLeft);
 		dt.accelDrive(forward, turn);
 
+		if (operator.when("back") || driver.when("back")) { //System reset.
+			if (arm.getPosition() > ARM_CARGO_PICKUP -1) {
+				state = States.STOW_UP;
+			} else {
+				state = States.STOW_DOWN;
+			}
+			slider.reCenter();
+			intake.returnToEmpty();
+			slider.fingerUp();
+			slider.setHasHatch(false);
+		}
+
 		if (driver.getPressed("leftBumper")) {
 			//Common.debug("driver loading");
 			if (intake.getState() == Intake.CargoStates.LOADED) {
@@ -189,7 +201,7 @@ public class Robot extends TimedRobot {
 			}
 		}
 		if (driver.falling("leftBumper")) {
-			intake.returnEmpty();
+			intake.returnToEmpty();
 		}
 
 		if (driver.when("b")) {
@@ -256,7 +268,7 @@ public class Robot extends TimedRobot {
 						state =  States.CARGO_PICKUP;
 					} else {
 						Common.debug("Cargo pickup canceled");
-						intake.returnEmpty();
+						intake.returnToEmpty();
 						//Common.debug("Robot State going from CARGO_PICKUP to STOW_UP");
 						state = States.STOW_UP;
 					}
@@ -311,6 +323,10 @@ public class Robot extends TimedRobot {
 			if (operator.when("dPadDown")) {
 				//stowUp = false;
 				state = States.STOW_DOWN;
+			}
+
+			if (operator.when("lefTrigger")) {
+				slider.reCenter();
 			}
 
 			//Set points
@@ -568,7 +584,7 @@ public class Robot extends TimedRobot {
 			slider.moveTo(0);
 			if (userMove) {
 				Common.debug("Robot State going from CARGO_PICKUP to EMPTY");
-				intake.returnEmpty();
+				intake.returnToEmpty();
 				state = States.EMPTY;
 			}
 			if (intake.getState() == Intake.CargoStates.LOADED) {

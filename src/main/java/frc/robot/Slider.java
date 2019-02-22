@@ -28,8 +28,8 @@ public class Slider {
     POT_CENTER = 1271;
 
     public static final double
-        INCH_LEFT_LIMIT = -3, //Really -3.2
-        INCH_RIGHT_LIMIT = 3, //Really 3.2
+        INCH_LEFT_LIMIT = -3.2, //Really -3.2
+        INCH_RIGHT_LIMIT = 3.2, //Really 3.2
         INCH_CENTER = 0,
         FACTOR = (INCH_LEFT_LIMIT - INCH_RIGHT_LIMIT) / (POT_LEFT_LIMIT - POT_RIGHT_LIMIT),
         MOTOR_POWER = 1,
@@ -43,6 +43,7 @@ public class Slider {
         power = 0;
 
     public enum states {
+        RECENTERING,
         MOVING,
         SEARCHING
     }
@@ -230,6 +231,16 @@ public class Slider {
     }
 
     /**
+     * Starts the processing of recentering the slider
+     */
+    public void reCenter() {
+        halfComplete = false;
+        Common.debug("Starting recenter, going left first");
+        setTarget(this.INCH_LEFT_LIMIT);
+        sliderState = states.RECENTERING;
+    }
+
+    /**
      * Moves the arm, should only be called in update
      */
     private void move() {
@@ -259,6 +270,20 @@ public class Slider {
 
     public void update() {
         switch (sliderState) {
+            case RECENTERING:
+                if (potInches() == INCH_LEFT_LIMIT) {
+                    Common.debug("Slider renter reached left limit");
+                    halfComplete = true;
+                    setTarget(INCH_RIGHT_LIMIT);
+                }
+                if (potInches() == INCH_RIGHT_LIMIT && halfComplete) {
+                    Common.debug("Slider recenter completed");
+                    setTarget(0);
+                    sliderState = states.MOVING;
+                }
+
+                move();
+                break;
             case MOVING:
                 move();
                 break;

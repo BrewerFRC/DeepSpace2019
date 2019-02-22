@@ -217,7 +217,10 @@ public class Intake {
         } 
     }
 
-    public void returnEmpty() {
+    /**
+     * Returns the intake to to empty if in LOADING or MORE_LOAD state.
+     */
+    public void returnToEmpty() {
         if(cargoState == CargoStates.LOADING || cargoState == CargoStates.MORE_LOAD){
             cargoState = CargoStates.EMPTY;
         }
