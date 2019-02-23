@@ -48,7 +48,7 @@ public class Slider {
         SEARCHING
     }
     private double previousPosition = 0;
-    private boolean fingerSearchright = true, isComplete = false, halfComplete = false, hasHatch = false;
+    private boolean fingerSearchright = true, isComplete = false, halfComplete = false, hasHatch = true;
     private states sliderState = states.MOVING;
     private int same = 0;
     
@@ -146,6 +146,7 @@ public class Slider {
      * Starts the processing of recentering the slider
      */
     public void reCenter() {
+        same = 0;
         halfComplete = false;
         Common.debug("Starting recenter, going left first");
         setTarget(INCH_LEFT_LIMIT);
@@ -158,9 +159,9 @@ public class Slider {
         fingerSearchright = right;
         //fingerDown();
         if (right) {
-            setTarget(2/*INCH_RIGHT_LIMIT*/);
+            setTarget(INCH_RIGHT_LIMIT);
         } else {
-            setTarget(-2/*INCH_LEFT_LIMIT*/);
+            setTarget(INCH_LEFT_LIMIT);
         }
         Common.debug("Starting finger search");
         sliderState = states.SEARCHING;
@@ -270,16 +271,19 @@ public class Slider {
     public void update() {
         switch (sliderState) {
             case RECENTERING:
-            if (isComplete() && targetInches == INCH_LEFT_LIMIT) {
+            if (!halfComplete && (same >= 25 || (isComplete() && targetInches == INCH_LEFT_LIMIT)) {
                 Common.debug("Slider renter reached left limit");
+                same =0;
                 halfComplete = true;
                 setTarget(INCH_RIGHT_LIMIT);
-            }
-            else if (isComplete() && targetInches == INCH_RIGHT_LIMIT && halfComplete) {
+            } else if ((same>= 25 ||(isComplete() && targetInches == INCH_RIGHT_LIMIT)) && halfComplete) {
                 Common.debug("Slider recenter completed");
+                same = 0;
                 setTarget(0);
                 sliderState = states.MOVING;
             }
+            
+            same++;
 
              move();
             break;
@@ -302,11 +306,12 @@ public class Slider {
                         sliderState = states.MOVING;
                         Common.debug("Finger search completed empty");
                     } else {
+                        same = 0;
                         halfComplete = true;
                         if (fingerSearchright) {
-                            setTarget(-2/*INCH_LEFT_LIMIT*/);
+                            setTarget(INCH_LEFT_LIMIT);
                         } else {
-                            setTarget(2/*INCH_RIGHT_LIMIT*/);
+                            setTarget(INCH_RIGHT_LIMIT);
                         }
                     }
                 }

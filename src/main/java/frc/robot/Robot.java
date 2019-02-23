@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
-	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =41,
+	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =38, /*was 41*/
 	ARM_HIGH_STOW = 70 /*was 65*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
 	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
 	//Angle should be around 40 to place
@@ -535,12 +535,13 @@ public class Robot extends TimedRobot {
 				slider.fingerDown();
 				t++;
 			}
-			if (t >= 5 ||Common.time() >= placeTime) {
+			if (t >= 10 ||Common.time() >= placeTime) {
 				arm.movePosition(55);
 				elevator.moveToHeight(this.placeHeight-4);
 				if (arm.isComplete() && elevator.isComplete()) {
 					slider.setHasHatch(false);
 					slider.fingerUp();
+					slider.reCenter();
 					//state = States.TO_STOW;
 					//TODO: better exit
 					/*if (arm.getPosition() > 0) {
@@ -560,13 +561,14 @@ public class Robot extends TimedRobot {
 				slider.fingerDown();
 				i++;
 			}
-			if (i >= 5 || Common.time() >= placeTime) {
+			if (i >= 10 || Common.time() >= placeTime) {
 				arm.movePosition(ARM_LOW_STOW);
 				if (arm.isComplete()) {
 					elevator.moveToHeight(this.placeHeight+2);
 					if (elevator.isComplete()) {
 						slider.setHasHatch(false);
 						slider.fingerUp();
+						slider.reCenter();
 						//state = States.TO_STOW;
 						//TODO: better exit
 						/*if (arm.getPosition() > 0) {
@@ -581,6 +583,7 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case CARGO_PICKUP:
+			slider.fingerUp();
 			slider.moveTo(0);
 			if (userMove) {
 				Common.debug("Robot State going from CARGO_PICKUP to EMPTY");
@@ -697,7 +700,7 @@ public class Robot extends TimedRobot {
     	/*if (hand == GenericHID.Hand.kLeft) {
     		return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand);
     	}*/
-    	return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand)*.6;
+    	return (Math.abs(driver.getX(hand)) > Math.abs(operator.getX(hand))) ? driver.getX(hand) : operator.getX(hand)*.65;
     }
     
     /**
@@ -711,7 +714,7 @@ public class Robot extends TimedRobot {
     	/*if (hand == GenericHID.Hand.kLeft) {
     		return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand)*.6;
     	}*/
-    	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand)*.6;
+    	return (Math.abs(driver.getY(hand)) > Math.abs(operator.getY(hand))) ? driver.getY(hand) : operator.getY(hand)*.65;
 	}
 	
 	/**
