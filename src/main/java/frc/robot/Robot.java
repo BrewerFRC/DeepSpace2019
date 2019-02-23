@@ -315,7 +315,7 @@ public class Robot extends TimedRobot {
 				slider.moveTo(slider.potInches()+.4);
 			}
 
-			if (operator.when("lefTrigger")) {
+			if (operator.when("leftTrigger")) {
 				slider.reCenter();
 			}
 

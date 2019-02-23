@@ -148,7 +148,7 @@ public class Slider {
     public void reCenter() {
         halfComplete = false;
         Common.debug("Starting recenter, going left first");
-        setTarget(this.INCH_LEFT_LIMIT);
+        setTarget(INCH_LEFT_LIMIT);
         sliderState = states.RECENTERING;
     }
 
@@ -270,12 +270,12 @@ public class Slider {
     public void update() {
         switch (sliderState) {
             case RECENTERING:
-            if (potInches() == INCH_LEFT_LIMIT) {
+            if (isComplete() && targetInches == INCH_LEFT_LIMIT) {
                 Common.debug("Slider renter reached left limit");
                 halfComplete = true;
                 setTarget(INCH_RIGHT_LIMIT);
             }
-            if (potInches() == INCH_RIGHT_LIMIT && halfComplete) {
+            else if (isComplete() && targetInches == INCH_RIGHT_LIMIT && halfComplete) {
                 Common.debug("Slider recenter completed");
                 setTarget(0);
                 sliderState = states.MOVING;
@@ -321,7 +321,7 @@ public class Slider {
         //Common.dashBool("Slider complete", isComplete());
         //Common.dashNum("Slider power", power);
         //Common.dashNum("Slider Target Inches", targetInches);
-        //Common.dashNum("Slider Inches", potInches());
+        Common.dashNum("Slider Inches", potInches());
         //Common.dashNum("Slider Previous Position", previousPosition);
         //Common.dashNum("Current Pot Reading", currentPotReading());
         previousPosition = potInches();
