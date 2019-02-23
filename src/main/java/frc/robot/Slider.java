@@ -271,7 +271,7 @@ public class Slider {
     public void update() {
         switch (sliderState) {
             case RECENTERING:
-            if (!halfComplete && (same >= 25 || (isComplete() && targetInches == INCH_LEFT_LIMIT)) {
+            if (!halfComplete && (same >= 25 || (isComplete() && targetInches == INCH_LEFT_LIMIT))) {
                 Common.debug("Slider renter reached left limit");
                 same =0;
                 halfComplete = true;
