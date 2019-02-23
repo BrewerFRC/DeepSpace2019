@@ -134,8 +134,15 @@ public class Slider {
     public void fingerDown() {
         //was lServo.set(0.03);
         //rServo.set(0.39)
-        lServo.set(0.05);
-        rServo.set(0.3);
+        //lServo.set(0.05);
+        //rServo.set(0.3);
+        lServo.set(0);
+        rServo.set(.35);
+        /*
+            flat
+            left is 0
+            right is .35
+        */
     }
 
     private void forcePower(double power) {
