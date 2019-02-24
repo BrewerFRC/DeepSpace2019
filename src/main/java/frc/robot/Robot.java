@@ -109,6 +109,7 @@ public class Robot extends TimedRobot {
 			slider.toggleHasHatch();
 		}
 		debug();
+		Common.dashNum("Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
 	}
 
@@ -301,8 +302,8 @@ public class Robot extends TimedRobot {
 						state = States.HATCH_PLACE_HIGH;
 					}
 				} else if (intake.getInfaredCheck()) {
-					moveTime = Common.time()+ 350;
-					arm.movePosition(58);
+					moveTime = Common.time()+ 1000; //was 350
+					arm.movePosition(57);
 					state = States.CARGO_DROPOFF;
 				}
 			}
@@ -485,7 +486,7 @@ public class Robot extends TimedRobot {
 		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
 			slider.moveTo(0);
 			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
-			elevator.getArm().movePosition(this.ARM_LOW_STOW);
+			elevator.getArm().movePosition(ARM_LOW_STOW+6);//Was just low stow
 			if(elevator.isComplete()){
 				hatchIntake.doPickup();
 			}
@@ -495,7 +496,7 @@ public class Robot extends TimedRobot {
 			slider.fingerDown();
 			elevator.moveToHeight(this.ELE_HATCH_PICKUP);
 
-			if(hatchIntake.isComplete() && elevator.isComplete())
+			if(hatchIntake.isComplete() && elevator.isComplete()) //Thought about adding wait time here, ran out of time.
 			{
 				state =States.HATCH_FLOOR_PULL;
 			}
@@ -604,6 +605,7 @@ public class Robot extends TimedRobot {
 			break;
 		case CARGO_DROPOFF:
 			if (arm.isComplete()|| Common.time() > moveTime) {
+				Common.debug("CARGO_DROPOFF arm isComplete: "+arm.isComplete()+" MoveTime:"+moveTime+" Common.time:"+Common.time());
 				intake.doEject();
 				if (intake.getState() == Intake.CargoStates.EMPTY) {
 					Common.debug("Robot state going from CARGO_DROPOFF to STOW_UP");
@@ -635,7 +637,7 @@ public class Robot extends TimedRobot {
 		case STOW_UP:
 			stowUp();
 			if (arm.isComplete() && elevator.isComplete()) {
-				Common.debug("Stow up complete");
+				Common.debug("Stow up complete, arm angle is:"+ arm.getPosition());
 				//slider.fingerUp();
 				if (slider.hasHatch()) {
 					Common.debug("Robot State going from STOW_UP to HAS_HATCH");
@@ -721,8 +723,8 @@ public class Robot extends TimedRobot {
 	 * Stows the robot so the arm is up.
 	 */
 	public void stowUp() {
-		arm.movePosition(ARM_HIGH_STOW);
 		elevator.moveToHeight(ELE_HIGH_STOW);
+		arm.movePosition(ARM_HIGH_STOW);
 
 	}
 

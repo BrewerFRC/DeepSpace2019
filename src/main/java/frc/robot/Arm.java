@@ -25,7 +25,7 @@ public class Arm {
     //The angle at which the intake is horizontal out the front.
 	HORIZONTAL_POSITION = 2485, //The arm's position at 0 degrees/parallel to floor.
    // MIN_POSITION = 210, MAX_POSITION = 3593, 
-	MIN_ANGLE = -80, MAX_ANGLE = 60, 
+	MIN_ANGLE = -80, MAX_ANGLE = 70, 
 	// Arm must be at least this high an angle for elevator to Home.
 	MIN_HOMING_ANGLE = 40,
     //MIN_ABS_ANGLE = -45, //To be determined
@@ -211,7 +211,7 @@ public class Arm {
 	 * @param position - the position in degrees
 	 */
 	public void movePosition(double position) {
-		//Common.debug("Arm target changed to: "+position);
+		Common.debug("Arm target changed to: "+position);
 		targetPosition = position;
 		//pid.setTargetPosition(position);
 		state = States.MOVING;

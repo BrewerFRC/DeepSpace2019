@@ -23,9 +23,9 @@ public class Slider {
     private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
 
     public static final int
-    POT_LEFT_LIMIT = 852,
-    POT_RIGHT_LIMIT = 1697,
-    POT_CENTER = 1271;
+    POT_LEFT_LIMIT = 1415,
+    POT_RIGHT_LIMIT = 2220,
+    POT_CENTER = 1825;
 
     public static final double
         INCH_LEFT_LIMIT = -3.2, //Really -3.2
@@ -283,7 +283,7 @@ public class Slider {
                 same =0;
                 halfComplete = true;
                 setTarget(INCH_RIGHT_LIMIT);
-            } else if ((same>= 25 ||(isComplete() && targetInches == INCH_RIGHT_LIMIT)) && halfComplete) {
+            } else if ((same>= 50 ||(isComplete() && targetInches == INCH_RIGHT_LIMIT)) && halfComplete) {
                 Common.debug("Slider recenter completed");
                 same = 0;
                 setTarget(0);

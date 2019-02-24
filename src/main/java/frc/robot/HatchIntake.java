@@ -27,6 +27,7 @@ public class HatchIntake {
 
     private boolean moveComplete = false;
     private float target = 0;
+    private double moveTime = 0;
 
     public enum HatchPickupStates {
         EXTEND,
@@ -52,6 +53,9 @@ public class HatchIntake {
             break;
             case RETRIEVE:
                 target = ARM_HATCH_RETRIEVE;
+                if (Common.time() > moveTime) {
+                    moveComplete = true;
+                }
             break;
             case STOW:
                 target = ARM_STOW;
@@ -74,6 +78,7 @@ public class HatchIntake {
         else {
             power = error * P;
         }
+        
         setMotor(power);
         Common.dashBool("Hatch pickup iscomplete", isComplete());
         Common.dashStr("Hatch Intake State", hatchPickupState.toString());
@@ -128,6 +133,7 @@ public class HatchIntake {
         if(isSafe())
         {
             moveComplete = false;
+            moveTime = Common.time() + 750;
             hatchPickupState = HatchPickupStates.RETRIEVE;
         }
     }
@@ -136,6 +142,7 @@ public class HatchIntake {
     {
         if(isSafe())
         {
+            //moveTime = Common.time() +750;
             hatchPickupState = HatchPickupStates.STOW;
         }        
     }

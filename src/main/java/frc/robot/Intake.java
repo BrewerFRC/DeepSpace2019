@@ -19,7 +19,7 @@ public class Intake {
     private final float ejectPower = -.7f;
     private final float softEjectPower = -0.45f;
     private final float ballLoadedInches = 5f;
-    private final float loadedHoldPower = 0.2f;
+    private final float loadedHoldPower = 0.25f;
     private final int loadCycles = 20;
     private final int ejectCycles = 8;
     
