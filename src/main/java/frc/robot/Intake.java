@@ -51,6 +51,7 @@ public class Intake {
      */
     public void update ()
     {
+        Common.dashBool("Has Cargo",this.getInfaredCheck());
         switch(cargoState)
         {
             case LOADING:
