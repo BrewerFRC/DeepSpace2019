@@ -211,7 +211,7 @@ public class Arm {
 	 * @param position - the position in degrees
 	 */
 	public void movePosition(double position) {
-		Common.debug("Arm target changed to: "+position);
+		//Common.debug("Arm target changed to: "+position);
 		targetPosition = position;
 		//pid.setTargetPosition(position);
 		state = States.MOVING;

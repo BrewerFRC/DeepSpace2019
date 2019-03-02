@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.cscore.UsbCamera;
@@ -111,6 +112,7 @@ public class Robot extends TimedRobot {
 		debug();
 		Common.dashNum("Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
+		hatchIntake.debug();
 	}
 
 	@Override
@@ -179,6 +181,16 @@ public class Robot extends TimedRobot {
 
 		double forward = joystickY(GenericHID.Hand.kLeft); 
 		double turn = joystickX(GenericHID.Hand.kLeft);
+		if (driver.getPressed("x") && DriverStation.getInstance().isAutonomous()) {
+			Common.dashBool("left Thumb is down.", true);
+			if (forward > 0) {
+				forward =  Math.min(forward, .55);
+			} else {
+				forward =  Math.max(forward, -.55);
+			}
+		} else {
+			Common.dashBool("left Thumb is down.", false);
+		}
 		dt.accelDrive(forward, turn);
 
 		if (operator.when("back") || driver.when("back")) { //System reset.
@@ -517,7 +529,6 @@ public class Robot extends TimedRobot {
 		break;
 		case HATCH_FLOOR_RETURN:
 			slider.moveTo(0);
-
 			hatchIntake.doStow();
 			if(hatchIntake.isComplete())
 			{
@@ -532,11 +543,13 @@ public class Robot extends TimedRobot {
 			break;
 		case HATCH_PLACE_HIGH:
 			if (slider.pressed() ||Common.time() >= placeTime -150) {
-				elevator.moveToHeight(placeHeight-3);
+				Common.debug("Slider pressed: small move down");
+				//elevator.moveToHeight(placeHeight-3); //was 3
 				slider.fingerDown();
 				t++;
 			}
 			if (t >= 10 ||Common.time() >= placeTime) {
+				Common.debug("Final go down for upper place");
 				arm.movePosition(55);
 				elevator.moveToHeight(this.placeHeight-4);
 				if (arm.isComplete() && elevator.isComplete()) {

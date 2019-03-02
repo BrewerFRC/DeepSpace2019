@@ -224,5 +224,11 @@ public class Xbox extends XboxController {
 		});
 		whenMap.put("rightThumb", false);
 		fallingMap.put("rightThumb", false);
+
+		functionMap.put("leftThumb", () -> {
+			return this.getRawButton(9);
+		});
+		whenMap.put("leftThumb", false);
+		fallingMap.put("leftThumb", false);
 	}
 }

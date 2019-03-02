@@ -27,8 +27,8 @@ public class DriveTrain extends DifferentialDrive {
 		DRIVEACCELMIN = 0.002,
 		DRIVEACCELMAX = 0.04,
 		DRIVEMIN = 0.35,	 //Min power needed to move drive motors
-		TURNACCEL = 0.04,
-		TURNMAX = 0.8;
+		TURNACCEL = 0.08,
+		TURNMAX = 0.6;
 	
 	//private static final double DISTANCE_PER_PULSE_L = 0.0098195208, DISTANCE_PER_PULSE_R = 0.0098293515;
 	private static final WPI_TalonSRX 
