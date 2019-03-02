@@ -129,7 +129,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		elevator.init();
+		if (elevator.getState() == Elevator.States.STOPPED) {
+			elevator.init();
+		}
 		slider.init();
 		
 		//heading.reset();

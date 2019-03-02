@@ -295,6 +295,7 @@ public class Slider {
              move();
             break;
             case MOVING:
+                //Common.debug("Slider count is:"+this.currentPotReading()+" Slider inches is: "+this.potInches());
                 move();
                 break;
             case SEARCHING:
