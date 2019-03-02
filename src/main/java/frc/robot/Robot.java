@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=32, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =38, /*was 41*/
 	ARM_HIGH_STOW = 65 /*was 70*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
-	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25;
+	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25, ARM_CARGO_DROPOFF = 57;
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -315,7 +315,7 @@ public class Robot extends TimedRobot {
 					}
 				} else if (intake.getInfaredCheck()) {
 					moveTime = Common.time()+ 1000; //was 350
-					arm.movePosition(57);
+					arm.movePosition(ARM_CARGO_DROPOFF-5);
 					state = States.CARGO_DROPOFF;
 				}
 			}
@@ -617,8 +617,8 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case CARGO_DROPOFF:
-			if (arm.isComplete()|| Common.time() > moveTime) {
-				Common.debug("CARGO_DROPOFF arm isComplete: "+arm.isComplete()+" MoveTime:"+moveTime+" Common.time:"+Common.time());
+			if (arm.getPosition() <= ARM_CARGO_DROPOFF || Common.time() > moveTime) {
+				Common.debug("CARGO_DROPOFF arm past: "+arm.getPosition()+" MoveTime:"+moveTime+" Common.time:"+Common.time());
 				intake.doEject();
 				if (intake.getState() == Intake.CargoStates.EMPTY) {
 					Common.debug("Robot state going from CARGO_DROPOFF to STOW_UP");
