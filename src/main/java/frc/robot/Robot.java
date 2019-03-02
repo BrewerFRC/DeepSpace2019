@@ -482,7 +482,7 @@ public class Robot extends TimedRobot {
 				arm.movePosition(ARM_LOW_STOW);
 				if (elevator.isComplete() && arm.isComplete()) {
 					Common.debug("Robot State going from HATCH_SEARCH to STOW_DOWN with a hatch");
-					slider.moveTo(0);
+					//slider.moveTo(0);
 					state = States.STOW_DOWN;
 				}
 			}else if (slider.getSliderState() == Slider.states.MOVING) {
