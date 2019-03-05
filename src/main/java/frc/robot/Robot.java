@@ -113,6 +113,7 @@ public class Robot extends TimedRobot {
 		Common.dashNum("Slider Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
 		hatchIntake.debug();
+		intake.debug();
 	}
 
 	@Override
@@ -399,6 +400,7 @@ public class Robot extends TimedRobot {
 	 **/
 	public void debug() {
 		Common.dashBool("userMove", this.userMove);
+		intake.debug();
 		/*SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());
 		SmartDashboard.putNumber("PID", heading.turnRate());
