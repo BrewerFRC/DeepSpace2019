@@ -224,8 +224,6 @@ public class Robot extends TimedRobot {
 			intake.doEject(); //out
 		}
 
-		
-
 		if (operator.when("start") || driver.when("start")) {
 			slider.toggleHasHatch();
 		}

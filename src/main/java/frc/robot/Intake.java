@@ -87,7 +87,7 @@ public class Intake {
                     if (getInfaredCheck()) {
                         cargoState = CargoStates.LOADED;
                     } else {
-                        cargoState =CargoStates.EMPTY;
+                        cargoState = CargoStates.EMPTY;
                     }
                 }
             break;
@@ -238,9 +238,9 @@ public class Intake {
      * Ejects the ball if within the loaded state.
      */
     public void doEject (){
-        if(cargoState == CargoStates.LOADED){
+        //if(cargoState == CargoStates.LOADED){
             cargoState = CargoStates.EJECT;
-        }
+        //}
     }
 
     public void doMoreLoad() {
