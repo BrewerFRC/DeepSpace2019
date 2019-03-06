@@ -22,6 +22,7 @@ public class Intake {
     private final float loadedHoldPower = 0.25f;
     private final int loadCycles = 20;
     private final int ejectCycles = 8;
+    private final int forcedEjectCycles = 30;
     
     private double moreloadtime;
 
@@ -31,7 +32,8 @@ public class Intake {
         MORE_LOAD,
         LOADED,
         EJECT,
-        SOFT_EJECT
+        SOFT_EJECT,
+        FORCED_EJECT
     }
     private CargoStates cargoState = CargoStates.EMPTY;
     
@@ -92,7 +94,6 @@ public class Intake {
                 }
             break;
             case EMPTY:
-
                 if (getInfaredCheck()) {
                     cargoState = CargoStates.LOADED;
                 }   
@@ -126,6 +127,18 @@ public class Intake {
                         cycles = 0;
                     }
                     
+                }
+            break;
+            case FORCED_EJECT:
+                setMotor(ejectPower);
+                if(cycles <= forcedEjectCycles)
+                {
+                    cycles++;
+                }
+                else
+                {
+                    setMotor(0.0f);
+                    cargoState = CargoStates.EMPTY;
                 }
             break;
         }
@@ -234,6 +247,7 @@ public class Intake {
             cargoState = CargoStates.SOFT_EJECT;
         }
     }
+
     /**
      * Ejects the ball if within the loaded state.
      */
@@ -243,10 +257,18 @@ public class Intake {
         }
     }
 
+    /**
+     * Overrides infared as to pull the ball further into the intake.
+     */
     public void doMoreLoad() {
         if (cargoState == CargoStates.EMPTY || cargoState == CargoStates.LOADED) {
             this.moreloadtime = Common.time()+500;
             cargoState = CargoStates.MORE_LOAD;
         }
+    }
+
+    public void doEmergencyEject(){
+        cargoState = CargoStates.FORCED_EJECT;
+        cycles = 0;
     }
 }

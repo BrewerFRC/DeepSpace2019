@@ -175,6 +175,9 @@ public class Robot extends TimedRobot {
 		 * A is low position(for placing[defaults to cargo])
 		 * B is middle position
 		 * Y is top position
+		 * 
+		 * Both (simultaneously):
+		 * Back - System reset
 		 */
 		userMove = false;
 
