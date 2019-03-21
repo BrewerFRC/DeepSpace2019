@@ -102,8 +102,8 @@ public class Intake {
             case EJECT:
                 setMotor(ejectPower);
 
-                if(!getInfaredCheck())
-                {
+                //if(!getInfaredCheck())
+                //{
                     if(cycles < ejectCycles){
                         cycles++;
                     }
@@ -111,7 +111,7 @@ public class Intake {
                         cargoState = CargoStates.EMPTY;
                         cycles = 0;
                     }
-                }
+                //}
             break;
             case SOFT_EJECT:
                 setMotor(softEjectPower);
