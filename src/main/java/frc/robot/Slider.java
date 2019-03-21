@@ -19,8 +19,8 @@ public class Slider {
     private AnalogInput pot = new AnalogInput(Constants.ANA_POT_SLIDER);
     private Spark motor = new Spark(Constants.PWM_SLIDER_MOTOR);
     private DigitalInput fingerSwitch = new DigitalInput(Constants.DIO_FINGER_SWITCH);
-    private DigitalInput leftSwitch = new DigitalInput(Constants.DIO_SLIDER_LEFT_LIMIT);
-    private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
+    private DigitalInput sideSwitch = new DigitalInput(Constants.DIO_SLIDER_SIDE_LIMIT);
+    //private DigitalInput rightSwitch = new DigitalInput(Constants.DIO_SLIDER_RIGHT_LIMIT); 
 
     public static final int
     POT_LEFT_LIMIT = 1415,
@@ -121,7 +121,7 @@ public class Slider {
      * @return Whether either of the front finger limit switches are pressed.
      */
     public boolean pressed() {
-        return (!leftSwitch.get() || !rightSwitch.get());
+        return (!sideSwitch.get());
     }
 
 
