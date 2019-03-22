@@ -18,6 +18,8 @@ public class Constants{
         DIO_LIMIT_LIFT = 3,
         DIO_LIMIT_HOZ = 2,
         DIO_SLIDER_SIDE_LIMIT = 7,
+        DIO_CLIMB_ENCODE_A = 8,
+        DIO_CLIMB_ENCODE_B = 9,
         DIO_LOWER_LIMIT = 4,
         DIO_MAG_SWITCH = 5,
         DIO_FINGER_SWITCH = 6,
