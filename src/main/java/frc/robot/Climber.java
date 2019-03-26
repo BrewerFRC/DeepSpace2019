@@ -25,9 +25,15 @@ public class Climber {
     private Arm  arm;
     private DriveTrain dt;
 
-    private double COUNTS_PER_INCH  = 1;
-    private double LIFT_MAX = 20;
-    private double LIFT_UP_POWER = .4, LIFT_DOWN_POWER = -.3, LIFT_HOLD_POWER = .2, FOOT_POWER = .3;
+    private final double COUNTS_PER_INCH  = 1043.03564; //Napkin math
+    private final double LIFT_MAX = 20;
+    private final double LIFT_UP_POWER = .3, LIFT_DOWN_POWER = -.3, LIFT_HOLD_POWER = .2, FOOT_POWER = .3, LIFT_HOME_POWER = .25;
+
+    private double power = 0, footPower = 0;
+
+    //Rough numbers for heights
+    private final double LEVEL_2 = 12, LEVEL_3 = 20;
+    private int targetLevel =  3;
 
     public enum climberStates {
         STOPPED, //Starting state
@@ -76,7 +82,30 @@ public class Climber {
         return getCounts()/COUNTS_PER_INCH;
     }
 
+    public boolean footLimit() {
+        return hozLimit.get();
+    }
+
+
     //Setter functions
+
+    public void home() {
+        state = climberStates.HOMING;
+    }
+
+    public void liftLevel2() {
+        targetLevel = 2;
+        if (state == climberStates.READY) {
+            state = climberStates.LIFTING;
+        }
+    }
+
+    public void liftLevel3() {
+        targetLevel = 3;
+        if (state ==  climberStates.READY) {
+            state = climberStates.LIFTING;
+        }
+    }
 
     //Power set functions
     /**
@@ -86,8 +115,25 @@ public class Climber {
     private void liftUp() {
         if (!atTop()) {
             liftMotor.set(LIFT_UP_POWER);
+            power = LIFT_UP_POWER;
         } else {
             liftMotor.set(LIFT_HOLD_POWER);
+            power = LIFT_HOLD_POWER;
+        }
+    }
+
+    private void liftHold() {
+        liftMotor.set(LIFT_HOLD_POWER);
+        power = LIFT_HOLD_POWER;
+    }
+
+    private void liftHomeSpeed() {
+        if (!atTop()) {
+            liftMotor.set(LIFT_HOME_POWER);
+            power = LIFT_HOME_POWER;
+        } else {
+            liftMotor.set(LIFT_HOLD_POWER);
+            power = LIFT_HOLD_POWER;
         }
     }
 
@@ -98,14 +144,21 @@ public class Climber {
     private void liftDown() {
         if (getInches() <= LIFT_MAX) {
             liftMotor.set(LIFT_HOLD_POWER);
+            power = LIFT_DOWN_POWER;
         } else {
             liftMotor.set(LIFT_DOWN_POWER);
+            power = LIFT_DOWN_POWER;
         }
     }
 
+    /**
+     * Moves the foot.
+     * Forward only.
+     */
     private void footDrive() {
-        if (Footlimit not pressed) {
+        if (!footLimit()) {
             footMotor.set(FOOT_POWER);
+            footPower = FOOT_POWER;
         }
     }
     
@@ -113,9 +166,77 @@ public class Climber {
      * Sets all motors to zero.
      */
     public void EmergancyStop() {
+        state = climberStates.STOPPED;
         liftMotor.set(0);
+        power = 0;
         footMotor.set(0);
+        footPower = 0;
     }
 
+    
     //Update
+    /**
+     * Updates the class.
+     */
+    public void update() {
+        /*STOPPED, //Starting state
+        HOMING, //Homing UP to 0 the encoder
+        READY, //Idle and ready to climb
+        LIFTING, //Moving up to either level 2 or 3 height to climb
+        SLIDING, //Moving foot forward.
+        RETRACTING, //Moving the foot up to a safe height
+        COMPLETE //Holding powers*/
+        switch (state) {
+            case STOPPED :
+                EmergancyStop();
+                break;
+            case HOMING :
+                this.liftHomeSpeed();
+                if (atTop()) {
+                    state =  climberStates.READY;
+                }
+                break;
+            case LIFTING :
+                liftDown();
+                if (targetLevel == 3) {
+                    if (getInches() >= LEVEL_3) {
+                        state = climberStates.SLIDING;
+                    }
+                } else if (targetLevel == 2) {
+                    if (getInches() >= LEVEL_2) {
+                        state = climberStates.SLIDING;
+                    }
+                }
+                break;
+            case SLIDING:
+                liftHold();
+                footDrive();
+                if (footLimit()) {
+                    state = climberStates.RETRACTING;
+                }
+                break;
+            case RETRACTING :
+                liftUp();
+                if (atTop()) {
+                    state = climberStates.COMPLETE;
+                }
+                break;
+            case COMPLETE :
+                liftHold();
+                break;
+        }
+
+        debug();
+    }
+
+    public void debug() {
+        Common.dashBool("lift limit", this.atTop());
+        Common.dashBool("foot limit", this.footLimit());
+        Common.dashNum("Lift counts", this.getCounts());
+        Common.dashNum("Lift inches", this.getInches());
+        Common.dashStr("Lift state", this.state.toString());
+        Common.dashNum("Lift power", this.power);
+        Common.dashNum("Foot power", this.footPower);
+        Common.dashNum("Target Level", this.targetLevel);
+    }
 }
