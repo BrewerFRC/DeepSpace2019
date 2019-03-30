@@ -16,24 +16,25 @@ import edu.wpi.first.wpilibj.CounterBase.EncodingType;
  */
 public class Climber {
 
-    private static final Talon liftMotor =  new Talon(9);//Constants.PWM_LIFT_CLIMBER); //Should move positive is down
-    private Spark footMotor = new Spark(7);//Constants.PWM_HOZ_CLIMBER);
-    private DigitalInput liftUpperLimit =  new DigitalInput(3);//Constants.DIO_LIMIT_LIFT);
-    private DigitalInput hozLimit =  new DigitalInput(2);//Constants.DIO_LIMIT_HOZ);
-    private Encoder encoder = new Encoder(0, 1,/*Constants.DIO_CLIMB_ENCODE_A, Constants.DIO_CLIMB_ENCODE_B,*/ true, EncodingType.k4X); //0 is highest and descending is increasing
+    private static final Talon liftMotor =  new Talon(Constants.PWM_LIFT_CLIMBER); //Should move positive is down
+    private Spark footMotor = new Spark(Constants.PWM_HOZ_CLIMBER);
+    private DigitalInput liftUpperLimit =  new DigitalInput(Constants.DIO_LIMIT_LIFT);
+    private DigitalInput hozLimit =  new DigitalInput(Constants.DIO_LIMIT_HOZ);
+    private Encoder encoder = new Encoder(Constants.DIO_CLIMB_ENCODE_A, Constants.DIO_CLIMB_ENCODE_B, true, EncodingType.k4X); //0 is highest and descending is increasing
 
-    //private Arm  arm;
-    //private DriveTrain dt;
+    private Elevator ele;
+    private DriveTrain dt;
 
     private final double COUNTS_PER_INCH  = 227.55555; //Napkin math
     private final double LIFT_MAX = 24; //Actually 25
+    private double offGround = 0;
     private final double LIFT_UP_POWER = 1.0, LIFT_DOWN_POWER = -0.4, LIFT_STOW_POWER = -.1, LIFT_HOLD_POWER = 0.2, FOOT_POWER = 1.0, LIFT_HOME_POWER = -.15;
 
     private double power = 0, footPower = 0;
 
 
     //Rough numbers for heights
-    private final double LEVEL_2 = 12, LEVEL_3 = 20;
+    private final double LEVEL_2 = 9, LEVEL_3 = 22;
     private int targetLevel =  3;
 
     public enum climberStates {
@@ -49,9 +50,9 @@ public class Climber {
 
     public climberStates state = climberStates.STOPPED;
 
-    public Climber(/*Arm arm, DriveTrain dt*/) {
-        //this.arm = arm;
-        //this.dt = dt;
+    public Climber(Elevator ele, DriveTrain dt) {
+        this.ele = ele;
+        this.dt = dt;
         liftMotor.setInverted(true);
         footMotor.setInverted(true);
     }
@@ -101,6 +102,9 @@ public class Climber {
         if (state == climberStates.READY) {
             Common.debug("Lift Starting level 2 climb");
             targetLevel = 2;
+            ele.moveToHeight(Robot.ELE_HIGH_STOW);
+            ele.arm.movePosition(Robot.ARM_HIGH_STOW);
+            dt.arcadeDrive(0, 0);
             state = climberStates.LIFTING;
         }
     }
@@ -109,6 +113,9 @@ public class Climber {
         if (state ==  climberStates.READY) {
             Common.debug("Lift Starting level 3 climb");
             targetLevel = 3;
+            ele.moveToHeight(Robot.ELE_HIGH_STOW);
+            ele.arm.movePosition(Robot.ARM_HIGH_STOW);
+            dt.arcadeDrive(0, 0);
             state = climberStates.LIFTING;
         }
     }
@@ -202,7 +209,6 @@ public class Climber {
         SLIDING, //Moving foot forward.
         RETRACTING, //Moving the foot up to a safe height
         COMPLETE //Holding powers*/
-        double offGround = 0;
         switch (state) {
             case STOPPED :
                 stopPower();
@@ -220,6 +226,7 @@ public class Climber {
                 break;
             case LIFTING :
                 liftUp();
+                dt.arcadeDrive(0, 0);
                 if (targetLevel == 3) {
                     if (getInches() >= LEVEL_3) {
                         Common.debug("Lift completed LEVEL 3 height, going to SLIDING");
@@ -233,26 +240,27 @@ public class Climber {
                 }
                 break;
             case SLIDING:
-                //Drive forward .4
                 liftHold();
                 footDrive();
+                dt.arcadeDrive(-.4, 0);
                 if (footLimit()) {
                     Common.debug("Lift completed sliding, now retracting");
                     offGround = getInches() -5;
-                    Common.debug("Offground is: "+offGround);
+                    //Common.debug("Offground is: "+offGround);
                     state = climberStates.RETRACTING;
                 }
                 break;
             case RETRACTING :
-                //arm down
                 liftDown();
+		        ele.arm.movePosition(0);
                 if (getInches() <= offGround) {
                     Common.debug("Lift completed retracting, now complete at: "+getInches());
                     state = climberStates.COMPLETE;
                 }
                 break;
             case COMPLETE :
-                liftStow();
+                //liftStow();
+                setLiftPower(0);
                 break;
         }
 

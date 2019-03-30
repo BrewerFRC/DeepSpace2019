@@ -28,6 +28,7 @@ public class Robot extends TimedRobot {
 	private Elevator elevator;
 	private Intake intake;
 	private HatchIntake hatchIntake;
+	private Climber climber;
 
 	private enum States {
 		EMPTY,
@@ -47,7 +48,8 @@ public class Robot extends TimedRobot {
 		HATCH_PLACE_LOW,
 		CARGO_PICKUP,
 		CARGO_DROPOFF,
-		HAS_CARGO
+		HAS_CARGO,
+		CLIMBING
 	}
 	private States state = States.HOMING;
 	
@@ -98,6 +100,7 @@ public class Robot extends TimedRobot {
 		intake = arm.intake;
 		dt = new DriveTrain(elevator);
 		hatchIntake = new HatchIntake(elevator);
+		climber = new Climber(elevator, dt);
 		/*heading = new Heading();
 		heading.reset();
 		headingbutton = new DigitalInput(5);*/
@@ -120,6 +123,7 @@ public class Robot extends TimedRobot {
 	public void autonomousInit() {
 		elevator.init();
 		slider.init();
+		climber.home();
 	}
 
 	@Override
@@ -134,6 +138,7 @@ public class Robot extends TimedRobot {
 			elevator.init();
 		}
 		slider.init();
+		climber.home();
 		
 		//heading.reset();
 		//heading.setHeadingHold(true);
@@ -181,18 +186,39 @@ public class Robot extends TimedRobot {
 		 */
 		userMove = false;
 
+		if (state != States.CLIMBING) {
+			normalControl();
+		}
+		
+		// Updates
+		elevator.update();
+		elevator.debug();
+		climber.debug();
+		climber.update();
+		hatchIntake.update();
+		//intake.update();
+		arm.dashboard();
+		debug();
+		Common.dashStr("Robot state",state.toString());
 
+		//Still neccasary?
+		if (elevator.getState() == Elevator.States.HOMING) {
+			arm.movePosition(this.ARM_HIGH_STOW);
+			state = States.HOMING;
+		}
+		update();
+	}
+
+	public void normalControl() {
 		double forward = joystickY(GenericHID.Hand.kLeft); 
 		double turn = joystickX(GenericHID.Hand.kLeft);
+		// drive speed governor
 		if (driver.getPressed("x") && DriverStation.getInstance().isAutonomous()) {
-			Common.dashBool("left Thumb is down.", true);
 			if (forward > 0) {
 				forward =  Math.min(forward, .55);
 			} else {
 				forward =  Math.max(forward, -.55);
 			}
-		} else {
-			Common.dashBool("left Thumb is down.", false);
 		}
 		dt.accelDrive(forward, turn);
 
@@ -289,6 +315,22 @@ public class Robot extends TimedRobot {
 				}
 			}
 
+			if (driver.when("y") && driver.when("dPadUp")) {
+				if (state == States.EMPTY || state == States.STOW_UP || state ==  States.HAS_CARGO || state == States.HAS_HATCH) {
+					if (arm.getPosition() > 0) {
+						state = States.CLIMBING;
+						climber.liftLevel3();
+					}
+				}
+			} else if (driver.when("y") && driver.when("dPadDown")) {
+				if (state == States.EMPTY || state == States.STOW_UP || state ==  States.HAS_CARGO || state == States.HAS_HATCH) {
+					if (arm.getPosition() > 0) {
+						state = States.CLIMBING;
+						climber.liftLevel2();
+					}
+				}
+			}
+
 			//Joystick Arm
 			double armMove = driver.deadzone(driver.getY(GenericHID.Hand.kRight));
 			if (Math.abs(armMove) > 0) {
@@ -377,21 +419,6 @@ public class Robot extends TimedRobot {
 
 		}
 		
-		// Updates
-		elevator.update();
-		elevator.debug();
-		hatchIntake.update();
-		//intake.update();
-		arm.dashboard();
-		debug();
-		Common.dashStr("Robot state",state.toString());
-
-		//Still neccasary?
-		if (elevator.getState() == Elevator.States.HOMING) {
-			arm.movePosition(this.ARM_HIGH_STOW);
-			state = States.HOMING;
-		}
-		update();
 	}
 	/**
 	 * Debugs data to smart dashboard
