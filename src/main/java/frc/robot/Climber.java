@@ -28,7 +28,7 @@ public class Climber {
     private final double COUNTS_PER_INCH  = 227.55555; //Napkin math
     private final double LIFT_MAX = 24; //Actually 25
     private double offGround = 0;
-    private final double LIFT_UP_POWER = 1.0, LIFT_DOWN_POWER = -0.4, LIFT_STOW_POWER = -.1, LIFT_HOLD_POWER = 0.2, FOOT_POWER = 1.0, LIFT_HOME_POWER = -.15;
+    private final double LIFT_UP_POWER = 0.2/*Was 1.0*/, LIFT_DOWN_POWER = -0.4, LIFT_STOW_POWER = -.1, LIFT_HOLD_POWER = 0.2, FOOT_POWER = 0.2/*Was 1.0 */, LIFT_HOME_POWER = -.15;
 
     private double power = 0, footPower = 0;
 

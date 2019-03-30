@@ -117,6 +117,7 @@ public class Robot extends TimedRobot {
 		arm.dashboard();
 		hatchIntake.debug();
 		intake.debug();
+		slider.debug();
 	}
 
 	@Override
