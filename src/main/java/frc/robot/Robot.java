@@ -115,9 +115,12 @@ public class Robot extends TimedRobot {
 		debug();
 		Common.dashNum("Slider Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
+		arm.update();
 		hatchIntake.debug();
 		intake.debug();
 		slider.debug();
+		climber.debug();
+		elevator.debug();
 	}
 
 	@Override
@@ -125,6 +128,7 @@ public class Robot extends TimedRobot {
 		elevator.init();
 		slider.init();
 		climber.home();
+		state = States.EMPTY;
 	}
 
 	@Override
@@ -138,6 +142,7 @@ public class Robot extends TimedRobot {
 		if (elevator.getState() == Elevator.States.STOPPED) {
 			elevator.init();
 		}
+		state = States.EMPTY;
 		slider.init();
 		climber.home();
 		
@@ -316,14 +321,15 @@ public class Robot extends TimedRobot {
 				}
 			}
 
-			if (driver.when("y") && driver.when("dPadUp")) {
+			if (driver.getPressed("y") && driver.when("dPadUp")) {
 				if (state == States.EMPTY || state == States.STOW_UP || state ==  States.HAS_CARGO || state == States.HAS_HATCH) {
 					if (arm.getPosition() > 0) {
+						Common.debug("Starting level 3 climb");
 						state = States.CLIMBING;
 						climber.liftLevel3();
 					}
 				}
-			} else if (driver.when("y") && driver.when("dPadDown")) {
+			} else if (driver.getPressed("y") && driver.when("dPadDown")) {
 				if (state == States.EMPTY || state == States.STOW_UP || state ==  States.HAS_CARGO || state == States.HAS_HATCH) {
 					if (arm.getPosition() > 0) {
 						state = States.CLIMBING;

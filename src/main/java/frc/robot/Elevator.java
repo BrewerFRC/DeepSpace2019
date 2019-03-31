@@ -532,7 +532,7 @@ public class Elevator {
 		Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		//Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
-		//Common.dashBool("at Mag Switch", atMagSwitch());
+		Common.dashBool("at Mag Switch", atMagSwitch());
 		Common.dashBool("At Bottom", atBottom());
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
