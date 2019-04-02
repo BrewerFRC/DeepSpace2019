@@ -94,6 +94,7 @@ public class Intake {
             case EMPTY:
 
                 if (getInfaredCheck()) {
+                    Common.debug("Moving from empty to loaded");
                     cargoState = CargoStates.LOADED;
                 }   
 
@@ -108,6 +109,7 @@ public class Intake {
                         cycles++;
                     }
                     else {
+                        Common.debug("Exiting eject to empty in intake");
                         cargoState = CargoStates.EMPTY;
                         cycles = 0;
                     }
