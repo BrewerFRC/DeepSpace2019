@@ -34,7 +34,7 @@ public class Climber {
 
 
     //Rough numbers for heights
-    private final double LEVEL_2 = 9, LEVEL_3 = 22;
+    private final double LEVEL_2 = 10, LEVEL_3 = 23;
     private int targetLevel =  3;
 
     public enum climberStates {
@@ -184,6 +184,9 @@ public class Climber {
             //Common.debug("Running foot");
            footMotor.set(FOOT_POWER);
             footPower = FOOT_POWER;
+        } else {
+            footMotor.set(0);
+            footPower = 0;
         }
     }
 
@@ -250,13 +253,14 @@ public class Climber {
                 dt.arcadeDrive(-.4, 0);
                 if (footLimit()) {
                     Common.debug("Lift completed sliding, now retracting");
-                    offGround = getInches() -5;
+                    offGround = getInches() -7;
                     //Common.debug("Offground is: "+offGround);
                     state = climberStates.RETRACTING;
                 }
                 break;
             case RETRACTING :
                 liftDown();
+                footHold();
 		        ele.arm.movePosition(0);
                 if (getInches() <= offGround) {
                     Common.debug("Lift completed retracting, now complete at: "+getInches());
@@ -265,6 +269,7 @@ public class Climber {
                 break;
             case COMPLETE :
                 //liftStow();
+                footHold();
                 setLiftPower(0);
                 break;
         }

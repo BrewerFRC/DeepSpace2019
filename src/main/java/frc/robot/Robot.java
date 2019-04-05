@@ -47,7 +47,8 @@ public class Robot extends TimedRobot {
 		HATCH_PLACE_HIGH,
 		HATCH_PLACE_LOW,
 		CARGO_PICKUP,
-		CARGO_DROPOFF,
+		CARGO_DROPOFF_START,
+		CARGO_DROPOFF_FINISH,
 		HAS_CARGO,
 		CLIMBING
 	}
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot {
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=33, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
-	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-47, ARM_HIGH_PLACE =38, /*was 41*/
+	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-43, ARM_HIGH_PLACE =38, /*was 41*/
 	ARM_HIGH_STOW = 65 /*was 70*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
 	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25, ARM_CARGO_DROPOFF = 57;
 	//Angle should be around 40 to place
@@ -366,7 +367,7 @@ public class Robot extends TimedRobot {
 				} else if (intake.getInfaredCheck()) {
 					moveTime = Common.time()+ 1000; //was 350
 					arm.movePosition(ARM_CARGO_DROPOFF-5);
-					state = States.CARGO_DROPOFF;
+					state = States.CARGO_DROPOFF_START;
 				}
 			}
 
@@ -652,14 +653,17 @@ public class Robot extends TimedRobot {
 				state = States.EMPTY;
 			}
 			break;
-		case CARGO_DROPOFF:
+		case CARGO_DROPOFF_START:
 			if (arm.getPosition() <= ARM_CARGO_DROPOFF || Common.time() > moveTime) {
-				Common.debug("CARGO_DROPOFF arm past: "+arm.getPosition()+" MoveTime:"+moveTime+" Common.time:"+Common.time());
+				Common.debug("CARGO_DROPOFF arm past: "+arm.getPosition()+" MoveTime:"+moveTime+" Moving to CARG0_DROPOFF_FINISH");
 				intake.doEject();
-				if (intake.getState() == Intake.CargoStates.EMPTY) {
-					Common.debug("Robot state going from CARGO_DROPOFF to STOW_UP");
-					state = States.STOW_UP;
-				}
+				state = States.CARGO_DROPOFF_FINISH;
+			}
+			break;
+		case CARGO_DROPOFF_FINISH :
+			if (intake.getState() == Intake.CargoStates.EMPTY) {
+				Common.debug("Robot state going from CARGO_DROPOFF_FINISH to STOW_UP");
+				state = States.STOW_UP;
 			}
 			break;
 		/*case  TO_STOW:
