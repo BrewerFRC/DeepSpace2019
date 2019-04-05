@@ -250,7 +250,7 @@ public class Climber {
             case SLIDING:
                 liftHold();
                 footDrive();
-                dt.arcadeDrive(-.4, 0);
+                dt.arcadeDrive(-.43, 0);
                 if (footLimit()) {
                     Common.debug("Lift completed sliding, now retracting");
                     offGround = getInches() -7;
@@ -261,14 +261,20 @@ public class Climber {
             case RETRACTING :
                 liftDown();
                 footHold();
+                dt.arcadeDrive(-.43, 0);
 		        ele.arm.movePosition(0);
-                if (getInches() <= offGround) {
+               /* if (getInches() <= offGround) {
+                    Common.debug("Lift completed retracting, now complete at: "+getInches());
+                    state = climberStates.COMPLETE;
+                }*/
+                if (atLiftLimit()) {
                     Common.debug("Lift completed retracting, now complete at: "+getInches());
                     state = climberStates.COMPLETE;
                 }
                 break;
             case COMPLETE :
                 //liftStow();
+                dt.arcadeDrive(-0.43, 0);
                 footHold();
                 setLiftPower(0);
                 break;
