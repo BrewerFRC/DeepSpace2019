@@ -261,7 +261,7 @@ public class Climber {
             case RETRACTING :
                 liftDown();
                 footHold();
-                dt.arcadeDrive(-.43, 0);
+                dt.arcadeDrive(-.3, 0);
 		        ele.arm.movePosition(0);
                /* if (getInches() <= offGround) {
                     Common.debug("Lift completed retracting, now complete at: "+getInches());
