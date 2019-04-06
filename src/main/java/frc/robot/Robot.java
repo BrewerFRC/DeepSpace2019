@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -46,13 +47,14 @@ public class Robot extends TimedRobot {
 		HAS_HATCH,
 		HATCH_PLACE_HIGH,
 		HATCH_PLACE_LOW,
+		HATCH_PLACE_LOW_FINISH,
 		CARGO_PICKUP,
 		CARGO_DROPOFF_START,
 		CARGO_DROPOFF_FINISH,
 		HAS_CARGO,
 		CLIMBING
 	}
-	private States state = States.HOMING;
+	private States state = States.EMPTY;
 	
 	//Needs to be set true when elevator or arm is being used by a human
 	private boolean userMove = false;
@@ -72,6 +74,7 @@ public class Robot extends TimedRobot {
 	//private final double GRAB_DIST = -1, STOW_SAFE = -1;
 	private double placeHeight;
 	private double placeTime;
+	private double lowFinishTime;
 
 	//Whether or not to stow up.
 	//True is up, false is down.
@@ -143,7 +146,13 @@ public class Robot extends TimedRobot {
 		if (elevator.getState() == Elevator.States.STOPPED) {
 			elevator.init();
 		}
-		state = States.EMPTY;
+		//state = States.EMPTY;
+		/*if (arm.position >= 0) {
+			state = States.STOW_UP;
+		} else {
+			state = States.STOW_UP;
+		}*/
+		driver.setRumble(RumbleType.kRightRumble, 0);
 		slider.init();
 		climber.home();
 		
@@ -610,6 +619,7 @@ public class Robot extends TimedRobot {
 			if (slider.pressed()||Common.time() >= placeTime -150) {
 				//elevator.moveToHeight(placeHeight-3);
 				slider.fingerDown();
+				driver.setRumble(RumbleType.kRightRumble, .5);
 				i++;
 			}
 			if (i >= 10 || Common.time() >= placeTime) {
@@ -617,20 +627,27 @@ public class Robot extends TimedRobot {
 				if (arm.isComplete()) {
 					elevator.moveToHeight(this.placeHeight+2);
 					if (elevator.isComplete()) {
-						slider.setHasHatch(false);
-						slider.fingerUp();
-						slider.reCenter();
-						//state = States.TO_STOW;
-						//TODO: better exit
-						/*if (arm.getPosition() > 0) {
-							stowUp = true;
-						} else {
-							stowUp = false;
-						}*/
-						Common.debug("Robot State going from HATCH_PLACE_LOW to STOW_DOWN");
-						state = States.STOW_DOWN;
+						lowFinishTime = 1000 +Common.time();	
+						state = States.HATCH_PLACE_LOW_FINISH;
 					}
 				}
+			}
+			break;
+		case HATCH_PLACE_LOW_FINISH :
+			if (Common.time() >= lowFinishTime) {
+				driver.setRumble(RumbleType.kRightRumble, 0);
+				slider.setHasHatch(false);
+				slider.fingerUp();
+				slider.reCenter();
+				//state = States.TO_STOW;
+				//TODO: better exit
+				/*if (arm.getPosition() > 0) {
+					stowUp = true;
+				} else {
+				stowUp = false;
+				}*/
+				Common.debug("Robot State going from HATCH_PLACE_LOW to STOW_DOWN");
+				state = States.STOW_DOWN;
 			}
 			break;
 		case CARGO_PICKUP:
@@ -654,11 +671,11 @@ public class Robot extends TimedRobot {
 			}
 			break;
 		case CARGO_DROPOFF_START:
-			if (arm.getPosition() <= ARM_CARGO_DROPOFF || Common.time() > moveTime) {
+			//if (arm.getPosition() <= ARM_CARGO_DROPOFF || Common.time() > moveTime) {
 				Common.debug("CARGO_DROPOFF arm past: "+arm.getPosition()+" MoveTime:"+moveTime+" Moving to CARG0_DROPOFF_FINISH");
 				intake.doEject();
 				state = States.CARGO_DROPOFF_FINISH;
-			}
+			//}
 			break;
 		case CARGO_DROPOFF_FINISH :
 			if (intake.getState() == Intake.CargoStates.EMPTY) {
@@ -739,7 +756,7 @@ public class Robot extends TimedRobot {
 	 */
 	public boolean safeToMove() {
 		boolean safe = true;
-		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state ==States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_PLACE_LOW_FINISH) {
 			safe =  false;
 		}
 		return safe;

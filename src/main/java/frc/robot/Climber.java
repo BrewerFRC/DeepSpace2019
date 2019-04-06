@@ -28,13 +28,14 @@ public class Climber {
     private final double COUNTS_PER_INCH  = 227.55555; //Napkin math
     private final double LIFT_MAX = 24; //Actually 25
     private double offGround = 0;
-    private final double LIFT_UP_POWER = 1.0, LIFT_DOWN_POWER = -0.4, LIFT_STOW_POWER = -.1, LIFT_HOLD_POWER = 0.2, FOOT_POWER = 1.0/*Was 1.0 */, LIFT_HOME_POWER = -.15;
+    private final double LIFT_UP_POWER = 1.0, LIFT_DOWN_POWER = -1.0, LIFT_STOW_POWER = -.1, LIFT_HOLD_POWER = 0.2, FOOT_POWER = 1.0/*Was 1.0 */, LIFT_HOME_POWER = -.2;
 
     private double power = 0, footPower = 0;
+    private double driveTime = 0;
 
 
     //Rough numbers for heights
-    private final double LEVEL_2 = 10, LEVEL_3 = 23;
+    private final double LEVEL_2 = 11, LEVEL_3 = 24;
     private int targetLevel =  3;
 
     public enum climberStates {
@@ -44,6 +45,7 @@ public class Climber {
         LIFTING, //Moving up to either level 2 or 3 height to climb
         SLIDING, //Moving foot forward.
         RETRACTING, //Moving the foot up to a safe height
+        DRIVING, //Driving forward on the platform
         COMPLETE //Holding powers
 
     }
@@ -250,7 +252,7 @@ public class Climber {
             case SLIDING:
                 liftHold();
                 footDrive();
-                dt.arcadeDrive(-.43, 0);
+                dt.arcadeDrive(-.4, -0.3);
                 if (footLimit()) {
                     Common.debug("Lift completed sliding, now retracting");
                     offGround = getInches() -7;
@@ -261,22 +263,32 @@ public class Climber {
             case RETRACTING :
                 liftDown();
                 footHold();
-                dt.arcadeDrive(-.3, 0);
+                dt.arcadeDrive(-.4, -0.3);
 		        ele.arm.movePosition(0);
                /* if (getInches() <= offGround) {
                     Common.debug("Lift completed retracting, now complete at: "+getInches());
                     state = climberStates.COMPLETE;
                 }*/
-                if (atLiftLimit()) {
-                    Common.debug("Lift completed retracting, now complete at: "+getInches());
+                if (getInches() <= .5) {
+                    Common.debug("Lift completed retracting, now driving at: "+getInches());
+                    driveTime = Common.time()+2000;
+                    state = climberStates.DRIVING;
+                }
+                break;
+            case DRIVING :
+                dt.arcadeDrive(-0.4, -0.3);
+                footHold();
+                liftStow();
+                if (Common.time() >=  driveTime) {
+                    Common.debug("Climb finished driving, moving to complete");
                     state = climberStates.COMPLETE;
                 }
                 break;
             case COMPLETE :
                 //liftStow();
-                dt.arcadeDrive(-0.43, 0);
+                dt.arcadeDrive(0, 0);
                 footHold();
-                setLiftPower(0);
+                liftStow();
                 break;
         }
 
