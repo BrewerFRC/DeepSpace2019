@@ -80,9 +80,9 @@ public class HatchIntake {
         }
         
         setMotor(power);
-        Common.dashBool("Hatch pickup iscomplete", isComplete());
+        //Common.dashBool("Hatch pickup iscomplete", isComplete());
         Common.dashStr("Hatch Intake State", hatchPickupState.toString());
-        Common.dashNum("Hatch Intake Error", error);
+        //Common.dashNum("Hatch Intake Error", error);
         Common.dashNum("Hatch Intake Target", target);
         SmartDashboard.putNumber("Hatch Potentiometer raw", getPotentiometerRaw());
         SmartDashboard.putNumber("Floor pickup power", power);

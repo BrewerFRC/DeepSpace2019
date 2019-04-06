@@ -34,7 +34,7 @@ public class Elevator {
 		//How close to the targetHeight that elevator can be to complete
 		ACCEPTABLE_ERROR = 0.5, 
 		//The location of the magnetic switch in inches, just below trigger point
-		MAG_SWITCH_POINT = 23.65, //was 23.75 
+		MAG_SWITCH_POINT = 23.45, //was 23.65 
 		//The maximum power that the elevator can be run at upward
 		MAX_UP_POWER = 1, // was 1
 		MAX_DOWN_POWER = -0.8, // was -0.8 
@@ -483,7 +483,7 @@ public class Elevator {
 	 */
 	public void joystickControl(double jInput) {
 		//overrules moveToHeight()
-		Common.dashNum("Elevator Joystick", jInput);
+		//Common.dashNum("Elevator Joystick", jInput);
 		if (state != States.STOPPED && state != States.HOMING && Robot.isTeleopAllowed()){
 			if (jInput != 0) {
 				double jMap = Common.map(-jInput, -1, 1, -MAX_J_VELOCITY, MAX_J_VELOCITY);
@@ -529,7 +529,7 @@ public class Elevator {
 	 */
 	public void debug() {
 		Common.dashNum("Elevator Target Height", this.targetHeight);
-		Common.dashNum("Elevator Encoder", getEncoder());
+		//Common.dashNum("Elevator Encoder", getEncoder());
 		Common.dashNum("Elevator Encoder in Inches", getInches());
 		//Common.dashBool("Magnetic Sensor Safe", magSwitchSafe());
 		Common.dashBool("at Mag Switch", atMagSwitch());
@@ -537,7 +537,7 @@ public class Elevator {
 		Common.dashStr("Elevator State", state.toString());
 		Common.dashNum("Elevator Velocity", getVelocity());
 		Common.dashNum("Position PID Target", pid.getTargetPosition());
-		Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
+		//Common.dashNum("Velocity PID Target", pid.getTargetVelocity());
 		//Common.dashNum("Get Rate", encoder.getRate());
 	}
 	

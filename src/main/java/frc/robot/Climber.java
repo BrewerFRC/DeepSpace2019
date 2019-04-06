@@ -301,11 +301,11 @@ public class Climber {
     public void debug() {
         Common.dashBool("lift limit", this.atLiftLimit());
         Common.dashBool("foot limit", this.footLimit());
-        Common.dashNum("Lift counts", this.getCounts());
+        //Common.dashNum("Lift counts", this.getCounts());
         Common.dashNum("Lift inches", this.getInches());
         Common.dashStr("Lift state", this.state.toString());
         Common.dashNum("Lift power", this.power);
-        Common.dashNum("Foot power", this.footPower);
-        Common.dashNum("Target Level", this.targetLevel);
+        //Common.dashNum("Foot power", this.footPower);
+        //Common.dashNum("Target Level", this.targetLevel);
     }
 }

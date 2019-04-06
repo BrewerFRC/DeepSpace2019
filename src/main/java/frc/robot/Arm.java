@@ -88,7 +88,7 @@ public class Arm {
 		pid.setTargetPosition(10);
 		//Thread t = new Thread(new PotUpdate());
 		//t.start();
-		Common.dashNum("G", G);
+		//Common.dashNum("G", G);
 	}
 
 	/**
@@ -133,11 +133,11 @@ public class Arm {
         power += gTerm();		
 		armMotor.set(power);
 		Common.dashNum("Arm Power", power);
-		Common.dashNum("Arm Last Power", lastPower);
+		//Common.dashNum("Arm Last Power", lastPower);
 	}
 	
 	private void setAccelArmPower(double targetPower) {
-		Common.dashNum("arm accel input", targetPower);
+		//Common.dashNum("arm accel input", targetPower);
 		double power = targetPower; 	
 		if (Math.abs(lastPower - targetPower) > MAX_DELTA_POWER) {
 			if (lastPower > targetPower) {
@@ -403,7 +403,7 @@ public class Arm {
 
 	public void dashboard() {
 		Common.dashNum("Arm degrees", getPosition());
-		Common.dashNum("Arm raw position", getRawPosition());
+		//Common.dashNum("Arm raw position", getRawPosition());
 		Common.dashNum("Arm velocity", getVelocity());
 		//Common.dashNum("Arm Position Target", getPositionTarget());
         //Common.dashNum("Arm Velocity Target", pid.getTargetVelocity());

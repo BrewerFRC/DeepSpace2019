@@ -8,7 +8,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartFaboard;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -117,7 +117,7 @@ public class Robot extends TimedRobot {
 			slider.toggleHasHatch();
 		}
 		debug();
-		Common.dashNum("Slider Raw Pot Value", slider.currentPotReading());
+		//Common.dashNum("Slider Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
 		arm.update();
 		hatchIntake.debug();
@@ -137,7 +137,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void autonomousPeriodic() {
-		SmartDashboard.putNumber("Ir inches", intake.getInfaredInches());
+		Common.dashNum("Ir inches", intake.getInfaredInches());
 		activePeriodic();
 	}
 
@@ -216,6 +216,7 @@ public class Robot extends TimedRobot {
 		arm.dashboard();
 		debug();
 		Common.dashStr("Robot state",state.toString());
+		Common.dashBool("telopAllowed", isTeleopAllowed());
 
 		//Still neccasary?
 		if (elevator.getState() == Elevator.States.HOMING) {
@@ -467,7 +468,7 @@ public class Robot extends TimedRobot {
 	}
 	
 	public void update() {
-		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP || state == States.HATCH_FLOOR_PULL) {
+		if (state == States.HOMING /*|| state == States.HATCH_GRAB*/ || state == States.HATCH_SEARCH || state == States.HATCH_PLACE_HIGH || state == States.HATCH_PLACE_LOW || state == States.HATCH_FLOOR_GRAB || state == States.HATCH_FLOOR_RETURN || state == States.HATCH_FLOOR_PICKUP || state == States.HATCH_FLOOR_PULL || state == States.HATCH_PLACE_LOW_FINISH) {
 			teleopAllowed =  false;
 		} else {
 			teleopAllowed = true;
@@ -627,7 +628,7 @@ public class Robot extends TimedRobot {
 				if (arm.isComplete()) {
 					elevator.moveToHeight(this.placeHeight+2);
 					if (elevator.isComplete()) {
-						lowFinishTime = 1000 +Common.time();	
+						lowFinishTime = 100 +Common.time();	
 						state = States.HATCH_PLACE_LOW_FINISH;
 					}
 				}
