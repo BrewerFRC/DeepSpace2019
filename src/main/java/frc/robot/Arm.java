@@ -49,12 +49,14 @@ public class Arm {
 	//final double MIN_POWER = 0.0;
     //final double LOW_POWER = 0.08;
 	
-    private double P_POS = 1.8, I_POS = 0, D_POS = 0.21, //P.6 D.35// P0.2 D0.4 / P0.4 D0.5 / D was 1.0
+    /*old private double P_POS = 1.8, I_POS = 0, D_POS = 0.21, //P.6 D.35// P0.2 D0.4 / P0.4 D0.5 / D was 1.0
 			P_VEL = 0.0006, I_VEL = 0.0000000, D_VEL = 0.40, G = 0.17,   //.0017 .8 /P0.0016 D2.0/P0.0016 D4.0/ P0.002 D4.0 / P0.0025 D2.5 , P0.003 D1.8
 			//P_VEL = 0.0010, I_VEL = 0.0000000, D_VEL = 0.7, G = 0.17,   //.0017 .8 /P0.0016 D2.0/P0.0016 D4.0/ P0.002 D4.0 / P0.0025 D2.5 , P0.003 D1.8
 			//P_VEL = 0.003, I_VEL = 0.0000000, D_VEL = 1.6, G = 0.17,  //max power 0.6 
-			//P_VEL = 0.003, I_VEL = 0.000001, D_VEL = 0.05, G = 0.17,  //P was 0.002
-			lastPower = 0, previousReading = 0;
+			//P_VEL = 0.003, I_VEL = 0.000001, D_VEL = 0.05, G = 0.17,  //P was 0.002*/
+	private double P_POS = 1.8, I_POS = 0, D_POS = 0.21,
+	P_VEL = 0.0003, I_VEL = 0.0000000, D_VEL = 0.20, G = 0.19,
+	lastPower = 0, previousReading = 0;
 	
 	private long intakeTime = 0;
 	public boolean loading = false;
@@ -97,6 +99,7 @@ public class Arm {
 	public void init() {
 		lastPower = 0.0;
 		position = calcPosition();
+		Common.debug("Arm inited, moving to: "+position);
 		movePosition(position);
 		previousPosition = position;
 		velocity = 0.0;
