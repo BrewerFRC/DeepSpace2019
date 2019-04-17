@@ -131,9 +131,11 @@ public class Elevator {
 	 * @param power
 	 */
 	public void init() {
-		targetHeight = 0;
 		arm.init();
-		home();
+		if (state == States.STOPPED) {
+			targetHeight = 0;
+			home();
+		}
 	}
 
 	/**
@@ -401,15 +403,24 @@ public class Elevator {
 		return Common.map(getInches(), 0, SAFE_HEIGHT, 0, 1);
 	}
 	
-	
+
 	/**
 	 * Starts homing the elevator and ensure Arm moves up to accomodate
 	 */
 	public void home() {
-		Common.debug("Elevator Homing and Arm moving to safe height for Home");
+		Common.debug("Elevator Homing and Arm moving to safe height for Home.  Angle to:");
 		state = States.HOMING;
-		double safeAngle = Math.max(arm.MIN_HOMING_ANGLE, arm.getPosition());
+		double safeAngle = Math.max(arm.MIN_HOMING_ANGLE, arm.getPositionTarget());
+		System.out.println(safeAngle);
 		arm.movePosition(safeAngle);
+	}
+
+	/**
+	 * Disable elevator should be called whenever robot is diabled.
+	 */
+	public void disable() {
+		state = States.STOPPED;
+		setPower(0.0);
 	}
 	
 	/*public void start() {

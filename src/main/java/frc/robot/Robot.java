@@ -119,18 +119,17 @@ public class Robot extends TimedRobot {
 		debug();
 		//Common.dashNum("Slider Raw Pot Value", slider.currentPotReading());
 		arm.dashboard();
-		arm.update();
 		hatchIntake.debug();
 		intake.debug();
 		slider.debug();
 		climber.debug();
 		elevator.debug();
+		elevator.disable();
 	}
 
 	@Override
 	public void autonomousInit() {
 		elevator.init();
-		slider.init();
 		climber.home();
 		state = States.EMPTY;
 	}
@@ -143,9 +142,8 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
-		if (elevator.getState() == Elevator.States.STOPPED) {
-			elevator.init();
-		}
+		elevator.init();
+
 		//state = States.EMPTY;
 		/*if (arm.position >= 0) {
 			state = States.STOW_UP;
@@ -153,7 +151,7 @@ public class Robot extends TimedRobot {
 			state = States.STOW_UP;
 		}*/
 		driver.setRumble(RumbleType.kRightRumble, 0);
-		slider.init();
+		//slider.init();
 		climber.home();
 		
 		//heading.reset();

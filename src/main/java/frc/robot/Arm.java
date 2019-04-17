@@ -98,15 +98,17 @@ public class Arm {
 	 */
 	public void init() {
 		lastPower = 0.0;
-		position = calcPosition();
-		Common.debug("Arm inited, moving to: "+position);
-		movePosition(position);
-		previousPosition = position;
+		// Clear velocity PID
 		velocity = 0.0;
 		pid.resetVelocityPID();
-		state = States.HOLDING;
+		// Set position based on current arm pot reading
+		position = calcPosition();
+		movePosition(position);
+		previousPosition = position;
+		Common.debug("Arm.init: moving to: "+position);
 		previousMillis=Common.time();
-		slider.moveTo(0);
+		// Init slider
+		slider.init();
 	}
 
 /**
@@ -215,6 +217,7 @@ public class Arm {
 	 */
 	public void movePosition(double position) {
 		//Common.debug("Arm target changed to: "+position);
+		position = Math.max(Math.min(position, MAX_ANGLE), MIN_ANGLE);
 		targetPosition = position;
 		//pid.setTargetPosition(position);
 		state = States.MOVING;
@@ -333,7 +336,7 @@ public class Arm {
     }
 	
 	public double getPositionTarget() {
-		return pid.getTargetPosition();
+		return targetPosition;
 	}
 
 	/**
