@@ -127,7 +127,7 @@ public class Slider {
 
 
     public void fingerUp() {
-        lServo.set(0.34);
+        lServo.set(0.32);//was .31
         rServo.set(0.0);
     }
 

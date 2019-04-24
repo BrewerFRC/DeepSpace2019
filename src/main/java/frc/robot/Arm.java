@@ -32,10 +32,10 @@ public class Arm {
     //The degrees that the power ramping takes place in at the limits
     DANGER_ZONE = 10,
     //up powers
-    MIN_POWER = 0, MAX_POWER = 0.75, 
+    MIN_POWER = 0, MAX_POWER = 1., 
     //Max power change in accel limit
     MAX_DELTA_POWER = 0.1,
-    MAX_VELOCITY = 50,
+    MAX_VELOCITY = 120,
     COUNTS_PER_DEGREE = 15.757, // was 13.6,
     //PARTIALLY_LOADED_DISTANCE = 10,
     //maximum IR distance a fully loaded cube can be
