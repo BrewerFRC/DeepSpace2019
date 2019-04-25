@@ -508,6 +508,7 @@ public class Robot extends TimedRobot {
 			slider.fingerDown();
 			//arm.fingerSearch();//Starts fingerSearch
 			if (userMove) {
+				slider.fingerUp();
 				Common.debug("Robot State going from HATCH_PICKUP to EMPTY");
 				state = States.STOW_DOWN;
 			}
