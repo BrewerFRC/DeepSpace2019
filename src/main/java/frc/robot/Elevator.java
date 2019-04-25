@@ -71,7 +71,7 @@ public class Elevator {
 		//Minimum Y distance above floor.
         Y_HAND_FLOOR_SAFETY = 1.0,  //was 1.5
 		//How far, in inches, the bottom of the hand from the pivot of the fourbar.
-		Y_HAND_EXT = 10.87,
+		Y_HAND_EXT = 11.25, // was 10.87
 		//The minimum angle at which the bumper can be cleared.
 		MIN_BUMPER_CLEAR_ANGLE = -10, //was -5, -4.5
 		MIN_BUMPER_CLEAR_HEIGHT = 4,

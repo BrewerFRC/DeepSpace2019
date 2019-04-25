@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=33, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
 	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-43, ARM_HIGH_PLACE =38, /*was 41*/
 	ARM_HIGH_STOW = 65 /*was 70*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
-	ARM_CARGO_PICKUP = -4, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25, ARM_CARGO_DROPOFF = 57;
+	ARM_CARGO_PICKUP = -1, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25, ARM_CARGO_DROPOFF = 57;  //ARM_CARGO_PICKUP was -4
 	//Angle should be around 40 to place
 
 	//Distance to add/subtract to make place/pickup smooth
@@ -405,26 +405,34 @@ public class Robot extends TimedRobot {
 			if (slider.hasHatch()) {
 				if (operator.when("a")) {
 					elevator.moveToHeight(ELE_LOW_HATCH);
+					userMove = true;
 				}
 				if (operator.when("b")) {
 					elevator.moveToHeight(ELE_MID_HATCH);
+					userMove = true;
 				}
 				if (operator.when("y")) {
 					elevator.moveToHeight(ELE_HIGH_HATCH);
+					userMove = true;
 				}
 			} else {
 				if (operator.when("a")) {
 					elevator.moveToHeight(ELE_LOW_CARGO);
+					userMove = true;
 				}
 				if (operator.when("b")) {
 					elevator.moveToHeight(ELE_MID_CARGO);
+					userMove = true;
 				}
 				if (operator.when("y")) {
 					elevator.moveToHeight(ELE_HIGH_CARGO);
+					userMove = true;
 				}
 				if (operator.when("x")) {
 					elevator.moveToHeight(ELE_SHIP_CARGO);
-				}			}
+					userMove = true;
+				}			
+			}
 
 			//Joystick elevator
 			double operatorRight = operator.getY(GenericHID.Hand.kRight);
@@ -543,7 +551,7 @@ public class Robot extends TimedRobot {
 		case HATCH_FLOOR_GRAB: //To be ready to pickup a disk
 			slider.moveTo(0);
 			elevator.moveToHeight(this.ELE_LOW_STOW + 2);
-			elevator.getArm().movePosition(ARM_LOW_STOW+6);//Was just low stow
+			elevator.getArm().movePosition(ARM_LOW_STOW+11);//Was just low stow
 			if(elevator.isComplete()){
 				hatchIntake.doPickup();
 			}
@@ -704,35 +712,61 @@ public class Robot extends TimedRobot {
 			}
 			break;*/
 		case STOW_UP:
-			stowUp();
-			if (arm.isComplete() && elevator.isComplete()) {
-				Common.debug("Stow up complete, arm angle is:"+ arm.getPosition());
-				//slider.fingerUp();
+			if (userMove) {
 				if (slider.hasHatch()) {
-					Common.debug("Robot State going from STOW_UP to HAS_HATCH");
+					Common.debug("Robot State going from STOW_UP to HAS_HATCH due to UserMove");
 					state = States.HAS_HATCH;
 				} else if (intake.getInfaredCheck()) {
-					Common.debug("Robot State going from STOW_UP to HAS_CARGO");
+					Common.debug("Robot State going from STOW_UP to HAS_CARGO due to userMove");
 					state = States.HAS_CARGO;
 				} else {
-					Common.debug("Robot State going from STOW_UP to EMPTY");
+					Common.debug("Robot State going from STOW_UP to EMPTY due to userMove");
 					state = States.EMPTY;
+				}
+			} else {
+				stowUp();
+				if (arm.isComplete() && elevator.isComplete()) {
+					Common.debug("Stow up complete, arm angle is:"+ arm.getPosition());
+					//slider.fingerUp();
+					if (slider.hasHatch()) {
+						Common.debug("Robot State going from STOW_UP to HAS_HATCH");
+						state = States.HAS_HATCH;
+					} else if (intake.getInfaredCheck()) {
+						Common.debug("Robot State going from STOW_UP to HAS_CARGO");
+						state = States.HAS_CARGO;
+					} else {
+						Common.debug("Robot State going from STOW_UP to EMPTY");
+						state = States.EMPTY;
+					}
 				}
 			}
 			break;
 		case STOW_DOWN:
-			stowDown();
-			if (arm.isComplete() && elevator.isComplete()) {
-				//slider.fingerUp();
+			if (userMove) {
 				if (slider.hasHatch()) {
-					Common.debug("Robot State going from STOW_DOWN to HAS_HATCH");
+					Common.debug("Robot State going from STOW_DOWN to HAS_HATCH due to UserMove");
 					state = States.HAS_HATCH;
 				} else if (intake.getInfaredCheck()) {
-					Common.debug("Robot State going from STOW_DOWN to HAS_CARGO");
+					Common.debug("Robot State going from STOW_DOWN to HAS_CARGO due to userMove");
 					state = States.HAS_CARGO;
 				} else {
-					Common.debug("Robot State going from STOW_DOWN to EMPTY");
+					Common.debug("Robot State going from STOW_DOWN to EMPTY due to userMove");
 					state = States.EMPTY;
+				}
+			} else {
+				stowDown();
+				if (arm.isComplete() && elevator.isComplete()) {
+					//slider.fingerUp();
+					if (slider.hasHatch()) {
+						Common.debug("Robot State going from STOW_DOWN to HAS_HATCH");
+						state = States.HAS_HATCH;
+					} else if (intake.getInfaredCheck()) {
+						Common.debug("Robot State going from STOW_DOWN to HAS_CARGO");
+						state = States.HAS_CARGO;
+					} else {
+						Common.debug("Robot State going from STOW_DOWN to EMPTY");
+						state = States.EMPTY;
+					}
 				}
 			}
 			break;
