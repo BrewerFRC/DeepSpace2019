@@ -509,7 +509,7 @@ public class Robot extends TimedRobot {
 			//arm.fingerSearch();//Starts fingerSearch
 			if (userMove) {
 				Common.debug("Robot State going from HATCH_PICKUP to EMPTY");
-				state = States.EMPTY;
+				state = States.STOW_DOWN;
 			}
 			break;
 		/* Redundant
@@ -663,7 +663,7 @@ public class Robot extends TimedRobot {
 			if (userMove) {
 				Common.debug("Robot State going from CARGO_PICKUP to EMPTY");
 				intake.returnToEmpty();
-				state = States.EMPTY;
+				state = States.STOW_UP;
 			}
 			if (intake.getState() == Intake.CargoStates.LOADED) {
 				Common.debug("Robot State going from CARGO_PICKUP to STOW_UP");
@@ -713,6 +713,7 @@ public class Robot extends TimedRobot {
 			break;*/
 		case STOW_UP:
 			if (userMove) {
+				arm.movePosition(ARM_HIGH_STOW);
 				if (slider.hasHatch()) {
 					Common.debug("Robot State going from STOW_UP to HAS_HATCH due to UserMove");
 					state = States.HAS_HATCH;
@@ -743,6 +744,7 @@ public class Robot extends TimedRobot {
 			break;
 		case STOW_DOWN:
 			if (userMove) {
+				arm.movePosition(ARM_LOW_STOW);
 				if (slider.hasHatch()) {
 					Common.debug("Robot State going from STOW_DOWN to HAS_HATCH due to UserMove");
 					state = States.HAS_HATCH;
