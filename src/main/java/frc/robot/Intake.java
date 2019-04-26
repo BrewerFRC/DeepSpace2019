@@ -20,8 +20,8 @@ public class Intake {
     private final float softEjectPower = -0.45f;
     private final float ballLoadedInches = 5f;
     private final float loadedHoldPower = 0.25f;
-    private final int loadCycles = 20;
-    private final int ejectCycles = 8;
+    private final int loadCycles = 5; //was 20
+    private final int ejectCycles = 16; //was 8
     
     private double moreloadtime;
 
@@ -36,7 +36,7 @@ public class Intake {
     private CargoStates cargoState = CargoStates.EMPTY;
     
     private double infaredPreviousReading = 0;
-    private double cycles = 0;
+    private int cycles = 0;
 
     Spark ballIntakeMotor;
     
@@ -109,7 +109,7 @@ public class Intake {
                         cycles++;
                     }
                     else {
-                        Common.debug("Exiting eject to empty in intake");
+                        Common.debug("Exiting eject to empty in intake, spent "+cycles+" cycles");
                         cargoState = CargoStates.EMPTY;
                         cycles = 0;
                     }
@@ -124,6 +124,7 @@ public class Intake {
                         cycles++;
                     }
                     else {
+                        Common.debug("Exiting soft eject to empty in intake, spent "+cycles+" cycles");
                         cargoState = CargoStates.EMPTY;
                         cycles = 0;
                     }
