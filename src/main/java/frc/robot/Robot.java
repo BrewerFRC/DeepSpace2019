@@ -216,7 +216,7 @@ public class Robot extends TimedRobot {
 		Common.dashStr("Robot state",state.toString());
 		Common.dashBool("telopAllowed", isTeleopAllowed());
 
-		//Still neccasary?
+		//Still necessary?
 		/*if (elevator.getState() == Elevator.States.HOMING) {
 			arm.movePosition(this.ARM_HIGH_STOW);
 			state = States.HOMING;
