@@ -17,7 +17,7 @@ public class HatchIntake {
     private Elevator elevator;
 
     private final float MAX_POWER = 0.6f;
-    private final int ARM_EXTEND = 3226;
+    private final int ARM_EXTEND = 3125; //WAS 3226
     private final int ARM_HATCH_RETRIEVE = 1638;
     private final int ARM_STOW = 628;//Was 500
     private final int ARM_SAFE_ERROR = 25;

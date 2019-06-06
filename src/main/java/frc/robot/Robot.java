@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
 	//Position constants
 	//Ball is 13 inches abover elevator roughly
 	public static final double ELE_LOW_CARGO = 5, ELE_MID_CARGO=33, ELE_HIGH_CARGO=60, ELE_SHIP_CARGO=17, ARM_HIGH_CARGO = 50, ELE_LOW_HATCH = 26.5,
-	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-43, ARM_HIGH_PLACE =38, /*was 41*/
+	ELE_MID_HATCH= 20, ELE_HIGH_HATCH= 50, ARM_LOW_PLACE=-40, ARM_HIGH_PLACE =38, /*was 41*/
 	ARM_HIGH_STOW = 65 /*was 70*/, ELE_LOW_STOW = 27, ARM_LOW_STOW = -66, ELE_HIGH_STOW = 3.3, ELE_POST_RETRIEVE_OFFSET = 8,
 	ARM_CARGO_PICKUP = -1, ELE_CARGO_PICKUP = 3, ARM_HATCH_PICKUP = -55, ELE_HATCH_PICKUP = 25, ARM_CARGO_DROPOFF = 57;  //ARM_CARGO_PICKUP was -4
 	//Angle should be around 40 to place
