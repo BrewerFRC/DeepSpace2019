@@ -84,8 +84,8 @@ public class HatchIntake {
         Common.dashStr("Hatch Intake State", hatchPickupState.toString());
         //Common.dashNum("Hatch Intake Error", error);
         Common.dashNum("Hatch Intake Target", target);
-        SmartDashboard.putNumber("Hatch Potentiometer raw", getPotentiometerRaw());
-        SmartDashboard.putNumber("Floor pickup power", power);
+        //SmartDashboard.putNumber("Hatch Potentiometer raw", getPotentiometerRaw());
+        //SmartDashboard.putNumber("Floor pickup power", power);
     }
 
     public void debug()

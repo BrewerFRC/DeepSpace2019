@@ -276,7 +276,7 @@ public class Climber {
                 }
                 break;
             case DRIVING :
-                dt.arcadeDrive(-0.4, -0.3);
+                dt.arcadeDrive(-0.4, 0); //was -0.3 rotation
                 footHold();
                 liftStow();
                 if (Common.time() >=  driveTime) {
@@ -300,11 +300,11 @@ public class Climber {
 
     public void debug() {
         Common.dashBool("lift limit", this.atLiftLimit());
-        Common.dashBool("foot limit", this.footLimit());
+        //Common.dashBool("foot limit", this.footLimit());
         //Common.dashNum("Lift counts", this.getCounts());
         Common.dashNum("Lift inches", this.getInches());
         Common.dashStr("Lift state", this.state.toString());
-        Common.dashNum("Lift power", this.power);
+        //Common.dashNum("Lift power", this.power);
         //Common.dashNum("Foot power", this.footPower);
         //Common.dashNum("Target Level", this.targetLevel);
     }

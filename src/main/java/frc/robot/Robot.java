@@ -214,7 +214,7 @@ public class Robot extends TimedRobot {
 		arm.dashboard();
 		debug();
 		Common.dashStr("Robot state",state.toString());
-		Common.dashBool("telopAllowed", isTeleopAllowed());
+		//Common.dashBool("telopAllowed", isTeleopAllowed());
 
 		//Still necessary?
 		/*if (elevator.getState() == Elevator.States.HOMING) {
@@ -448,7 +448,7 @@ public class Robot extends TimedRobot {
 	 * Debugs data to smart dashboard
 	 **/
 	public void debug() {
-		Common.dashBool("userMove", this.userMove);
+		//Common.dashBool("userMove", this.userMove);
 		intake.debug();
 		/*SmartDashboard.putNumber("Degrees NavX", heading.getNavXAngle());
 		SmartDashboard.putNumber("Target angle", heading.getTargetAngle());

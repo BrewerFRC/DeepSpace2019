@@ -259,7 +259,7 @@ public class Elevator {
 		}
 		pid.setTargetVelocity(targetVelocity);
 		double pidVelCalc = pid.calcVelocity(getVelocity());
-		Common.dashNum("pidVelCalc", pidVelCalc);
+		//Common.dashNum("pidVelCalc", pidVelCalc);
 		accelPower(pidVelCalc);
 	}
 	
@@ -270,7 +270,7 @@ public class Elevator {
 		double safeTarget = Math.max(targetHeight, minArmSafeHeight(arm.getPosition()));
 		pid.setTargetPosition(safeTarget);
 		double pidDisCalc = pid.calc(getInches(), getVelocity());
-		Common.dashNum("pidDisCalc", pidDisCalc);
+		//Common.dashNum("pidDisCalc", pidDisCalc);
 		accelPower(pidDisCalc);
 	}
 
@@ -416,10 +416,10 @@ public class Elevator {
 	}
 
 	/**
-	 * Disable elevator should be called whenever robot is diabled.
+	 * Disable elevator should be called whenever robot is disbled.
 	 */
 	public void disable() {
-		state = States.STOPPED;
+		//state = States.STOPPED;
 		setPower(0.0);
 	}
 	

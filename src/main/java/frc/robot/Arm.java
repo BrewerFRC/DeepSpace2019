@@ -117,7 +117,7 @@ public class Arm {
 	 * @param power - the power
 	 */
 	public void setArmPower(double power) {
-		Common.dashNum("Arm Power input", power);
+		//Common.dashNum("Arm Power input", power);
 		if (power > 0.0) { // Moving up
             power = Math.min(power, MAX_POWER);
 			if (getPosition() >= MAX_ANGLE) {
